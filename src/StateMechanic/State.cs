@@ -6,40 +6,33 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
+    internal interface ITransitionRepository<TState>
+    {
+        void AddTransition(Event evt, Transition<TState> transition);
+
+        void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition);
+    }
+
     internal class StateInner<TState>
     {
-        private readonly Dictionary<IEvent, ITransition<TState>> transitions = new Dictionary<IEvent, ITransition<TState>>();
         public string Name { get; private set; }
+        private readonly ITransitionRepository<TState> transitionRepository;
 
-        internal StateInner(string name)
+
+        internal StateInner(string name, ITransitionRepository<TState> transitionRepository)
         {
             this.Name = name;
+            this.transitionRepository = transitionRepository;
         }
 
         public ITransitionBuilder<TState> AddTransitionOn(TState fromState, Event evt)
         {
-            return new TransitionBuilder<TState>(fromState, evt, transition => this.AddTransition(evt, transition));
+            return new TransitionBuilder<TState>(fromState, evt, this.transitionRepository.AddTransition);
         }
 
         public ITransitionBuilder<TState, TEventData> AddTransitionOn<TEventData>(TState fromState, Event<TEventData> evt)
         {
-            return new TransitionBuilder<TState, TEventData>(fromState, evt, transition => this.AddTransition(evt, transition));
-        }
-
-        internal void AddTransition(IEvent evt, ITransition<TState> transition)
-        {
-            this.transitions.Add(evt, transition);
-        }
-
-        internal bool TryFireEvent(IEvent evt)
-        {
-            ITransition<TState> transition;
-            if (!this.transitions.TryGetValue(evt, out transition))
-                return false;
-
-            // Something something something
-
-            return true;
+            return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository.AddTransition<TEventData>);
         }
     }
 
@@ -47,24 +40,21 @@ namespace StateMechanic
     {
         private readonly StateInner<State> innerState;
 
-        internal State(string name)
+        public string Name { get { return this.innerState.Name; } }
+
+        internal State(string name, ITransitionRepository<State> transitionRepository)
         {
-            this.innerState = new StateInner<State>(name);
+            this.innerState = new StateInner<State>(name, transitionRepository);
         }
 
         public ITransitionBuilder<State> AddTransitionOn(Event evt)
         {
-            return this.innerState.AddTransitionOn(this, evt);
+             return this.innerState.AddTransitionOn(this, evt);
         }
 
         public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
-        }
-
-        internal bool TryFireEvent(IEvent evt)
-        {
-            return this.innerState.TryFireEvent(evt);
         }
     }
 
@@ -72,9 +62,11 @@ namespace StateMechanic
     {
         private readonly StateInner<State<TStateData>> innerState;
 
-        internal State(string name)
+        public string Name { get { return this.innerState.Name; } }
+
+        internal State(string name, ITransitionRepository<State<TStateData>> transitionRepository)
         {
-            this.innerState = new StateInner<State<TStateData>>(name);
+            this.innerState = new StateInner<State<TStateData>>(name, transitionRepository);
         }
 
         public ITransitionBuilder<State<TStateData>> AddTransitionOn(Event evt)
@@ -85,11 +77,6 @@ namespace StateMechanic
         public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
-        }
-
-        internal bool TryFireEvent(IEvent evt)
-        {
-            return this.innerState.TryFireEvent(evt);
         }
     }
 }

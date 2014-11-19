@@ -8,5 +8,6 @@ namespace StateMechanic
 {
     internal interface IState
     {
+        string Name { get; }
     }
 }
