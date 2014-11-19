@@ -13,14 +13,14 @@ namespace StateMechanic
     {
         public readonly TState From;
         public readonly TState To;
-        public readonly TEvent Evt;
+        public readonly TEvent Event;
         public TTransitionHandler Handler;
 
         public TransitionInner(TState from, TState to, TEvent evt)
         {
             this.From = from;
             this.To = to;
-            this.Evt = evt;
+            this.Event = evt;
         }
 
         public void WithHandler(TTransitionHandler handler)
@@ -29,7 +29,7 @@ namespace StateMechanic
         }
     }
 
-    public class Transition<TState> : ITransition
+    public class Transition<TState> : ITransition where TState : IState<TState>
     {
         private readonly TransitionInner<TState, Event, TransitionHandler<TState>> innerTransition;
 
@@ -55,13 +55,19 @@ namespace StateMechanic
         {
             if (this.innerTransition.Handler != null)
             {
-                var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Evt);
+                var stateHandlerInfo = new StateHandlerInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
+
+                this.innerTransition.From.FireOnEntry(stateHandlerInfo);
+
+                var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 this.innerTransition.Handler(transitionInfo);
+
+                this.innerTransition.To.FireOnExit(stateHandlerInfo);
             }
         }
     }
 
-    public class Transition<TState, TEventData> : ITransition<TEventData>
+    public class Transition<TState, TEventData> : ITransition<TEventData> where TState : IState<TState>
     {
         private readonly TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>> innerTransition;
 
@@ -87,8 +93,14 @@ namespace StateMechanic
         {
             if (this.innerTransition.Handler != null)
             {
-                var transitionInfo = new TransitionInfo<TState, TEventData>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Evt, eventData);
+                var stateHandlerInfo = new StateHandlerInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
+
+                this.innerTransition.From.FireOnExit(stateHandlerInfo);
+
+                var transitionInfo = new TransitionInfo<TState, TEventData>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event, eventData);
                 this.innerTransition.Handler(transitionInfo);
+
+                this.innerTransition.To.FireOnEntry(stateHandlerInfo);
             }
         }
     }

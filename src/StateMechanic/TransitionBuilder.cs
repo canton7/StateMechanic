@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public interface ITransitionBuilder<TState>
+    public interface ITransitionBuilder<TState> where TState : IState<TState>
     {
         Transition<TState> To(TState state);
     }
 
-    internal class TransitionBuilder<TState> : ITransitionBuilder<TState>
+    internal class TransitionBuilder<TState> : ITransitionBuilder<TState> where TState : IState<TState>
     {
         private readonly TState fromState;
         private readonly Event evt;
@@ -32,12 +32,12 @@ namespace StateMechanic
         }
     }
 
-    public interface ITransitionBuilder<TState, TEventData>
+    public interface ITransitionBuilder<TState, TEventData> where TState : IState<TState>
     {
         Transition<TState, TEventData> To(TState state);
     }
 
-    internal class TransitionBuilder<TState, TEventData> : ITransitionBuilder<TState, TEventData>
+    internal class TransitionBuilder<TState, TEventData> : ITransitionBuilder<TState, TEventData> where TState : IState<TState>
     {
         private readonly TState fromState;
         private readonly Event<TEventData> evt;

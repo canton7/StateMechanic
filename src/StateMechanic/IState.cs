@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IState
+    public interface IState
     {
         string Name { get; }
+    }
+
+    public interface IState<TState> : IState
+    {
+        void FireOnEntry(StateHandlerInfo<TState> info);
+        void FireOnExit(StateHandlerInfo<TState> info);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class StateMachineInner<TState> : ITransitionRepository<TState> where TState : IState
+    internal class StateMachineInner<TState> : ITransitionRepository<TState> where TState : IState, IState<TState>
     {
         public TState CurrentState;
         public string Name { get; private set; }
@@ -40,7 +40,9 @@ namespace StateMechanic
             var invoker = transitionInvocation(this.CurrentState);
 
             if (invoker != null && invoker.CanInvoke())
+            {
                 invoker.Invoke();
+            }
         }
 
         void ITransitionRepository<TState>.AddTransition(Event evt, Transition<TState> transition)

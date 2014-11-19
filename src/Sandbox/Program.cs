@@ -16,6 +16,9 @@ namespace Sandbox
             var state1 = sm.CreateInitialState("state1");
             var state2 = sm.CreateState("state2");
 
+            state1.OnExit = t => Debug.WriteLine(t);
+            state2.OnEntry = t => Debug.WriteLine(t);
+
             var event1 = sm.CreateEvent<string>("event1");
 
             state1.AddTransitionOn(event1).To(state2).WithHandler(info => Debug.WriteLine(info));

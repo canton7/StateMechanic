@@ -40,7 +40,7 @@ namespace StateMechanic
         }
     }
 
-    public class Event<TEventData>
+    public class Event<TEventData> : IEvent
     {
         private readonly EventInner<Event<TEventData>, ITransition<TEventData>> innerEvent;
 
@@ -62,7 +62,7 @@ namespace StateMechanic
         }
     }
 
-    public class Event
+    public class Event : IEvent
     {
         private readonly EventInner<Event, ITransition> innerEvent;
 
