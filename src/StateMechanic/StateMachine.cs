@@ -36,7 +36,6 @@ namespace StateMechanic
 
         private void FireEvent(Func<IState, TransitionInvoker> transitionInvocation)
         {
-            //this.CurrentState.TryFireEvent(evt);
             var invoker = transitionInvocation(this.CurrentState);
 
             if (invoker != null && invoker.CanInvoke())
@@ -54,11 +53,18 @@ namespace StateMechanic
         {
             evt.AddTransition(transition.From, transition);
         }
+
+        void ITransitionRepository<TState>.UpdateCurrentState(TState state)
+        {
+            this.CurrentState = state;
+        }
     }
 
     public class StateMachine
     {
         private readonly StateMachineInner<State> innerStateMachine;
+
+        public State CurrentState { get { return this.innerStateMachine.CurrentState; } }
 
         public StateMachine(string name)
         {
@@ -91,6 +97,8 @@ namespace StateMechanic
     public class StateMachine<TStateData>
     {
         private readonly StateMachineInner<State<TStateData>> innerStateMachine;
+
+        public State<TStateData> CurrentState { get { return this.innerStateMachine.CurrentState; } }
 
         public StateMachine(string name)
         {

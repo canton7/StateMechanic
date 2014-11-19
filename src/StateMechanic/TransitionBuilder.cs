@@ -15,19 +15,19 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event evt;
-        private readonly Action<Event, Transition<TState>> adder;
+        private readonly ITransitionRepository<TState> transitionRepository;
 
-        public TransitionBuilder(TState fromState, Event evt, Action<Event, Transition<TState>> adder)
+        public TransitionBuilder(TState fromState, Event evt, ITransitionRepository<TState> transitionRepository)
         {
             this.fromState = fromState;
             this.evt = evt;
-            this.adder = adder;
+            this.transitionRepository = transitionRepository;
         }
 
         Transition<TState> ITransitionBuilder<TState>.To(TState state)
         {
-            var transition = new Transition<TState>(this.fromState, state, this.evt);
-            this.adder(this.evt, transition);
+            var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionRepository);
+            this.transitionRepository.AddTransition(this.evt, transition);
             return transition;
         }
     }
@@ -41,19 +41,19 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event<TEventData> evt;
-        private readonly Action<Event<TEventData>, Transition<TState, TEventData>> adder;
+        private readonly ITransitionRepository<TState> transitionRepository;
 
-        public TransitionBuilder(TState fromState, Event<TEventData> evt, Action<Event<TEventData>, Transition<TState, TEventData>> adder)
+        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionRepository<TState> transitionRepository)
         {
             this.fromState = fromState;
             this.evt = evt;
-            this.adder = adder;
+            this.transitionRepository = transitionRepository;
         }
 
         Transition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
-            var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt);
-            this.adder(this.evt, transition);
+            var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionRepository);
+            this.transitionRepository.AddTransition(this.evt, transition);
             return transition;
         }
     }

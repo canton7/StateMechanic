@@ -9,18 +9,20 @@ namespace StateMechanic
     public delegate void TransitionHandler<TState>(TransitionInfo<TState> info);
     public delegate void TransitionHandler<TState, TEventData>(TransitionInfo<TState, TEventData> info);
 
-    internal class TransitionInner<TState, TEvent, TTransitionHandler>
+    internal class TransitionInner<TState, TEvent, TTransitionHandler> where TState : IState<TState>
     {
         public readonly TState From;
         public readonly TState To;
         public readonly TEvent Event;
+        public readonly ITransitionRepository<TState> transitionRepository;
         public TTransitionHandler Handler;
 
-        public TransitionInner(TState from, TState to, TEvent evt)
+        public TransitionInner(TState from, TState to, TEvent evt, ITransitionRepository<TState> transitionRepository)
         {
             this.From = from;
             this.To = to;
             this.Event = evt;
+            this.transitionRepository = transitionRepository;
         }
 
         public void WithHandler(TTransitionHandler handler)
@@ -36,9 +38,9 @@ namespace StateMechanic
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
 
-        public Transition(TState from, TState to, Event evt)
+        internal Transition(TState from, TState to, Event evt, ITransitionRepository<TState> transitionRepository)
         {
-            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt);
+            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt, transitionRepository);
         }
 
         public void WithHandler(TransitionHandler<TState> handler)
@@ -62,6 +64,8 @@ namespace StateMechanic
                 var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 this.innerTransition.Handler(transitionInfo);
 
+                this.innerTransition.transitionRepository.UpdateCurrentState(this.innerTransition.To);
+
                 this.innerTransition.To.FireOnExit(stateHandlerInfo);
             }
         }
@@ -74,9 +78,9 @@ namespace StateMechanic
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
 
-        public Transition(TState from, TState to, Event<TEventData> evt)
+        internal Transition(TState from, TState to, Event<TEventData> evt, ITransitionRepository<TState> transitionRepository)
         {
-            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt);
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt, transitionRepository);
         }
 
         public void WithHandler(TransitionHandler<TState, TEventData> handler)
@@ -99,6 +103,8 @@ namespace StateMechanic
 
                 var transitionInfo = new TransitionInfo<TState, TEventData>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event, eventData);
                 this.innerTransition.Handler(transitionInfo);
+
+                this.innerTransition.transitionRepository.UpdateCurrentState(this.innerTransition.To);
 
                 this.innerTransition.To.FireOnEntry(stateHandlerInfo);
             }

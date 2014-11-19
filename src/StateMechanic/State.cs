@@ -23,12 +23,12 @@ namespace StateMechanic
 
         public ITransitionBuilder<TState> AddTransitionOn(TState fromState, Event evt)
         {
-            return new TransitionBuilder<TState>(fromState, evt, this.transitionRepository.AddTransition);
+            return new TransitionBuilder<TState>(fromState, evt, this.transitionRepository);
         }
 
         public ITransitionBuilder<TState, TEventData> AddTransitionOn<TEventData>(TState fromState, Event<TEventData> evt)
         {
-            return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository.AddTransition<TEventData>);
+            return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository);
         }
     }
 

@@ -11,5 +11,7 @@ namespace StateMechanic
         void AddTransition(Event evt, Transition<TState> transition);
 
         void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition);
+
+        void UpdateCurrentState(TState state);
     }
 }
