@@ -11,11 +11,11 @@ namespace StateMechanic
 
     internal class StateInner<TState> where TState : IState<TState>
     {
-        private readonly ITransitionRepository<TState> transitionRepository;
+        private readonly ITransitionDelegate<TState> transitionRepository;
 
         public string Name { get; private set; }
 
-        internal StateInner(string name, ITransitionRepository<TState> transitionRepository)
+        internal StateInner(string name, ITransitionDelegate<TState> transitionRepository)
         {
             this.Name = name;
             this.transitionRepository = transitionRepository;
@@ -41,7 +41,7 @@ namespace StateMechanic
 
         public string Name { get { return this.innerState.Name; } }
 
-        internal State(string name, ITransitionRepository<State> transitionRepository)
+        internal State(string name, ITransitionDelegate<State> transitionRepository)
         {
             this.innerState = new StateInner<State>(name, transitionRepository);
         }
@@ -54,6 +54,18 @@ namespace StateMechanic
         public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
+        }
+
+        public State WithEntry(StateHandler onEntry)
+        {
+            this.OnEntry = onEntry;
+            return this;
+        }
+
+        public State WithExit(StateHandler onExit)
+        {
+            this.OnExit = onExit;
+            return this;
         }
 
         void IState<State>.FireOnEntry(StateHandlerInfo<State> info)
@@ -80,7 +92,7 @@ namespace StateMechanic
 
         public string Name { get { return this.innerState.Name; } }
 
-        internal State(string name, ITransitionRepository<State<TStateData>> transitionRepository)
+        internal State(string name, ITransitionDelegate<State<TStateData>> transitionRepository)
         {
             this.innerState = new StateInner<State<TStateData>>(name, transitionRepository);
         }
@@ -93,6 +105,18 @@ namespace StateMechanic
         public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
+        }
+
+        public State<TStateData> WithEntry(StateHandler<TStateData> onEntry)
+        {
+            this.OnEntry = onEntry;
+            return this;
+        }
+
+        public State<TStateData> WithExit(StateHandler<TStateData> onExit)
+        {
+            this.OnExit = onExit;
+            return this;
         }
 
         void IState<State<TStateData>>.FireOnEntry(StateHandlerInfo<State<TStateData>> info)

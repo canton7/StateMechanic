@@ -15,9 +15,9 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event evt;
-        private readonly ITransitionRepository<TState> transitionRepository;
+        private readonly ITransitionDelegate<TState> transitionRepository;
 
-        public TransitionBuilder(TState fromState, Event evt, ITransitionRepository<TState> transitionRepository)
+        public TransitionBuilder(TState fromState, Event evt, ITransitionDelegate<TState> transitionRepository)
         {
             this.fromState = fromState;
             this.evt = evt;
@@ -41,9 +41,9 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event<TEventData> evt;
-        private readonly ITransitionRepository<TState> transitionRepository;
+        private readonly ITransitionDelegate<TState> transitionRepository;
 
-        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionRepository<TState> transitionRepository)
+        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)
         {
             this.fromState = fromState;
             this.evt = evt;

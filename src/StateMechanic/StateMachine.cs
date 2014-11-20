@@ -6,10 +6,15 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class StateMachineInner<TState> : ITransitionRepository<TState> where TState : IState, IState<TState>
+    internal class StateMachineInner<TState> : ITransitionDelegate<TState>, IEventDelegate where TState : IState<TState>
     {
         public TState CurrentState;
         public string Name { get; private set; }
+
+        // Used to determine whether another event was fired while we were processing a previous event
+        private int eventFireCount;
+
+        private int recursionCount;
 
         public StateMachineInner(string name)
         {
@@ -26,37 +31,52 @@ namespace StateMechanic
 
         public Event CreateEvent(string name)
         {
-            return new Event(name, this.FireEvent);
+            return new Event(name, this);
         }
 
         public Event<TEventData> CreateEvent<TEventData>(string name)
         {
-            return new Event<TEventData>(name, this.FireEvent);
+            return new Event<TEventData>(name, this);
         }
 
-        private void FireEvent(Func<IState, TransitionInvoker> transitionInvocation)
+        IState IEventDelegate.CurrentState
         {
-            var invoker = transitionInvocation(this.CurrentState);
-
-            if (invoker != null && invoker.CanInvoke())
-            {
-                invoker.Invoke();
-            }
+            get { return this.CurrentState; }
         }
 
-        void ITransitionRepository<TState>.AddTransition(Event evt, Transition<TState> transition)
+        void IEventDelegate.FireEvent(Action<TransitionInvocationState> invoker)
         {
-            evt.AddTransition(transition.From, transition);
+            this.eventFireCount++;
+            this.recursionCount++;
+
+            var state = new TransitionInvocationState(this.eventFireCount);
+            invoker(state);
         }
 
-        void ITransitionRepository<TState>.AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
-        {
-            evt.AddTransition(transition.From, transition);
-        }
-
-        void ITransitionRepository<TState>.UpdateCurrentState(TState state)
+        void ITransitionDelegate<TState>.UpdateCurrentState(TState state)
         {
             this.CurrentState = state;
+            this.recursionCount--;
+        }
+
+        void ITransitionDelegate<TState>.AddTransition(Event evt, Transition<TState> transition)
+        {
+            evt.AddTransition(transition.From, transition);
+        }
+
+        void ITransitionDelegate<TState>.AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
+        {
+            evt.AddTransition(transition.From, transition);
+        }
+
+        bool ITransitionDelegate<TState>.HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState)
+        {
+            return this.eventFireCount != transitionInvocationState.EventFireCount;
+        }
+
+        bool ITransitionDelegate<TState>.ShouldCallExitHandler(TransitionInvocationState transitionInvocationState)
+        {
+            return this.recursionCount == 1;
         }
     }
 
