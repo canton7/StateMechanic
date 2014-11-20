@@ -52,7 +52,7 @@ namespace StateMechanic
 
         public bool CanInvoke()
         {
-            return this.Guard();
+            return this.Guard == null || this.Guard();
         }
     }
 

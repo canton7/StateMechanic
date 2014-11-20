@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMechanic", "StateMechanic\StateMechanic.csproj", "{67B19F61-1FE9-4B88-8A25-2BC7E8EAFF85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{DF86D0E1-652A-4740-86BC-5DF7E128D3ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMechanicUnitTests", "StateMechanicUnitTests\StateMechanicUnitTests.csproj", "{2E17843A-F196-487A-91E1-D96B0CC21A0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DF86D0E1-652A-4740-86BC-5DF7E128D3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF86D0E1-652A-4740-86BC-5DF7E128D3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF86D0E1-652A-4740-86BC-5DF7E128D3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E17843A-F196-487A-91E1-D96B0CC21A0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E17843A-F196-487A-91E1-D96B0CC21A0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E17843A-F196-487A-91E1-D96B0CC21A0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E17843A-F196-487A-91E1-D96B0CC21A0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

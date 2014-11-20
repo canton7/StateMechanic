@@ -24,7 +24,7 @@ namespace StateMechanic
         public void SetInitialState(TState state)
         {
             if (this.CurrentState != null)
-                throw new InvalidOperationException("InitialState has arleady been set");
+                throw new InvalidOperationException("Initial state has already been set");
 
             this.CurrentState = state;
         }
@@ -46,6 +46,9 @@ namespace StateMechanic
 
         void IEventDelegate.FireEvent(Action<TransitionInvocationState> invoker)
         {
+            if (this.CurrentState == null)
+                throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
+
             this.eventFireCount++;
             this.recursionCount++;
 

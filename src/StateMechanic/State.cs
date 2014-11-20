@@ -87,6 +87,7 @@ namespace StateMechanic
     {
         private readonly StateInner<State<TStateData>> innerState;
 
+        public TStateData Data { get; set; }
         public StateHandler<TStateData> OnEntry { get; set; }
         public StateHandler<TStateData> OnExit { get; set; }
 
@@ -105,6 +106,12 @@ namespace StateMechanic
         public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
+        }
+
+        public State<TStateData> WithData(TStateData data)
+        {
+            this.Data = data;
+            return this;
         }
 
         public State<TStateData> WithEntry(StateHandler<TStateData> onEntry)
