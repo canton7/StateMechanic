@@ -10,29 +10,13 @@ namespace StateMechanic
     {
         public TState From { get; private set; }
         public TState To { get; private set; }
-        public Event Event { get; private set; }
+        public IEvent Event { get; private set; }
 
-        public TransitionInfo(TState from, TState to, Event evt)
+        public TransitionInfo(TState from, TState to, IEvent evt)
         {
             this.From = from;
             this.To = to;
             this.Event = evt;
-        }
-    }
-
-    public class TransitionInfo<TState, TEventData>
-    {
-        public TState From { get; private set; }
-        public TState To { get; private set; }
-        public Event<TEventData> Event { get; private set; }
-        public TEventData EventData { get; private set; }
-
-        public TransitionInfo(TState from, TState to, Event<TEventData> evt, TEventData eventData)
-        {
-            this.From = from;
-            this.To = to;
-            this.Event = evt;
-            this.EventData = eventData;
         }
     }
 }

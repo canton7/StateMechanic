@@ -18,12 +18,12 @@ namespace Sandbox
             var state3 = sm.CreateState("state3");
 
             var event1 = sm.CreateEvent("event1");
-            var event2 = sm.CreateEvent("event1");
+            var event2 = sm.CreateEvent<object>("event1");
 
             state1.OnEntry = t => Debug.WriteLine("State 1 entry");
             state1.OnExit = t => { Debug.WriteLine("State 1 exit"); };
 
-            state2.OnEntry = t => { Debug.WriteLine("State 2 entry"); event2.Fire(); };
+            state2.OnEntry = t => { Debug.WriteLine("State 2 entry"); };
             state2.OnExit = t => Debug.WriteLine("State 2 exit");
 
             state3.OnEntry = t => Debug.WriteLine("State 3 entry");
