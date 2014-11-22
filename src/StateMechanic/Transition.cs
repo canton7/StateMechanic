@@ -14,24 +14,26 @@ namespace StateMechanic
         public readonly TState From;
         public readonly TState To;
         public readonly TEvent Event;
-        public readonly ITransitionDelegate<TState> transitionDelegate;
+        private readonly ITransitionDelegate<TState> transitionDelegate;
+        private readonly bool isInnerTransition;
 
         public TTransitionHandler Handler;
         public Func<bool> Guard;
 
-        public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionRepository)
+        public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionRepository, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
             this.Event = evt;
             this.transitionDelegate = transitionRepository;
+            this.isInnerTransition = isInnerTransition;
         }
 
         public void Invoke(Action<TTransitionHandler> transitionHandlerInvoker, TransitionInvocationState transitionInvocationState)
         {
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
-            if (this.transitionDelegate.ShouldCallExitHandler(transitionInvocationState))
+            if (!this.isInnerTransition && this.transitionDelegate.ShouldCallExitHandler(transitionInvocationState))
                 this.From.FireOnExit(stateHandlerInfo);
 
             if (this.transitionDelegate.HasOtherEventBeenFired(transitionInvocationState))
@@ -47,7 +49,8 @@ namespace StateMechanic
 
             this.transitionDelegate.UpdateCurrentState(this.To);
 
-            this.To.FireOnEntry(stateHandlerInfo);
+            if (!this.isInnerTransition)
+                this.To.FireOnEntry(stateHandlerInfo);
         }
 
         public bool CanInvoke()
@@ -75,7 +78,12 @@ namespace StateMechanic
 
         internal Transition(TState from, TState to, Event evt, ITransitionDelegate<TState> transitionRepository)
         {
-            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt, transitionRepository);
+            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt, transitionRepository, isInnerTransition: false);
+        }
+
+        internal Transition(TState fromAndTo, Event evt, ITransitionDelegate<TState> transitionRepository)
+        {
+            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(fromAndTo, fromAndTo, evt, transitionRepository, isInnerTransition: true);
         }
 
         public Transition<TState> WithHandler(TransitionHandler<TState> handler)
@@ -124,7 +132,12 @@ namespace StateMechanic
 
         internal Transition(TState from, TState to, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)
         {
-            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt, transitionRepository);
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt, transitionRepository, isInnerTransition: false);
+        }
+
+        internal Transition(TState fromAndTo, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)
+        {
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(fromAndTo, fromAndTo, evt, transitionRepository, isInnerTransition: true);
         }
 
         public Transition<TState, TEventData> WithHandler(TransitionHandler<TState, TEventData> handler)

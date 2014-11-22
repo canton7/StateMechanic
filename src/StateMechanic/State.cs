@@ -30,6 +30,16 @@ namespace StateMechanic
         {
             return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository);
         }
+
+        public Transition<TState> AddInnerTransitionOn(TState fromAndToState, Event evt)
+        {
+            return new Transition<TState>(fromAndToState, fromAndToState, evt, this.transitionRepository);
+        }
+
+        public Transition<TState, TEventData> AddInnerTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
+        {
+            return new Transition<TState, TEventData>(fromAndToState, evt, this.transitionRepository);
+        }
     }
 
     public class State : IState<State>
@@ -54,6 +64,16 @@ namespace StateMechanic
         public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
+        }
+
+        public Transition<State> AddInnerTransitionOn(Event evt)
+        {
+            return this.innerState.AddInnerTransitionOn(this, evt);
+        }
+
+        public Transition<State, TEventData> AddInnerTransitionOn<TEventData>(Event<TEventData> evt)
+        {
+            return this.innerState.AddInnerTransitionOn<TEventData>(this, evt);
         }
 
         public State WithEntry(StateHandler onEntry)
@@ -106,6 +126,16 @@ namespace StateMechanic
         public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
         {
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
+        }
+
+        public Transition<State<TStateData>> AddInnerTransitionOn(Event evt)
+        {
+            return this.innerState.AddInnerTransitionOn(this, evt);
+        }
+
+        public Transition<State<TStateData>, TEventData> AddInnerTransitionOn<TEventData>(Event<TEventData> evt)
+        {
+            return this.innerState.AddInnerTransitionOn<TEventData>(this, evt);
         }
 
         public State<TStateData> WithData(TStateData data)
