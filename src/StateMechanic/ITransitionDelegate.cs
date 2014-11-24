@@ -17,5 +17,8 @@ namespace StateMechanic
         bool HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState);
 
         bool ShouldCallExitHandler(TransitionInvocationState transitionInvocationState);
+
+        void SetTransitionBegin();
+        void SetTransitionEnd();
     }
 }

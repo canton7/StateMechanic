@@ -50,7 +50,6 @@ namespace StateMechanic
                 throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
 
             this.eventFireCount++;
-            this.recursionCount++;
 
             var state = new TransitionInvocationState(this.eventFireCount);
             invoker(state);
@@ -59,7 +58,6 @@ namespace StateMechanic
         void ITransitionDelegate<TState>.UpdateCurrentState(TState state)
         {
             this.CurrentState = state;
-            this.recursionCount--;
         }
 
         void ITransitionDelegate<TState>.AddTransition(Event evt, Transition<TState> transition)
@@ -70,6 +68,16 @@ namespace StateMechanic
         void ITransitionDelegate<TState>.AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
         {
             evt.AddTransition(transition.From, transition);
+        }
+
+        void ITransitionDelegate<TState>.SetTransitionBegin()
+        {
+            this.recursionCount++;
+        }
+
+        void ITransitionDelegate<TState>.SetTransitionEnd()
+        {
+            this.recursionCount--;
         }
 
         bool ITransitionDelegate<TState>.HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState)
