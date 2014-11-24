@@ -8,7 +8,7 @@ namespace StateMechanic
 {
     internal delegate void EventFirer(Action<TransitionInvocationState> transitionInvoker);
 
-    internal interface IEventDelegate
+    internal interface IEventDelegate : IStateMachine
     {
         IState CurrentState { get; }
 

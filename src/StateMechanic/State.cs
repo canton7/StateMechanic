@@ -11,34 +11,34 @@ namespace StateMechanic
 
     internal class StateInner<TState> where TState : IState<TState>
     {
-        private readonly ITransitionDelegate<TState> transitionRepository;
+        public readonly ITransitionDelegate<TState> TransitionDelegate;
 
         public string Name;
 
-        internal StateInner(string name, ITransitionDelegate<TState> transitionRepository)
+        internal StateInner(string name, ITransitionDelegate<TState> transitionDelegate)
         {
             this.Name = name;
-            this.transitionRepository = transitionRepository;
+            this.TransitionDelegate = transitionDelegate;
         }
 
         public ITransitionBuilder<TState> AddTransitionOn(TState fromState, Event evt)
         {
-            return new TransitionBuilder<TState>(fromState, evt, this.transitionRepository);
+            return new TransitionBuilder<TState>(fromState, evt, this.TransitionDelegate);
         }
 
         public ITransitionBuilder<TState, TEventData> AddTransitionOn<TEventData>(TState fromState, Event<TEventData> evt)
         {
-            return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository);
+            return new TransitionBuilder<TState, TEventData>(fromState, evt, this.TransitionDelegate);
         }
 
         public Transition<TState> AddInnerSelfTransitionOn(TState fromAndToState, Event evt)
         {
-            return new Transition<TState>(fromAndToState, evt, this.transitionRepository);
+            return new Transition<TState>(fromAndToState, evt, this.TransitionDelegate);
         }
 
         public Transition<TState, TEventData> AddInnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
         {
-            return new Transition<TState, TEventData>(fromAndToState, evt, this.transitionRepository);
+            return new Transition<TState, TEventData>(fromAndToState, evt, this.TransitionDelegate);
         }
     }
 
@@ -52,6 +52,11 @@ namespace StateMechanic
         public string Name { get { return this.innerState.Name; } }
 
         public StateMachine ChildStateMachine { get; private set; }
+
+        internal ITransitionDelegate<State> TransitionDelegate
+        {
+            get { return this.innerState.TransitionDelegate; }
+        }
 
         private State() { }
 
@@ -129,7 +134,12 @@ namespace StateMechanic
 
         string IState.Name
         {
-            get { throw new NotImplementedException(); }
+            get { return this.innerState.Name; }
+        }
+
+        bool IState<State>.BelongsToSameStateMachineAs(State otherState)
+        {
+            return this.TransitionDelegate == otherState.TransitionDelegate;
         }
     }
 
@@ -144,6 +154,11 @@ namespace StateMechanic
         public StateMachine<TStateData> ChildStateMachine { get; private set; }
 
         public string Name { get { return this.innerState.Name; } }
+
+        internal ITransitionDelegate<State<TStateData>> TransitionDelegate
+        {
+            get { return this.innerState.TransitionDelegate; }
+        }
 
         private State() { }
 
@@ -226,7 +241,12 @@ namespace StateMechanic
 
         string IState.Name
         {
-            get { throw new NotImplementedException(); }
+            get { return this.innerState.Name; }
+        }
+
+        bool IState<State<TStateData>>.BelongsToSameStateMachineAs(State<TStateData> otherState)
+        {
+            return this.TransitionDelegate == otherState.TransitionDelegate;
         }
     }
 }
