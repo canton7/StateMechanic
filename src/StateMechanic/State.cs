@@ -119,7 +119,7 @@ namespace StateMechanic
         }
 
 
-        bool IState<State>.RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        bool IState<State>.RequestEventFire(Func<IState, EventFirer, bool> invoker)
         {
             if (this.ChildStateMachine == null)
                 return false;
@@ -216,7 +216,7 @@ namespace StateMechanic
                 onExit(info);
         }
 
-        bool IState<State<TStateData>>.RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        bool IState<State<TStateData>>.RequestEventFire(Func<IState, EventFirer, bool> invoker)
         {
             if (this.ChildStateMachine == null)
                 return false;

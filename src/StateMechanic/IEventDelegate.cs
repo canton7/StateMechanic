@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
+    internal delegate void EventFirer(Action<TransitionInvocationState> transitionInvoker);
+
     internal interface IEventDelegate
     {
         IState CurrentState { get; }
 
-        bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker);
+        bool RequestEventFire(Func<IState, EventFirer, bool> invoker);
     }
 }

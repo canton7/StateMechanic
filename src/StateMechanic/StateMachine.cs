@@ -75,7 +75,7 @@ namespace StateMechanic
             get { return this.CurrentState; }
         }
 
-        public bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        public bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
         {
             if (this.CurrentState == null)
             {
@@ -188,7 +188,7 @@ namespace StateMechanic
             this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        internal bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
         {
             return this.innerStateMachine.RequestEventFire(invoker);
         }
@@ -242,7 +242,7 @@ namespace StateMechanic
             this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        internal bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
         {
             return this.innerStateMachine.RequestEventFire(invoker);
         }
