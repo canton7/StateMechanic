@@ -11,7 +11,7 @@ namespace StateMechanic
         string Name { get; }
     }
 
-    public interface IState<TState> : IState
+    internal interface IState<TState> : IState
     {
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);

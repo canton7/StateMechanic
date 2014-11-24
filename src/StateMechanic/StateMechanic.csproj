@@ -42,6 +42,7 @@
     <Compile Include="Event.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
+    <Compile Include="IInvocableTransition.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="ITransition.cs" />
     <Compile Include="ITransitionBuilder.cs" />

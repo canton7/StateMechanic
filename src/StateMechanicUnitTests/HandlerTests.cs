@@ -18,7 +18,7 @@ namespace StateMechanicUnitTests
         private Event event1;
         private Event event2;
 
-        private Transition<State> transition12;
+        private ITransition<State> transition12;
 
         private List<string> events;
 

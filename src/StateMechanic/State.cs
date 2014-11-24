@@ -13,7 +13,7 @@ namespace StateMechanic
     {
         private readonly ITransitionDelegate<TState> transitionRepository;
 
-        public string Name { get; private set; }
+        public string Name;
 
         internal StateInner(string name, ITransitionDelegate<TState> transitionRepository)
         {
@@ -31,12 +31,12 @@ namespace StateMechanic
             return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionRepository);
         }
 
-        public Transition<TState> AddInnerTransitionOn(TState fromAndToState, Event evt)
+        public Transition<TState> AddInnerSelfTransitionOn(TState fromAndToState, Event evt)
         {
-            return new Transition<TState>(fromAndToState, fromAndToState, evt, this.transitionRepository);
+            return new Transition<TState>(fromAndToState, evt, this.transitionRepository);
         }
 
-        public Transition<TState, TEventData> AddInnerTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
+        public Transition<TState, TEventData> AddInnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
         {
             return new Transition<TState, TEventData>(fromAndToState, evt, this.transitionRepository);
         }
@@ -50,6 +50,8 @@ namespace StateMechanic
         public StateHandler OnExit { get; set; }
 
         public string Name { get { return this.innerState.Name; } }
+
+        public StateMachine ChildStateMachine { get; private set; }
 
         internal State(string name, ITransitionDelegate<State> transitionRepository)
         {
@@ -66,14 +68,14 @@ namespace StateMechanic
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
         }
 
-        public Transition<State> AddInnerTransitionOn(Event evt)
+        public ITransition<State> AddInnerSelfTransitionOn(Event evt)
         {
-            return this.innerState.AddInnerTransitionOn(this, evt);
+            return this.innerState.AddInnerSelfTransitionOn(this, evt);
         }
 
-        public Transition<State, TEventData> AddInnerTransitionOn<TEventData>(Event<TEventData> evt)
+        public ITransition<State, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> evt)
         {
-            return this.innerState.AddInnerTransitionOn<TEventData>(this, evt);
+            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, evt);
         }
 
         public State WithEntry(StateHandler onEntry)
@@ -86,6 +88,12 @@ namespace StateMechanic
         {
             this.OnExit = onExit;
             return this;
+        }
+
+        public StateMachine CreateChildStateMachine(string name)
+        {
+            this.ChildStateMachine = new StateMachine(name);
+            return this.ChildStateMachine;
         }
 
         void IState<State>.FireOnEntry(StateHandlerInfo<State> info)
@@ -111,6 +119,8 @@ namespace StateMechanic
         public StateHandler<TStateData> OnEntry { get; set; }
         public StateHandler<TStateData> OnExit { get; set; }
 
+        public StateMachine<TStateData> ChildStateMachine { get; private set; }
+
         public string Name { get { return this.innerState.Name; } }
 
         internal State(string name, ITransitionDelegate<State<TStateData>> transitionRepository)
@@ -128,14 +138,14 @@ namespace StateMechanic
             return this.innerState.AddTransitionOn<TEventData>(this, evt);
         }
 
-        public Transition<State<TStateData>> AddInnerTransitionOn(Event evt)
+        public ITransition<State<TStateData>> AddInnerSelfTransitionOn(Event evt)
         {
-            return this.innerState.AddInnerTransitionOn(this, evt);
+            return this.innerState.AddInnerSelfTransitionOn(this, evt);
         }
 
-        public Transition<State<TStateData>, TEventData> AddInnerTransitionOn<TEventData>(Event<TEventData> evt)
+        public ITransition<State<TStateData>, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> evt)
         {
-            return this.innerState.AddInnerTransitionOn<TEventData>(this, evt);
+            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, evt);
         }
 
         public State<TStateData> WithData(TStateData data)
@@ -154,6 +164,12 @@ namespace StateMechanic
         {
             this.OnExit = onExit;
             return this;
+        }
+
+        public StateMachine<TStateData> CreateChildStateMachine(string name)
+        {
+            this.ChildStateMachine = new StateMachine<TStateData>(name);
+            return this.ChildStateMachine;
         }
 
         void IState<State<TStateData>>.FireOnEntry(StateHandlerInfo<State<TStateData>> info)

@@ -19,7 +19,7 @@ namespace StateMechanic
             this.transitionRepository = transitionRepository;
         }
 
-        Transition<TState> ITransitionBuilder<TState>.To(TState state)
+        ITransition<TState> ITransitionBuilder<TState>.To(TState state)
         {
             var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionRepository);
             this.transitionRepository.AddTransition(this.evt, transition);
@@ -40,7 +40,7 @@ namespace StateMechanic
             this.transitionRepository = transitionRepository;
         }
 
-        Transition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
+        ITransition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
             var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionRepository);
             this.transitionRepository.AddTransition(this.evt, transition);

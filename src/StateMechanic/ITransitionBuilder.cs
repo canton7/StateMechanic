@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public interface ITransitionBuilder<TState> where TState : IState<TState>
+    public interface ITransitionBuilder<TState>
     {
-        Transition<TState> To(TState state);
+        ITransition<TState> To(TState state);
     }
 
-    public interface ITransitionBuilder<TState, TEventData> where TState : IState<TState>
+    public interface ITransitionBuilder<TState, TEventData>
     {
-        Transition<TState, TEventData> To(TState state);
+        ITransition<TState, TEventData> To(TState state);
     }
 }

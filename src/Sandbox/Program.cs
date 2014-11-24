@@ -29,7 +29,6 @@ namespace Sandbox
             state3.OnEntry = t => Debug.WriteLine("State 3 entry");
             state3.OnExit = t => Debug.WriteLine("State 3 exit");
 
-
             state1.AddTransitionOn(event1).To(state2).WithHandler(info => { Debug.WriteLine("Transition from 1 to 2 on 1"); });
             state2.AddTransitionOn(event1).To(state3).WithHandler(info => Debug.WriteLine("Transition from 2 to 3 on 2"));
 

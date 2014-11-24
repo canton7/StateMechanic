@@ -6,18 +6,25 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface ITransitionGuard
+    public interface ITransition<TState>
     {
-        bool CanInvoke();
+        TState From { get; }
+        TState To { get; }
+        TransitionHandler<TState> Handler { get; set; }
+        Func<bool> Guard { get; set; }
+
+        ITransition<TState> WithHandler(TransitionHandler<TState> handler);
+        ITransition<TState> WithGuard(Func<bool> guard);
     }
 
-    internal interface ITransition : ITransitionGuard
+    public interface ITransition<TState, TEventData>
     {
-        void Invoke(TransitionInvocationState transitionInvocationState);
-    }
+        TState From { get; }
+        TState To { get; }
+        TransitionHandler<TState, TEventData> Handler { get; set; }
+        Func<bool> Guard { get; set; }
 
-    internal interface ITransition<TEventData> : ITransitionGuard
-    {
-        void Invoke(TEventData eventData, TransitionInvocationState transitionInvocationState);
+        ITransition<TState, TEventData> WithHandler(TransitionHandler<TState, TEventData> handler);
+        ITransition<TState, TEventData> WithGuard(Func<bool> guard);
     }
 }
