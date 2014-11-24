@@ -8,25 +8,35 @@ namespace StateMechanic
 {
     internal class StateMachineInner<TState> : ITransitionDelegate<TState>, IEventDelegate where TState : IState<TState>
     {
-        public TState CurrentState;
+        public TState InitialState { get; private set; }
+        public TState CurrentState { get; private set; }
         public string Name { get; private set; }
+
+        private readonly bool isChildStateMachine;
 
         // Used to determine whether another event was fired while we were processing a previous event
         private int eventFireCount;
 
+        private bool allowRecursiveEvents = true;
         private int recursionCount;
 
-        public StateMachineInner(string name)
+        public StateMachineInner(string name, bool isChildStateMachine)
         {
             this.Name = name;
+            this.isChildStateMachine = isChildStateMachine;
         }
 
         public void SetInitialState(TState state)
         {
-            if (this.CurrentState != null)
+            if (this.InitialState != null)
                 throw new InvalidOperationException("Initial state has already been set");
 
-            this.CurrentState = state;
+            this.InitialState = state;
+
+            // Child state machines start off in no state, and progress to the initial state
+            // Normal state machines start in the start state
+            if (!this.isChildStateMachine)
+                this.CurrentState = state;
         }
 
         public Event CreateEvent(string name)
@@ -39,53 +49,92 @@ namespace StateMechanic
             return new Event<TEventData>(name, this);
         }
 
+        internal void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
+        {
+            this.allowRecursiveEvents = false;
+            try
+            {
+                var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
+
+                if (this.CurrentState != null)
+                    this.CurrentState.FireOnExit(handlerInfo);
+
+                this.CurrentState = newState;
+
+                if (this.CurrentState != null)
+                    this.CurrentState.FireOnEntry(handlerInfo);
+            }
+            finally
+            {
+                this.allowRecursiveEvents = true;
+            }
+        }
+
         IState IEventDelegate.CurrentState
         {
             get { return this.CurrentState; }
         }
 
-        void IEventDelegate.FireEvent(Action<TransitionInvocationState> invoker)
+        public bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
         {
             if (this.CurrentState == null)
-                throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
+            {
+                if (this.InitialState == null)
+                    throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
+                else
+                    throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
+            }
 
+            if (!this.allowRecursiveEvents)
+                return false;
+
+            // Try and fire it on the child state machine - see if that works
+            if (this.CurrentState != null && this.CurrentState.RequestEventFire(invoker))
+                return true;
+
+            // No? Invoke it on ourselves
+            return invoker(this.CurrentState, this.FireEvent);
+        }
+
+        private void FireEvent(Action<TransitionInvocationState> invoker)
+        {
             this.eventFireCount++;
 
-            var state = new TransitionInvocationState(this.eventFireCount);
+            var state = new TransitionInvocationState(this.eventFireCount); 
             invoker(state);
         }
 
-        void ITransitionDelegate<TState>.UpdateCurrentState(TState state)
+        public void UpdateCurrentState(TState state)
         {
             this.CurrentState = state;
         }
 
-        void ITransitionDelegate<TState>.AddTransition(Event evt, Transition<TState> transition)
+        public void AddTransition(Event evt, Transition<TState> transition)
         {
             evt.AddTransition(transition.From, transition);
         }
 
-        void ITransitionDelegate<TState>.AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
+        public void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
         {
             evt.AddTransition(transition.From, transition);
         }
 
-        void ITransitionDelegate<TState>.SetTransitionBegin()
+        public void SetTransitionBegin()
         {
             this.recursionCount++;
         }
 
-        void ITransitionDelegate<TState>.SetTransitionEnd()
+        public void SetTransitionEnd()
         {
             this.recursionCount--;
         }
 
-        bool ITransitionDelegate<TState>.HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState)
+        public bool HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState)
         {
             return this.eventFireCount != transitionInvocationState.EventFireCount;
         }
 
-        bool ITransitionDelegate<TState>.ShouldCallExitHandler(TransitionInvocationState transitionInvocationState)
+        public bool ShouldCallExitHandler(TransitionInvocationState transitionInvocationState)
         {
             return this.recursionCount == 1;
         }
@@ -96,10 +145,15 @@ namespace StateMechanic
         private readonly StateMachineInner<State> innerStateMachine;
 
         public State CurrentState { get { return this.innerStateMachine.CurrentState; } }
+        public State InitialState { get { return this.innerStateMachine.InitialState; } }
 
         public StateMachine(string name)
+            : this(name, false)
+        { }
+
+        internal StateMachine(string name, bool isChildStateMachine)
         {
-            this.innerStateMachine = new StateMachineInner<State>(name);
+            this.innerStateMachine = new StateMachineInner<State>(name, isChildStateMachine);
         }
 
         public State CreateState(string name)
@@ -123,6 +177,21 @@ namespace StateMechanic
         {
             return this.innerStateMachine.CreateEvent<TEventData>(name);
         }
+
+        public void ForceTransition(State toState, IEvent evt)
+        {
+            this.innerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+        }
+
+        internal void ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent evt)
+        {
+            this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
+        }
+
+        internal bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        {
+            return this.innerStateMachine.RequestEventFire(invoker);
+        }
     }
 
     public class StateMachine<TStateData>
@@ -130,10 +199,15 @@ namespace StateMechanic
         private readonly StateMachineInner<State<TStateData>> innerStateMachine;
 
         public State<TStateData> CurrentState { get { return this.innerStateMachine.CurrentState; } }
+        public State<TStateData> InitialState { get { return this.innerStateMachine.InitialState; } }
 
         public StateMachine(string name)
+            : this(name, false)
+        { }
+
+        internal StateMachine(string name, bool isChildStateMachine)
         {
-            this.innerStateMachine = new StateMachineInner<State<TStateData>>(name);
+            this.innerStateMachine = new StateMachineInner<State<TStateData>>(name, isChildStateMachine);
         }
 
         public State<TStateData> CreateState(string name)
@@ -156,6 +230,21 @@ namespace StateMechanic
         public Event<TEventData> CreateEvent<TEventData>(string name)
         {
             return this.innerStateMachine.CreateEvent<TEventData>(name);
+        }
+
+        public void ForceTransition(State<TStateData> toState, IEvent evt)
+        {
+            this.innerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+        }
+
+        internal void ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent evt)
+        {
+            this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
+        }
+
+        internal bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        {
+            return this.innerStateMachine.RequestEventFire(invoker);
         }
     }
 }

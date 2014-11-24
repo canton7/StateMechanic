@@ -53,6 +53,8 @@ namespace StateMechanic
 
         public StateMachine ChildStateMachine { get; private set; }
 
+        private State() { }
+
         internal State(string name, ITransitionDelegate<State> transitionRepository)
         {
             this.innerState = new StateInner<State>(name, transitionRepository);
@@ -92,7 +94,7 @@ namespace StateMechanic
 
         public StateMachine CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new StateMachine(name);
+            this.ChildStateMachine = new StateMachine(name, isChildStateMachine: true);
             return this.ChildStateMachine;
         }
 
@@ -101,13 +103,33 @@ namespace StateMechanic
             var onEntry = this.OnEntry;
             if (onEntry != null)
                 onEntry(info);
+
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
         void IState<State>.FireOnExit(StateHandlerInfo<State> info)
         {
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
+
             var onExit = this.OnExit;
             if (onExit != null)
                 onExit(info);
+        }
+
+
+        bool IState<State>.RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        {
+            if (this.ChildStateMachine == null)
+                return false;
+
+            return this.ChildStateMachine.RequestEventFire(invoker);
+        }
+
+        string IState.Name
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 
@@ -122,6 +144,8 @@ namespace StateMechanic
         public StateMachine<TStateData> ChildStateMachine { get; private set; }
 
         public string Name { get { return this.innerState.Name; } }
+
+        private State() { }
 
         internal State(string name, ITransitionDelegate<State<TStateData>> transitionRepository)
         {
@@ -168,7 +192,7 @@ namespace StateMechanic
 
         public StateMachine<TStateData> CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new StateMachine<TStateData>(name);
+            this.ChildStateMachine = new StateMachine<TStateData>(name, isChildStateMachine: true);
             return this.ChildStateMachine;
         }
 
@@ -177,13 +201,32 @@ namespace StateMechanic
             var onEntry = this.OnEntry;
             if (onEntry != null)
                 onEntry(info);
+
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
         void IState<State<TStateData>>.FireOnExit(StateHandlerInfo<State<TStateData>> info)
         {
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
+
             var onExit = this.OnExit;
             if (onExit != null)
                 onExit(info);
+        }
+
+        bool IState<State<TStateData>>.RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker)
+        {
+            if (this.ChildStateMachine == null)
+                return false;
+
+            return this.ChildStateMachine.RequestEventFire(invoker);
+        }
+
+        string IState.Name
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 }

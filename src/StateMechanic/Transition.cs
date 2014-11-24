@@ -113,7 +113,7 @@ namespace StateMechanic
             return this.innerTransition.CanInvoke();
         }
 
-        void IInvocableTransition.Invoke(TransitionInvocationState transitionInvocationState)
+        public void Invoke(TransitionInvocationState transitionInvocationState)
         {
             this.innerTransition.Invoke(handler =>
             {

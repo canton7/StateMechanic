@@ -10,6 +10,6 @@ namespace StateMechanic
     {
         IState CurrentState { get; }
 
-        void FireEvent(Action<TransitionInvocationState> invoker);
+        bool RequestEventFire(Func<IState, Action<Action<TransitionInvocationState>>, bool> invoker);
     }
 }

@@ -29,14 +29,15 @@ namespace StateMechanic
 
         public bool TryFire(Action<TTransition, TransitionInvocationState> action)
         {
-            var currentState = this.eventDelegate.CurrentState;
+            return this.eventDelegate.RequestEventFire((state, invoker) =>
+            {
+                TTransition transition;
+                if (!this.transitions.TryGetValue(state, out transition) || !transition.CanInvoke())
+                    return false;
 
-            TTransition transition;
-            if (!this.transitions.TryGetValue(currentState, out transition) || !transition.CanInvoke())
-                return false;
-
-            this.eventDelegate.FireEvent(transitionInvocationState => action(transition, transitionInvocationState));
-            return true;
+                invoker(transitionInvocationState => action(transition, transitionInvocationState));
+                return true;
+            });
         }
     }
 

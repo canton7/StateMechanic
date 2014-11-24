@@ -13,26 +13,26 @@ namespace Sandbox
         static void Main(string[] args)
         {
             var sm = new StateMachine("testy");
-            var state1 = sm.CreateInitialState("state1");
-            var state2 = sm.CreateState("state2");
-            var state3 = sm.CreateState("state3");
 
-            var event1 = sm.CreateEvent("event1");
-            var event2 = sm.CreateEvent<object>("event1");
+            var state1 = sm.CreateInitialState("State 1").WithEntry(i => Debug.WriteLine("State 1 Entry")).WithExit(i => Debug.WriteLine("State 1 Exit"));
+            var state2 = sm.CreateState("State 2").WithEntry(i => Debug.WriteLine("State 2 Entry")).WithExit(i => Debug.WriteLine("State 2 Exit"));
 
-            state1.OnEntry = t => Debug.WriteLine("State 1 entry");
-            state1.OnExit = t => { Debug.WriteLine("State 1 exit"); };
+            var event1 = sm.CreateEvent("Event 1");
+            var event2 = sm.CreateEvent("Event 2");
 
-            state2.OnEntry = t => { Debug.WriteLine("State 2 entry"); };
-            state2.OnExit = t => Debug.WriteLine("State 2 exit");
+            state1.AddTransitionOn(event1).To(state2);
+            state2.AddTransitionOn(event2).To(state1);
 
-            state3.OnEntry = t => Debug.WriteLine("State 3 entry");
-            state3.OnExit = t => Debug.WriteLine("State 3 exit");
+            var subSm = state2.CreateChildStateMachine("childSm");
 
-            state1.AddTransitionOn(event1).To(state2).WithHandler(info => { Debug.WriteLine("Transition from 1 to 2 on 1"); });
-            state2.AddTransitionOn(event1).To(state3).WithHandler(info => Debug.WriteLine("Transition from 2 to 3 on 2"));
+            var state11 = subSm.CreateInitialState("State 1.1").WithEntry(i => Debug.WriteLine("State 1.1 Entry")).WithExit(i => Debug.WriteLine("State 1.1 Exit"));
+            var state12 = subSm.CreateState("State 1.2").WithEntry(i => Debug.WriteLine("State 1.2 Entry")).WithExit(i => Debug.WriteLine("State 1.2 Exit"));
+            state11.AddTransitionOn(event1).To(state12);
+
 
             event1.Fire();
+            event1.Fire();
+            event2.Fire();
         }
     }
 }
