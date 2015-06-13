@@ -14,10 +14,6 @@ namespace StateMechanic
 
         void UpdateCurrentState(TState state);
 
-        bool HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState);
-
-        bool ShouldCallExitHandler(TransitionInvocationState transitionInvocationState);
-
         void SetTransitionBegin();
         void SetTransitionEnd();
     }

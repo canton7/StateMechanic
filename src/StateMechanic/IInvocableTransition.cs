@@ -13,11 +13,11 @@ namespace StateMechanic
 
     internal interface IInvocableTransition : ITransitionGuard
     {
-        void Invoke(TransitionInvocationState transitionInvocationState);
+        void Invoke();
     }
 
     internal interface IInvocableTransition<TEventData> : ITransitionGuard
     {
-        void Invoke(TEventData eventData, TransitionInvocationState transitionInvocationState);
+        void Invoke(TEventData eventData);
     }
 }

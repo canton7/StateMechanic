@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace StateMechanic
 {
     // Given an IState, returns an action to invoke the transition handler on it, or null if it doesn't exist
-    internal delegate bool EventInvocation(Func<IState, Action<TransitionInvocationState>> transitionInvocation);
+    internal delegate bool EventInvocation(Func<IState, Action> transitionInvocation);
 
     internal class EventInner<TEvent, TTransition> where TTransition : ITransitionGuard
     {
@@ -27,15 +27,15 @@ namespace StateMechanic
             this.transitions.Add(state, transitionInvocation);
         }
 
-        public bool TryFire(Action<TTransition, TransitionInvocationState> action)
+        public bool TryFire(Action<TTransition> action)
         {
-            return this.eventDelegate.RequestEventFire((state, invoker) =>
+            return this.eventDelegate.RequestEventFire(state =>
             {
                 TTransition transition;
                 if (!this.transitions.TryGetValue(state, out transition) || !transition.CanInvoke())
                     return false;
 
-                invoker(transitionInvocationState => action(transition, transitionInvocationState));
+                action(transition);
                 return true;
             });
         }
@@ -59,7 +59,7 @@ namespace StateMechanic
 
         public bool TryFire(TEventData eventData)
         {
-            return this.innerEvent.TryFire((transition, state) => transition.Invoke(eventData, state));
+            return this.innerEvent.TryFire((transition) => transition.Invoke(eventData));
         }
 
         public void Fire(TEventData eventData)
@@ -87,7 +87,7 @@ namespace StateMechanic
 
         public bool TryFire()
         {
-            return this.innerEvent.TryFire((transition, state) => transition.Invoke(state));
+            return this.innerEvent.TryFire((transition) => transition.Invoke());
         }
 
         public void Fire()

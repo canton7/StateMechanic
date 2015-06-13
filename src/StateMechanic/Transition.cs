@@ -32,7 +32,7 @@ namespace StateMechanic
             this.isInnerTransition = isInnerTransition;
         }
 
-        public void Invoke(Action<TTransitionHandler> transitionHandlerInvoker, TransitionInvocationState transitionInvocationState)
+        public void Invoke(Action<TTransitionHandler> transitionHandlerInvoker)
         {
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
@@ -41,18 +41,12 @@ namespace StateMechanic
 
             try
             {
-                if (!this.isInnerTransition && this.transitionDelegate.ShouldCallExitHandler(transitionInvocationState))
+                if (!this.isInnerTransition)
                     this.From.FireOnExit(stateHandlerInfo);
-
-                if (this.transitionDelegate.HasOtherEventBeenFired(transitionInvocationState))
-                    return;
 
                 if (this.Handler != null)
                 {
                     transitionHandlerInvoker(this.Handler);
-
-                    if (this.transitionDelegate.HasOtherEventBeenFired(transitionInvocationState))
-                        return;
                 }
 
                 this.transitionDelegate.UpdateCurrentState(this.To);
@@ -116,13 +110,13 @@ namespace StateMechanic
             return this.innerTransition.CanInvoke();
         }
 
-        public void Invoke(TransitionInvocationState transitionInvocationState)
+        public void Invoke()
         {
             this.innerTransition.Invoke(handler =>
             {
                 var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 handler(transitionInfo);
-            }, transitionInvocationState);
+            });
         }
     }
 
@@ -170,13 +164,13 @@ namespace StateMechanic
             return this.innerTransition.CanInvoke();
         }
 
-        public void Invoke(TEventData eventData, TransitionInvocationState transitionInvocationState)
+        public void Invoke(TEventData eventData)
         {
             this.innerTransition.Invoke(handler =>
             {
                 var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 handler(transitionInfo, eventData);
-            }, transitionInvocationState);
+            });
         }
     }
 }
