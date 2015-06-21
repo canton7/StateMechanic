@@ -16,7 +16,7 @@ namespace StateMechanic
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);
 
-        bool RequestEventFire(Func<IState, EventFirer, bool> invoker);
+        bool RequestEventFire(Func<IState, bool> invoker);
 
         bool BelongsToSameStateMachineAs(TState otherState);
     }

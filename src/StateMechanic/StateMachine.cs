@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +15,7 @@ namespace StateMechanic
 
         private readonly bool isChildStateMachine;
 
-        // Used to determine whether another event was fired while we were processing a previous event
-        private int eventFireCount;
-
-        private bool allowRecursiveEvents = true;
-        private int recursionCount;
+        private bool executingTransition;
 
         public StateMachineInner(string name, bool isChildStateMachine)
         {
@@ -51,23 +48,15 @@ namespace StateMechanic
 
         internal void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
         {
-            this.allowRecursiveEvents = false;
-            try
-            {
-                var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
+            var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
 
-                if (this.CurrentState != null)
-                    this.CurrentState.FireOnExit(handlerInfo);
+            if (this.CurrentState != null)
+                this.CurrentState.FireOnExit(handlerInfo);
 
-                this.CurrentState = newState;
+            this.CurrentState = newState;
 
-                if (this.CurrentState != null)
-                    this.CurrentState.FireOnEntry(handlerInfo);
-            }
-            finally
-            {
-                this.allowRecursiveEvents = true;
-            }
+            if (this.CurrentState != null)
+                this.CurrentState.FireOnEntry(handlerInfo);
         }
 
         IState IEventDelegate.CurrentState
@@ -75,7 +64,12 @@ namespace StateMechanic
             get { return this.CurrentState; }
         }
 
-        public bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
+        /// <summary>
+        /// Attempt to fire an event
+        /// </summary>
+        /// <param name="invoker">Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
+        /// <returns></returns>
+        public bool RequestEventFire(Func<IState, bool> invoker)
         {
             if (this.CurrentState == null)
             {
@@ -85,23 +79,12 @@ namespace StateMechanic
                     throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
             }
 
-            if (!this.allowRecursiveEvents)
-                return false;
-
             // Try and fire it on the child state machine - see if that works
             if (this.CurrentState != null && this.CurrentState.RequestEventFire(invoker))
                 return true;
 
             // No? Invoke it on ourselves
-            return invoker(this.CurrentState, this.FireEvent);
-        }
-
-        private void FireEvent(Action<TransitionInvocationState> invoker)
-        {
-            this.eventFireCount++;
-
-            var state = new TransitionInvocationState(this.eventFireCount); 
-            invoker(state);
+            return invoker(this.CurrentState);
         }
 
         public void UpdateCurrentState(TState state)
@@ -121,22 +104,14 @@ namespace StateMechanic
 
         public void SetTransitionBegin()
         {
-            this.recursionCount++;
+            Debug.Assert(!this.executingTransition);
+            this.executingTransition = true;
         }
 
         public void SetTransitionEnd()
         {
-            this.recursionCount--;
-        }
-
-        public bool HasOtherEventBeenFired(TransitionInvocationState transitionInvocationState)
-        {
-            return this.eventFireCount != transitionInvocationState.EventFireCount;
-        }
-
-        public bool ShouldCallExitHandler(TransitionInvocationState transitionInvocationState)
-        {
-            return this.recursionCount == 1;
+            Debug.Assert(this.executingTransition);
+            this.executingTransition = false;
         }
     }
 
@@ -188,7 +163,7 @@ namespace StateMechanic
             this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
+        internal bool RequestEventFire(Func<IState, bool> invoker)
         {
             return this.innerStateMachine.RequestEventFire(invoker);
         }
@@ -242,7 +217,7 @@ namespace StateMechanic
             this.innerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, EventFirer, bool> invoker)
+        internal bool RequestEventFire(Func<IState, bool> invoker)
         {
             return this.innerStateMachine.RequestEventFire(invoker);
         }
