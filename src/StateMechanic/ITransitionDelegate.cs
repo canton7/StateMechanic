@@ -14,7 +14,7 @@ namespace StateMechanic
 
         void UpdateCurrentState(TState state);
 
-        void SetTransitionBegin();
-        void SetTransitionEnd();
+        void TransitionBegan();
+        void TransitionEnded();
     }
 }
