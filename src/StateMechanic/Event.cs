@@ -27,7 +27,7 @@ namespace StateMechanic
             this.transitions.Add(state, transitionInvocation);
         }
 
-        public bool TryFire(Action<TTransition> action)
+        public bool Fire(Action<TTransition> action)
         {
             return this.eventDelegate.RequestEventFire(state =>
             {
@@ -57,14 +57,14 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        public bool TryFire(TEventData eventData)
+        public bool Fire(TEventData eventData)
         {
-            return this.innerEvent.TryFire((transition) => transition.Invoke(eventData));
+            return this.innerEvent.Fire((transition) => transition.Invoke(eventData));
         }
 
-        public void Fire(TEventData eventData)
+        public void EnsureFire(TEventData eventData)
         {
-            if (!this.TryFire(eventData))
+            if (!this.Fire(eventData))
                 throw new TransitionNotFoundException(this.innerEvent.eventDelegate.CurrentState, this);
         }
     }
@@ -85,14 +85,14 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        public bool TryFire()
+        public bool Fire()
         {
-            return this.innerEvent.TryFire((transition) => transition.Invoke());
+            return this.innerEvent.Fire((transition) => transition.Invoke());
         }
 
-        public void Fire()
+        public void EnsureFire()
         {
-            if (!this.TryFire())
+            if (!this.Fire())
                 throw new TransitionNotFoundException(this.innerEvent.eventDelegate.CurrentState, this);
         }
     }

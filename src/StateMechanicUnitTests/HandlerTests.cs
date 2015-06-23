@@ -52,7 +52,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectHandlersAreInvokedInNormalTransition()
         {
-            this.event1.Fire();
+            this.event1.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "State 2 Entry" }));
         }
@@ -60,9 +60,9 @@ namespace StateMechanicUnitTests
         [Test]
         public void WhenEventRedirectedInExitHandlerTransitionAndNewEntryOnlyShouldBeInvoked()
         {
-            this.state1.OnExit = t => { this.events.Add("State 1 Exit"); this.event2.Fire(); };
+            this.state1.OnExit = t => { this.events.Add("State 1 Exit"); this.event2.EnsureFire(); };
 
-            this.event1.Fire();
+            this.event1.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 3", "State 3 Entry" }));
         }
@@ -70,9 +70,9 @@ namespace StateMechanicUnitTests
         [Test]
         public void WhenEventRedirectionInTransitionNewTransitionAndEntryShouldBeInvoked()
         {
-            this.transition12.Handler = t => { this.events.Add("Transition 1 2"); this.event2.Fire(); };
+            this.transition12.Handler = t => { this.events.Add("Transition 1 2"); this.event2.EnsureFire(); };
 
-            this.event1.Fire();
+            this.event1.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "Transition 1 3", "State 3 Entry" }));
         }
@@ -80,9 +80,9 @@ namespace StateMechanicUnitTests
         [Test]
         public void WhenEventRedirectionInEntryHandlerExitHandlerNewTransitionAndEntryShouldBeInvoked()
         {
-            this.state2.OnEntry = t => { this.events.Add("State 2 Entry"); this.event2.Fire(); };
+            this.state2.OnEntry = t => { this.events.Add("State 2 Entry"); this.event2.EnsureFire(); };
 
-            this.event1.Fire();
+            this.event1.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "State 2 Entry", "State 2 Exit", "Transition 2 1", "State 1 Entry" }));
         }
@@ -90,7 +90,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void NormalSelfTransitionShouldFireExitAndEntry()
         {
-            this.event3.Fire();
+            this.event3.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 1", "State 1 Entry" }));
         }
@@ -98,7 +98,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void InnerSelfTransitionShouldNotFireExitAndEntry()
         {
-            this.event4.Fire();
+            this.event4.EnsureFire();
 
             Assert.That(this.events, Is.EquivalentTo(new[] { "Transition 1 1 Inner" }));
         }

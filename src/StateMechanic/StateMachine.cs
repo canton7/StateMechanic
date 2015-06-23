@@ -83,7 +83,7 @@ namespace StateMechanic
             // TODO Not sure if this should be above the check above...
             if (this.executingTransition)
             {
-                this.eventQueue.Enqueue(invoker);
+                this.EnqueueEventFire(invoker);
                 return true; // We don't know whether it succeeded or failed, so pretend it succeeded
             }
 
@@ -100,19 +100,34 @@ namespace StateMechanic
                 success = invoker(this.CurrentState);
             }
 
-            // Now, if we actually executed a transition, there may be queued up events to fire
-            // If they were fired on a child state machine, then that will have already handled them, and that's fine.
-            // If they were fired on us, we need to dequeue and execute them
-            // Each one that we execute may cause other events to be fired and queued, so we need to keep going until everything's
-            // been done.
-            while (this.eventQueue.Count > 0)
-            {
-                // TODO I'm not sure whether such "recursive" events should affect the success of the overall transition...
-                // It may be that we want to remove 'event.TryFire()', and have everything succeed.
-                this.RequestEventFire(this.eventQueue.Dequeue());
-            }
+            this.FireQueuedEvents();
             
             return success;
+        }
+
+        public void EnqueueEventFire(Func<IState, bool> invoker)
+        {
+            if (this.parentStateMachine != null)
+                this.parentStateMachine.EnqueueEventFire(invoker);
+            else
+                this.eventQueue.Enqueue(invoker);
+        }
+
+        public void FireQueuedEvents()
+        {
+            if (this.parentStateMachine != null)
+            {
+                this.parentStateMachine.FireQueuedEvents();
+            }
+            else
+            {
+                while (this.eventQueue.Count > 0)
+                {
+                    // TODO I'm not sure whether such "recursive" events should affect the success of the overall transition...
+                    // It may be that we want to remove 'event.TryFire()', and have everything succeed.
+                    this.RequestEventFire(this.eventQueue.Dequeue());
+                }
+            }
         }
 
         public void UpdateCurrentState(TState state)
@@ -149,7 +164,7 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine
+    public class StateMachine : IStateMachine
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -203,7 +218,7 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine<TStateData>
+    public class StateMachine<TStateData> : IStateMachine
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 

@@ -13,6 +13,13 @@ namespace StateMechanic
     {
         public readonly ITransitionDelegate<TState> TransitionDelegate;
 
+        private IStateMachine _childStateMachine;
+        public IStateMachine ChildStateMachine
+        {
+            get { return this._childStateMachine; }
+            set { this._childStateMachine = value; }
+        }
+
         public string Name;
 
         internal StateInner(string name, ITransitionDelegate<TState> transitionDelegate)
@@ -51,14 +58,16 @@ namespace StateMechanic
 
         public string Name { get { return this.innerState.Name; } }
 
-        public StateMachine ChildStateMachine { get; private set; }
+        public IStateMachine ChildStateMachine
+        {
+            get { return this.innerState.ChildStateMachine; }
+            set { this.innerState.ChildStateMachine = value; }
+        }
 
         internal ITransitionDelegate<State> TransitionDelegate
         {
             get { return this.innerState.TransitionDelegate; }
         }
-
-        private State() { }
 
         internal State(string name, ITransitionDelegate<State> transitionRepository)
         {
@@ -159,8 +168,6 @@ namespace StateMechanic
         {
             get { return this.innerState.TransitionDelegate; }
         }
-
-        private State() { }
 
         internal State(string name, ITransitionDelegate<State<TStateData>> transitionRepository)
         {
