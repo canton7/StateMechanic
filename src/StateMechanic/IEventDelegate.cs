@@ -12,5 +12,6 @@ namespace StateMechanic
         string Name { get; }
 
         bool RequestEventFire(Func<IState, bool> invoker);
+        void NotifyTransitionNotFound(IEvent evt);
     }
 }

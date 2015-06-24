@@ -13,5 +13,6 @@ namespace StateMechanic
         void EnqueueEventFire(Func<bool> invoker);
         void FireQueuedEvents();
         void OnRecursiveTransition(TState from, TState to, IEvent evt);
+        void OnRecursiveTransitionNotFound(TState from, IEvent evt);
     }
 }

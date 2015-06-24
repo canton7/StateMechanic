@@ -15,8 +15,8 @@ namespace StateMechanic
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
-        public event EventHandler<TransitionEventArgs<TState>> TransitionNotFound;
-        public event EventHandler<TransitionEventArgs<TState>> RecursiveTransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<TState>> RecursiveTransitionNotFound;
 
         private readonly IStateMachineParent<TState> parentStateMachine;
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
@@ -186,6 +186,29 @@ namespace StateMechanic
             var handler = this.RecursiveTransition;
             if (handler != null)
                 handler(this, new TransitionEventArgs<TState>(from, to, evt));
+        }
+
+        public void NotifyTransitionNotFound(IEvent evt)
+        {
+            this.OnTransitionNotFound(this.CurrentState, evt);
+            this.OnRecursiveTransitionNotFound(this.CurrentState, evt);
+        }
+
+        private void OnTransitionNotFound(TState from, IEvent evt)
+        {
+            var handler = this.TransitionNotFound;
+            if (handler != null)
+                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt));
+        }
+
+        public void OnRecursiveTransitionNotFound(TState from, IEvent evt)
+        {
+            if (this.parentStateMachine != null)
+                this.parentStateMachine.OnRecursiveTransitionNotFound(from, evt);
+
+            var handler = this.RecursiveTransitionNotFound;
+            if (handler != null)
+                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt));
         }
     }
 

@@ -27,13 +27,16 @@ namespace StateMechanic
             this.transitions.Add(state, transitionInvocation);
         }
 
-        public bool Fire(Func<TTransition, bool> transitionInvoker)
+        public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent)
         {
             return this.eventDelegate.RequestEventFire(state =>
             {
                 TTransition transition;
                 if (!this.transitions.TryGetValue(state, out transition))
+                {
+                    this.eventDelegate.NotifyTransitionNotFound(parentEvent);
                     return false;
+                }
 
                 return transitionInvoker(transition);
             });
@@ -58,7 +61,7 @@ namespace StateMechanic
 
         public bool Fire(TEventData eventData)
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData));
+            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this);
         }
 
         public void EnsureFire(TEventData eventData)
@@ -86,7 +89,7 @@ namespace StateMechanic
 
         public bool Fire()
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke());
+            return this.innerEvent.Fire(transition => transition.TryInvoke(), this);
         }
 
         public void EnsureFire()

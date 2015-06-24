@@ -59,6 +59,7 @@
     <Compile Include="TransitionBuilder.cs" />
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionInfo.cs" />
+    <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
