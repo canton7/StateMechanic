@@ -17,6 +17,6 @@ namespace StateMechanic
     internal interface IStateMachine<TState> : IStateMachine
     {
         TState CurrentStateRecursive { get; }
-        bool RequestEventFire(Func<IState, bool> invoker);
+        bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }

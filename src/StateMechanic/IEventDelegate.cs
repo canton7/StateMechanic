@@ -9,7 +9,6 @@ namespace StateMechanic
     internal interface IEventDelegate
     {
         IStateMachine StateMachine { get; }
-        bool RequestEventFire(Func<IState, bool> invoker);
-        void NotifyTransitionNotFound(IEvent evt);
+        bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }

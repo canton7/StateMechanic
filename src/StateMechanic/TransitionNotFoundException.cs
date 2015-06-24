@@ -12,7 +12,7 @@ namespace StateMechanic
         public IEvent Event { get; private set; }
 
         public TransitionNotFoundException(IState from, IEvent evt)
-            : base(String.Format("Transition not found from state {0} on event {1}", from.Name, evt.Name))
+            : base(String.Format("Transition not found from state {0} (or any of its children) on event {1}", from.Name, evt.Name))
         {
             this.From = from;
             this.Event = evt;

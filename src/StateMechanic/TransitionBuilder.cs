@@ -22,7 +22,7 @@ namespace StateMechanic
         ITransition<TState> ITransitionBuilder<TState>.To(TState state)
         {
             var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionDelegate);
-            this.evt.AddTransition(state, transition);
+            this.evt.AddTransition(this.fromState, transition);
             return transition;
         }
     }
@@ -43,7 +43,7 @@ namespace StateMechanic
         ITransition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
             var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
-            this.evt.AddTransition(state, transition);
+            this.evt.AddTransition(this.fromState, transition);
             return transition;
         }
     }

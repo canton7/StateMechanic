@@ -83,12 +83,12 @@ namespace StateMechanic
         /// </summary>
         /// <param name="invoker">Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
         /// <returns></returns>
-        public bool RequestEventFire(Func<IState, bool> invoker)
+        public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
             if (this.executingTransition)
             {
                 // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
-                this.EnqueueEventFire(() => this.RequestEventFire(invoker));
+                this.EnqueueEventFire(() => this.RequestEventFire(sourceEvent, invoker, throwIfNotFound));
                 return true; // We don't know whether it succeeded or failed, so pretend it succeeded
             }
 
@@ -104,7 +104,7 @@ namespace StateMechanic
 
             // Try and fire it on the child state machine - see if that works
             var childStateMachine = this.CurrentState == null ? null : this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(invoker))
+            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, false))
             {
                 success = true;
             }
@@ -112,6 +112,8 @@ namespace StateMechanic
             {
                 // No? Invoke it on ourselves
                 success = invoker(this.CurrentState);
+                if (!success)
+                    this.HandleTransitionNotFound(sourceEvent, throwIfNotFound);
             }
 
             this.FireQueuedEvents();
@@ -137,11 +139,18 @@ namespace StateMechanic
             {
                 while (this.eventQueue.Count > 0)
                 {
-                    // TODO I'm not sure whether such "recursive" events should affect the success of the overall transition...
-                    // It may be that we want to remove 'event.TryFire()', and have everything succeed.
                     this.eventQueue.Dequeue()();
                 }
             }
+        }
+
+        private void HandleTransitionNotFound(IEvent evt, bool throwException)
+        {
+            this.OnTransitionNotFound(this.CurrentState, evt);
+            this.OnRecursiveTransitionNotFound(this.CurrentState, evt);
+
+            if (throwException)
+                throw new TransitionNotFoundException(this.CurrentState, evt);
         }
 
         public void UpdateCurrentState(TState from, TState to, IEvent evt)
@@ -200,12 +209,6 @@ namespace StateMechanic
             var handler = this.RecursiveTransition;
             if (handler != null)
                 handler(this, new TransitionEventArgs<TState>(from, to, evt));
-        }
-
-        public void NotifyTransitionNotFound(IEvent evt)
-        {
-            this.OnTransitionNotFound(this.CurrentState, evt);
-            this.OnRecursiveTransitionNotFound(this.CurrentState, evt);
         }
 
         private void OnTransitionNotFound(TState from, IEvent evt)
@@ -298,9 +301,9 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        bool IStateMachine<State>.RequestEventFire(Func<IState, bool> invoker)
+        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
-            return this.InnerStateMachine.RequestEventFire(invoker);
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)
@@ -386,9 +389,9 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        bool IStateMachine<State<TStateData>>.RequestEventFire(Func<IState, bool> invoker)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
-            return this.InnerStateMachine.RequestEventFire(invoker);
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)

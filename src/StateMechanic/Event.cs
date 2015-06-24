@@ -36,16 +36,11 @@ namespace StateMechanic
 
         public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent, bool throwIfNotFound)
         {
-            return this.eventDelegate.RequestEventFire(state =>
+            return this.eventDelegate.RequestEventFire(parentEvent, state =>
             {
                 List<TTransition> transitions;
                 if (!this.transitions.TryGetValue(state, out transitions))
-                {
-                    this.eventDelegate.NotifyTransitionNotFound(parentEvent);
-                    if (throwIfNotFound)
-                        throw new TransitionNotFoundException(state, parentEvent);
                     return false;
-                }
 
                 // Keep trying until one works (i.e. has a guard that lets it execute)
                 bool anyFound = false;
@@ -59,7 +54,7 @@ namespace StateMechanic
                 }
 
                 return anyFound;
-            });
+            }, throwIfNotFound);
         }
     }
 
