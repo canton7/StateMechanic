@@ -238,6 +238,16 @@ namespace StateMechanic
             add { this.InnerStateMachine.RecursiveTransition += value; }
             remove { this.InnerStateMachine.RecursiveTransition -= value; }
         }
+        public event EventHandler<TransitionNotFoundEventArgs<State>> TransitionNotFound
+        {
+            add { this.InnerStateMachine.TransitionNotFound += value; }
+            remove { this.InnerStateMachine.TransitionNotFound -= value; }
+        }
+        public event EventHandler<TransitionNotFoundEventArgs<State>> RecursiveTransitionNotFound
+        {
+            add { this.InnerStateMachine.RecursiveTransitionNotFound += value; }
+            remove { this.InnerStateMachine.RecursiveTransitionNotFound -= value; }
+        }
 
         public StateMachine(string name)
             : this(name, null)
@@ -305,6 +315,16 @@ namespace StateMechanic
         {
             add { this.InnerStateMachine.RecursiveTransition += value; }
             remove { this.InnerStateMachine.RecursiveTransition -= value; }
+        }
+        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> TransitionNotFound
+        {
+            add { this.InnerStateMachine.TransitionNotFound += value; }
+            remove { this.InnerStateMachine.TransitionNotFound -= value; }
+        }
+        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> RecursiveTransitionNotFound
+        {
+            add { this.InnerStateMachine.RecursiveTransitionNotFound += value; }
+            remove { this.InnerStateMachine.RecursiveTransitionNotFound -= value; }
         }
 
         public StateMachine(string name)
