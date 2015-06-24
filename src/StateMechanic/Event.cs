@@ -11,7 +11,7 @@ namespace StateMechanic
 
     internal class EventInner<TEvent, TTransition>
     {
-        private readonly Dictionary<IState, TTransition> transitions = new Dictionary<IState, TTransition>();
+        private readonly Dictionary<IState, List<TTransition>> transitions = new Dictionary<IState, List<TTransition>>();
 
         public readonly string Name;
         public readonly IEventDelegate eventDelegate;
@@ -24,21 +24,39 @@ namespace StateMechanic
 
         public void AddTransition(IState state, TTransition transitionInvocation)
         {
-            this.transitions.Add(state, transitionInvocation);
+            List<TTransition> transitions;
+            if (!this.transitions.TryGetValue(state, out transitions))
+            {
+                transitions = new List<TTransition>();
+                this.transitions.Add(state, transitions);
+            }
+
+            transitions.Add(transitionInvocation);
         }
 
         public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent)
         {
             return this.eventDelegate.RequestEventFire(state =>
             {
-                TTransition transition;
-                if (!this.transitions.TryGetValue(state, out transition))
+                List<TTransition> transitions;
+                if (!this.transitions.TryGetValue(state, out transitions))
                 {
                     this.eventDelegate.NotifyTransitionNotFound(parentEvent);
                     return false;
                 }
 
-                return transitionInvoker(transition);
+                // Keep trying until one works (i.e. has a guard that lets it execute)
+                bool anyFound = false;
+                foreach (var transition in transitions)
+                {
+                    if (transitionInvoker(transition))
+                    {
+                        anyFound = true;
+                        break;
+                    }
+                }
+
+                return anyFound;
             });
         }
     }
