@@ -10,7 +10,7 @@ namespace StateMechanic
     {
         void TransitionBegan();
         void TransitionEnded();
-        void EnqueueEventFire(Func<IState, bool> invoker);
+        void EnqueueEventFire(Func<bool> invoker);
         void FireQueuedEvents();
     }
 }

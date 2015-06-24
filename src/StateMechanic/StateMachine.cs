@@ -14,7 +14,7 @@ namespace StateMechanic
         public string Name { get; private set; }
 
         private readonly IStateMachineParent parentStateMachine;
-        private readonly Queue<Func<IState, bool>> eventQueue = new Queue<Func<IState, bool>>();
+        private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
 
         private bool executingTransition;
 
@@ -83,7 +83,8 @@ namespace StateMechanic
             // TODO Not sure if this should be above the check above...
             if (this.executingTransition)
             {
-                this.EnqueueEventFire(invoker);
+                // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
+                this.EnqueueEventFire(() => this.RequestEventFire(invoker));
                 return true; // We don't know whether it succeeded or failed, so pretend it succeeded
             }
 
@@ -105,7 +106,7 @@ namespace StateMechanic
             return success;
         }
 
-        public void EnqueueEventFire(Func<IState, bool> invoker)
+        public void EnqueueEventFire(Func<bool> invoker)
         {
             if (this.parentStateMachine != null)
                 this.parentStateMachine.EnqueueEventFire(invoker);
@@ -125,7 +126,7 @@ namespace StateMechanic
                 {
                     // TODO I'm not sure whether such "recursive" events should affect the success of the overall transition...
                     // It may be that we want to remove 'event.TryFire()', and have everything succeed.
-                    this.RequestEventFire(this.eventQueue.Dequeue());
+                    this.eventQueue.Dequeue()();
                 }
             }
         }
