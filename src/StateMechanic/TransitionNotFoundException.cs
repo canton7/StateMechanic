@@ -8,13 +8,13 @@ namespace StateMechanic
 {
     public class TransitionNotFoundException : Exception
     {
-        public IState FromState { get; private set; }
+        public IState From { get; private set; }
         public IEvent Event { get; private set; }
 
-        public TransitionNotFoundException(IState fromState, IEvent evt)
-            : base(String.Format("Transition not found from state {0} on event {1}, or transition was otherwise denied (maybe a forced transition was in progress?)", fromState.Name, evt.Name))
+        public TransitionNotFoundException(IState from, IEvent evt)
+            : base(String.Format("Transition not found from state {0} on event {1}", from.Name, evt.Name))
         {
-            this.FromState = fromState;
+            this.From = from;
             this.Event = evt;
         }
     }

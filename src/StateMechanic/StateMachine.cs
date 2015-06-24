@@ -87,20 +87,19 @@ namespace StateMechanic
         /// <returns></returns>
         public bool RequestEventFire(Func<IState, bool> invoker)
         {
+            if (this.executingTransition)
+            {
+                // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
+                this.EnqueueEventFire(() => this.RequestEventFire(invoker));
+                return true; // We don't know whether it succeeded or failed, so pretend it succeeded
+            }
+
             if (this.CurrentState == null)
             {
                 if (this.InitialState == null)
                     throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
                 else
                     throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
-            }
-
-            // TODO Not sure if this should be above the check above...
-            if (this.executingTransition)
-            {
-                // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
-                this.EnqueueEventFire(() => this.RequestEventFire(invoker));
-                return true; // We don't know whether it succeeded or failed, so pretend it succeeded
             }
 
             bool success;

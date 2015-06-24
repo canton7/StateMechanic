@@ -34,7 +34,7 @@ namespace StateMechanic
             transitions.Add(transitionInvocation);
         }
 
-        public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent)
+        public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent, bool throwIfNotFound)
         {
             return this.eventDelegate.RequestEventFire(state =>
             {
@@ -42,6 +42,8 @@ namespace StateMechanic
                 if (!this.transitions.TryGetValue(state, out transitions))
                 {
                     this.eventDelegate.NotifyTransitionNotFound(parentEvent);
+                    if (throwIfNotFound)
+                        throw new TransitionNotFoundException(state, parentEvent);
                     return false;
                 }
 
@@ -79,13 +81,12 @@ namespace StateMechanic
 
         public bool Fire(TEventData eventData)
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this);
+            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, false);
         }
 
         public void EnsureFire(TEventData eventData)
         {
-            if (!this.Fire(eventData))
-                throw new TransitionNotFoundException(this.innerEvent.eventDelegate.CurrentState, this);
+            this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, true);
         }
     }
 
@@ -107,13 +108,12 @@ namespace StateMechanic
 
         public bool Fire()
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke(), this);
+            return this.innerEvent.Fire(transition => transition.TryInvoke(), this, false);
         }
 
         public void EnsureFire()
         {
-            if (!this.Fire())
-                throw new TransitionNotFoundException(this.innerEvent.eventDelegate.CurrentState, this);
+            this.innerEvent.Fire(transition => transition.TryInvoke(), this, true);
         }
     }
 }
