@@ -20,29 +20,28 @@ namespace StateMechanic
         public TTransitionHandler Handler;
         public Func<TransitionInfo<TState, TEvent>, bool> Guard;
 
-        public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionRepository, bool isInnerTransition)
+        public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
         {
             if (!from.BelongsToSameStateMachineAs(to))
-                throw new InvalidTransitionException(from, to, transitionRepository);
+                throw new InvalidTransitionException(from, to, transitionDelegate);
 
             this.From = from;
             this.To = to;
             this.Event = evt;
-            this.transitionDelegate = transitionRepository;
+            this.transitionDelegate = transitionDelegate;
             this.isInnerTransition = isInnerTransition;
         }
 
         public bool TryInvoke(Action<TTransitionHandler, TransitionInfo<TState, TEvent>> transitionHandlerInvoker)
         {
-            var transitionInfo = new TransitionInfo<TState, TEvent>(this.From, this.To, this.Event);
+            var transitionInfo = new TransitionInfo<TState, TEvent>(this.From, this.To, this.Event, this.isInnerTransition);
 
             if (this.Guard != null && !this.Guard(transitionInfo))
                 return false;
 
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
-            if (!this.isInnerTransition)
-                this.transitionDelegate.TransitionBegan();
+            this.transitionDelegate.TransitionBegan();
 
             try
             {
@@ -128,9 +127,9 @@ namespace StateMechanic
             set { this.innerTransition.Guard = value; }
         }
 
-        public Transition(TState from, TState to, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)
+        public Transition(TState from, TState to, Event<TEventData> evt, ITransitionDelegate<TState> transitionDelegate)
         {
-            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt, transitionRepository, isInnerTransition: false);
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>>(from, to, evt, transitionDelegate, isInnerTransition: false);
         }
 
         internal Transition(TState fromAndTo, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)

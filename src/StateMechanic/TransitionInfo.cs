@@ -11,12 +11,14 @@ namespace StateMechanic
         public TState From { get; private set; }
         public TState To { get; private set; }
         public TEvent Event { get; private set; }
+        public bool IsInnerTransition { get; private set; }
 
-        public TransitionInfo(TState from, TState to, TEvent evt)
+        public TransitionInfo(TState from, TState to, TEvent evt, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
             this.Event = evt;
+            this.IsInnerTransition = isInnerTransition;
         }
     }
 }
