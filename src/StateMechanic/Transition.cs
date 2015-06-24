@@ -22,8 +22,11 @@ namespace StateMechanic
 
         public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
         {
-            if (from.StateMachine != to.StateMachine)
-                throw new InvalidTransitionException(from, to);
+            if (from.ParentStateMachine != to.ParentStateMachine)
+                throw new InvalidStateTransitionException(from, to);
+
+            if (from.ParentStateMachine != evt.ParentStateMachine && !from.ParentStateMachine.IsChildOf(evt.ParentStateMachine))
+                throw new InvalidEventTransitionException(from, evt);
 
             this.From = from;
             this.To = to;

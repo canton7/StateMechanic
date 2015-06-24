@@ -58,7 +58,7 @@ namespace StateMechanic
             get { return this.innerState.StateDelegate; }
         }
 
-        public IStateMachine StateMachine
+        public IStateMachine ParentStateMachine
         {
             get { return this.innerState.StateDelegate.StateMachine; }
         }
@@ -154,7 +154,7 @@ namespace StateMechanic
             get { return this.innerState.StateDelegate; }
         }
 
-        public IStateMachine StateMachine
+        public IStateMachine ParentStateMachine
         {
             get { return this.innerState.StateDelegate.StateMachine; }
         }
