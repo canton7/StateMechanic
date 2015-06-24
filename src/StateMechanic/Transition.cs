@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public delegate void TransitionHandler<TState>(TransitionInfo<TState> info);
-    public delegate void TransitionHandler<TState, TEventData>(TransitionInfo<TState> info, TEventData eventData);
+    public delegate void TransitionHandler<TState>(TransitionInfo<TState, Event> info);
+    public delegate void TransitionHandler<TState, TEventData>(TransitionInfo<TState, Event<TEventData>> info, TEventData eventData);
 
     internal class TransitionInner<TState, TEvent, TTransitionHandler> where TState : IState<TState> where TEvent : IEvent
     {
@@ -112,7 +112,7 @@ namespace StateMechanic
         {
             this.innerTransition.Invoke(handler =>
             {
-                var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
+                var transitionInfo = new TransitionInfo<TState, Event>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 handler(transitionInfo);
             });
         }
@@ -166,7 +166,7 @@ namespace StateMechanic
         {
             this.innerTransition.Invoke(handler =>
             {
-                var transitionInfo = new TransitionInfo<TState>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
+                var transitionInfo = new TransitionInfo<TState, Event<TEventData>>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
                 handler(transitionInfo, eventData);
             });
         }
