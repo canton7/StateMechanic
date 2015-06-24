@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IEventDelegate : IStateMachine
+    internal interface IEventDelegate
     {
         IState CurrentState { get; }
+        string Name { get; }
 
         bool RequestEventFire(Func<IState, bool> invoker);
     }

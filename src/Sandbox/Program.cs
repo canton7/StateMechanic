@@ -30,9 +30,9 @@ namespace Sandbox
             state11.AddTransitionOn(event1).To(state12);
 
 
-            event1.EnsureFire();
-            event1.EnsureFire();
-            event2.EnsureFire();
+            //event1.EnsureFire();
+            //event1.EnsureFire();
+            //event2.EnsureFire();
         }
     }
 }

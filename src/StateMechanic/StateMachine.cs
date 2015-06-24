@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class StateMachineInner<TState> : ITransitionDelegate<TState>, IEventDelegate where TState : IState<TState>
+    internal class StateMachineInner<TState> : IStateDelegate<TState>, IEventDelegate where TState : IState<TState>
     {
         public TState InitialState { get; private set; }
         public TState CurrentState { get; private set; }
         public string Name { get; private set; }
 
-        private readonly StateMachineInner<TState> parentStateMachine;
+        private readonly IStateMachineParent parentStateMachine;
         private readonly Queue<Func<IState, bool>> eventQueue = new Queue<Func<IState, bool>>();
 
         private bool executingTransition;
 
-        public StateMachineInner(string name, StateMachineInner<TState> parentStateMachine)
+        public StateMachineInner(string name, IStateMachineParent parentStateMachine)
         {
             this.Name = name;
             this.parentStateMachine = parentStateMachine;
@@ -170,14 +170,15 @@ namespace StateMechanic
 
         public State CurrentState { get { return this.InnerStateMachine.CurrentState; } }
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public string Name { get { return this.InnerStateMachine.Name; } }
 
         public StateMachine(string name)
             : this(name, null)
         { }
 
-        internal StateMachine(string name, StateMachine parentStateMachine)
+        internal StateMachine(string name, IStateMachineParent parentStateMachine)
         {
-            this.InnerStateMachine = new StateMachineInner<State>(name, parentStateMachine.InnerStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State>(name, parentStateMachine);
         }
 
         public State CreateState(string name)
@@ -224,14 +225,15 @@ namespace StateMechanic
 
         public State<TStateData> CurrentState { get { return this.InnerStateMachine.CurrentState; } }
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public string Name { get { return this.InnerStateMachine.Name; } }
 
         public StateMachine(string name)
             : this(name, null)
         { }
 
-        internal StateMachine(string name, StateMachine<TStateData> parentStateMachine)
+        internal StateMachine(string name, IStateMachineParent parentStateMachine)
         {
-            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, parentStateMachine.InnerStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, parentStateMachine);
         }
 
         public State<TStateData> CreateState(string name)
