@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IStateMachineParent<TState>
+    internal interface IStateMachineParent<TState> : IStateMachine<TState>
     {
+        IStateMachine StateMachine { get; }
         void TransitionBegan();
         void TransitionEnded();
         void EnqueueEventFire(Func<bool> invoker);

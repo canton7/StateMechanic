@@ -23,20 +23,23 @@ namespace StateMechanic
         }
         public string Name { get; private set; }
         IState IStateMachine.CurrentState { get { return this.CurrentState; } }
+        public IStateMachine StateMachine { get { return this.outerStateMachine; } }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> RecursiveTransitionNotFound;
 
+        private readonly IStateMachine outerStateMachine;
         private readonly IStateMachineParent<TState> parentStateMachine;
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
 
         private bool executingTransition;
 
-        public StateMachineInner(string name, IStateMachineParent<TState> parentStateMachine)
+        public StateMachineInner(string name, IStateMachine outerStateMachine, IStateMachineParent<TState> parentStateMachine)
         {
             this.Name = name;
+            this.outerStateMachine = outerStateMachine;
             this.parentStateMachine = parentStateMachine;
         }
 
@@ -177,6 +180,14 @@ namespace StateMechanic
                 this.parentStateMachine.TransitionEnded();
         }
 
+        public bool IsChildOf(IStateMachine parentStateMachine)
+        {
+            if (this.parentStateMachine != null)
+                return this.parentStateMachine.StateMachine == parentStateMachine || this.parentStateMachine.StateMachine.IsChildOf(parentStateMachine);
+
+            return false;
+        }
+
         private void OnTransition(TState from, TState to, IEvent evt)
         {
             var handler = this.Transition;
@@ -218,7 +229,7 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine : IStateMachine<State>
+    public class StateMachine : IStateMachine<State>, IStateMachine
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -255,7 +266,7 @@ namespace StateMechanic
 
         internal StateMachine(string name, IStateMachineParent<State> parentStateMachine)
         {
-            this.InnerStateMachine = new StateMachineInner<State>(name, parentStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State>(name, this, parentStateMachine);
         }
 
         public State CreateState(string name)
@@ -294,9 +305,14 @@ namespace StateMechanic
         {
             return this.InnerStateMachine.RequestEventFire(invoker);
         }
+
+        public bool IsChildOf(IStateMachine parentStateMachine)
+        {
+            return this.InnerStateMachine.IsChildOf(parentStateMachine);
+        }
     }
 
-    public class StateMachine<TStateData> : IStateMachine<State<TStateData>>
+    public class StateMachine<TStateData> : IStateMachine<State<TStateData>>, IStateMachine
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
@@ -333,7 +349,7 @@ namespace StateMechanic
 
         internal StateMachine(string name, IStateMachineParent<State<TStateData>> parentStateMachine)
         {
-            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, parentStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, this, parentStateMachine);
         }
 
         public State<TStateData> CreateState(string name)
@@ -371,6 +387,11 @@ namespace StateMechanic
         bool IStateMachine<State<TStateData>>.RequestEventFire(Func<IState, bool> invoker)
         {
             return this.InnerStateMachine.RequestEventFire(invoker);
+        }
+
+        public bool IsChildOf(IStateMachine parentStateMachine)
+        {
+            return this.InnerStateMachine.IsChildOf(parentStateMachine);
         }
     }
 }

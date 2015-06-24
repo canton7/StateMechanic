@@ -10,14 +10,12 @@ namespace StateMechanic
     {
         public IState From { get; private set; }
         public IState To { get; private set; }
-        public IStateMachine StateMachine { get; private set; }
 
-        internal InvalidTransitionException(IState from, IState to, IStateMachine stateMachine)
+        internal InvalidTransitionException(IState from, IState to)
             : base(String.Format("Unable to create transition from {0} to {1}, as they belong to different state machines", from.Name, to.Name))
         {
             this.From = from;
             this.To = to;
-            this.StateMachine = stateMachine;
         }
     }
 }

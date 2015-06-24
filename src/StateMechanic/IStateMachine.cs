@@ -10,9 +10,10 @@ namespace StateMechanic
     {
         string Name { get; }
         IState CurrentState { get; }
+        bool IsChildOf(IStateMachine parentStateMachine);
     }
 
-    internal interface IStateMachine<TState> : IStateMachine
+    internal interface IStateMachine<TState>
     {
         TState CurrentStateRecursive { get; }
         bool RequestEventFire(Func<IState, bool> invoker);

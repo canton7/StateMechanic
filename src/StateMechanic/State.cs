@@ -60,7 +60,7 @@ namespace StateMechanic
 
         public IStateMachine StateMachine
         {
-            get { return this.innerState.StateDelegate; }
+            get { return this.innerState.StateDelegate.StateMachine; }
         }
 
         internal State(string name, IStateDelegate<State> stateDelegate)
@@ -156,7 +156,7 @@ namespace StateMechanic
 
         public IStateMachine StateMachine
         {
-            get { return this.innerState.StateDelegate; }
+            get { return this.innerState.StateDelegate.StateMachine; }
         }
 
         internal State(string name, IStateDelegate<State<TStateData>> stateDelegate)
