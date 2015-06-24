@@ -121,18 +121,14 @@ namespace StateMechanic
                 onExit(info);
         }
 
-
-        bool IState<State>.RequestEventFire(Func<IState, bool> invoker)
-        {
-            if (this.ChildStateMachine == null)
-                return false;
-
-            return this.ChildStateMachine.RequestEventFire(invoker);
-        }
-
         string IState.Name
         {
             get { return this.innerState.Name; }
+        }
+
+        IStateMachine<State> IState<State>.ChildStateMachine
+        {
+            get { return this.ChildStateMachine; }
         }
 
         bool IState<State>.BelongsToSameStateMachineAs(State otherState)
@@ -227,17 +223,14 @@ namespace StateMechanic
                 onExit(info);
         }
 
-        bool IState<State<TStateData>>.RequestEventFire(Func<IState, bool> invoker)
-        {
-            if (this.ChildStateMachine == null)
-                return false;
-
-            return this.ChildStateMachine.RequestEventFire(invoker);
-        }
-
         string IState.Name
         {
             get { return this.innerState.Name; }
+        }
+
+        IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine
+        {
+            get { return this.ChildStateMachine; }
         }
 
         bool IState<State<TStateData>>.BelongsToSameStateMachineAs(State<TStateData> otherState)

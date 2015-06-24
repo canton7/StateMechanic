@@ -13,10 +13,9 @@ namespace StateMechanic
 
     internal interface IState<TState> : IState
     {
+        IStateMachine<TState> ChildStateMachine { get; }
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);
-
-        bool RequestEventFire(Func<IState, bool> invoker);
 
         bool BelongsToSameStateMachineAs(TState otherState);
     }

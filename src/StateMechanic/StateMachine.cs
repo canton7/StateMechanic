@@ -11,6 +11,16 @@ namespace StateMechanic
     {
         public TState InitialState { get; private set; }
         public TState CurrentState { get; private set; }
+        public TState CurrentStateRecursive
+        {
+            get
+            {
+                if (this.CurrentState != null && this.CurrentState.ChildStateMachine != null)
+                    return this.CurrentState.ChildStateMachine.CurrentStateRecursive;
+                else
+                    return this.CurrentState;
+            }
+        }
         public string Name { get; private set; }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
@@ -96,7 +106,8 @@ namespace StateMechanic
             bool success;
 
             // Try and fire it on the child state machine - see if that works
-            if (this.CurrentState != null && this.CurrentState.RequestEventFire(invoker))
+            var childStateMachine = this.CurrentState == null ? null : this.CurrentState.ChildStateMachine;
+            if (childStateMachine != null && childStateMachine.RequestEventFire(invoker))
             {
                 success = true;
             }
@@ -212,11 +223,12 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine : IStateMachine
+    public class StateMachine : IStateMachine<State>
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
         public State CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        public State CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
 
@@ -272,17 +284,18 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, bool> invoker)
+        bool IStateMachine<State>.RequestEventFire(Func<IState, bool> invoker)
         {
             return this.InnerStateMachine.RequestEventFire(invoker);
         }
     }
 
-    public class StateMachine<TStateData> : IStateMachine
+    public class StateMachine<TStateData> : IStateMachine<State<TStateData>>
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
         public State<TStateData> CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        public State<TStateData> CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
 
@@ -338,7 +351,7 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        internal bool RequestEventFire(Func<IState, bool> invoker)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(Func<IState, bool> invoker)
         {
             return this.InnerStateMachine.RequestEventFire(invoker);
         }
