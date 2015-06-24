@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IEventDelegate
+    internal interface IEventDelegate : IStateMachine
     {
-        IState CurrentState { get; }
-        string Name { get; }
-
         bool RequestEventFire(Func<IState, bool> invoker);
         void NotifyTransitionNotFound(IEvent evt);
     }

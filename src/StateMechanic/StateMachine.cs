@@ -22,6 +22,7 @@ namespace StateMechanic
             }
         }
         public string Name { get; private set; }
+        IState IStateMachine.CurrentState { get { return this.CurrentState; } }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
@@ -73,11 +74,6 @@ namespace StateMechanic
 
             if (this.CurrentState != null)
                 this.CurrentState.FireOnEntry(handlerInfo);
-        }
-
-        IState IEventDelegate.CurrentState
-        {
-            get { return this.CurrentState; }
         }
 
         /// <summary>
@@ -230,6 +226,7 @@ namespace StateMechanic
         public State CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
+        IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
 
         public event EventHandler<TransitionEventArgs<State>> Transition
         {
@@ -297,6 +294,7 @@ namespace StateMechanic
         public State<TStateData> CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
+        IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
 
         public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition
         {

@@ -9,6 +9,7 @@ namespace StateMechanic
     public interface IStateMachine
     {
         string Name { get; }
+        IState CurrentState { get; }
     }
 
     internal interface IStateMachine<TState> : IStateMachine

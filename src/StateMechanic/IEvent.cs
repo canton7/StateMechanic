@@ -9,5 +9,6 @@ namespace StateMechanic
     public interface IEvent
     {
         string Name { get; }
+        IStateMachine StateMachine { get; }
     }
 }
