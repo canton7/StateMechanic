@@ -139,6 +139,7 @@ namespace StateMechanic
             {
                 while (this.eventQueue.Count > 0)
                 {
+                    // TODO: Not sure whether these failing should affect the status of the outer parent transition...
                     this.eventQueue.Dequeue()();
                 }
             }
