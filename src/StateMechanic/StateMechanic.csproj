@@ -57,6 +57,7 @@
     <Compile Include="StateMachine.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="TransitionBuilder.cs" />
+    <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionInfo.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
   </ItemGroup>

@@ -12,8 +12,9 @@ namespace StateMechanic
 
         void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition);
 
-        void UpdateCurrentState(TState state);
+        void UpdateCurrentState(TState from, TState state, IEvent evt);
 
+        // TODO: This are duplicated in IStateMachineDelegate
         void TransitionBegan();
         void TransitionEnded();
     }

@@ -52,7 +52,7 @@ namespace StateMechanic
                 if (this.Handler != null)
                     transitionHandlerInvoker(this.Handler, transitionInfo);
 
-                this.transitionDelegate.UpdateCurrentState(this.To);
+                this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event);
 
                 if (!this.isInnerTransition)
                     this.To.FireOnEntry(stateHandlerInfo);

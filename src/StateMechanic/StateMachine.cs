@@ -13,12 +13,17 @@ namespace StateMechanic
         public TState CurrentState { get; private set; }
         public string Name { get; private set; }
 
-        private readonly IStateMachineParent parentStateMachine;
+        public event EventHandler<TransitionEventArgs<TState>> Transition;
+        public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
+        public event EventHandler<TransitionEventArgs<TState>> TransitionNotFound;
+        public event EventHandler<TransitionEventArgs<TState>> RecursiveTransitionNotFound;
+
+        private readonly IStateMachineParent<TState> parentStateMachine;
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
 
         private bool executingTransition;
 
-        public StateMachineInner(string name, IStateMachineParent parentStateMachine)
+        public StateMachineInner(string name, IStateMachineParent<TState> parentStateMachine)
         {
             this.Name = name;
             this.parentStateMachine = parentStateMachine;
@@ -131,9 +136,11 @@ namespace StateMechanic
             }
         }
 
-        public void UpdateCurrentState(TState state)
+        public void UpdateCurrentState(TState from, TState to, IEvent evt)
         {
-            this.CurrentState = state;
+            this.CurrentState = to;
+            this.OnTransition(from, to, evt);
+            this.OnRecursiveTransition(from, to, evt);
         }
 
         public void AddTransition(Event evt, Transition<TState> transition)
@@ -163,6 +170,23 @@ namespace StateMechanic
             if (this.parentStateMachine != null)
                 this.parentStateMachine.TransitionEnded();
         }
+
+        private void OnTransition(TState from, TState to, IEvent evt)
+        {
+            var handler = this.Transition;
+            if (handler != null)
+                handler(this, new TransitionEventArgs<TState>(from, to, evt));
+        }
+
+        public void OnRecursiveTransition(TState from, TState to, IEvent evt)
+        {
+            if (this.parentStateMachine != null)
+                this.parentStateMachine.OnRecursiveTransition(from, to, evt);
+
+            var handler = this.RecursiveTransition;
+            if (handler != null)
+                handler(this, new TransitionEventArgs<TState>(from, to, evt));
+        }
     }
 
     public class StateMachine : IStateMachine
@@ -173,11 +197,22 @@ namespace StateMechanic
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
 
+        public event EventHandler<TransitionEventArgs<State>> Transition
+        {
+            add { this.InnerStateMachine.Transition += value; }
+            remove { this.InnerStateMachine.Transition -= value; }
+        }
+        public event EventHandler<TransitionEventArgs<State>> RecursiveTransition
+        {
+            add { this.InnerStateMachine.RecursiveTransition += value; }
+            remove { this.InnerStateMachine.RecursiveTransition -= value; }
+        }
+
         public StateMachine(string name)
             : this(name, null)
         { }
 
-        internal StateMachine(string name, IStateMachineParent parentStateMachine)
+        internal StateMachine(string name, IStateMachineParent<State> parentStateMachine)
         {
             this.InnerStateMachine = new StateMachineInner<State>(name, parentStateMachine);
         }
@@ -228,11 +263,22 @@ namespace StateMechanic
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
 
+        public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition
+        {
+            add { this.InnerStateMachine.Transition += value; }
+            remove { this.InnerStateMachine.Transition -= value; }
+        }
+        public event EventHandler<TransitionEventArgs<State<TStateData>>> RecursiveTransition
+        {
+            add { this.InnerStateMachine.RecursiveTransition += value; }
+            remove { this.InnerStateMachine.RecursiveTransition -= value; }
+        }
+
         public StateMachine(string name)
             : this(name, null)
         { }
 
-        internal StateMachine(string name, IStateMachineParent parentStateMachine)
+        internal StateMachine(string name, IStateMachineParent<State<TStateData>> parentStateMachine)
         {
             this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, parentStateMachine);
         }
