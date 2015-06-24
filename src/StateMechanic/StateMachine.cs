@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class StateMachineInner<TState> : IStateDelegate<TState>, IEventDelegate where TState : IState<TState>
+    internal class StateMachineInner<TState> : IStateDelegate<TState>, IEventDelegate where TState : class, IState<TState>
     {
         public TState InitialState { get; private set; }
         public TState CurrentState { get; private set; }
@@ -22,7 +22,6 @@ namespace StateMechanic
             }
         }
         public string Name { get; private set; }
-        IState IStateMachine.CurrentState { get { return this.CurrentState; } }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
@@ -188,6 +187,14 @@ namespace StateMechanic
             return false;
         }
 
+        public bool IsInState(IState state)
+        {
+            if (this.CurrentState == null)
+                return false;
+
+            return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInState(state));
+        }
+
         private void OnTransition(TState from, TState to, IEvent evt)
         {
             var handler = this.Transition;
@@ -310,6 +317,11 @@ namespace StateMechanic
         {
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
         }
+
+        public bool IsInState(IState state)
+        {
+            return this.InnerStateMachine.IsInState(state);
+        }
     }
 
     public class StateMachine<TStateData> : IStateMachine<State<TStateData>>, IStateMachine
@@ -392,6 +404,11 @@ namespace StateMechanic
         public bool IsChildOf(IStateMachine parentStateMachine)
         {
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
+        }
+
+        public bool IsInState(IState state)
+        {
+            return this.InnerStateMachine.IsInState(state);
         }
     }
 }

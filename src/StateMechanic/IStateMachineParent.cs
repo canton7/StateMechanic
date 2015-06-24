@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IStateMachineParent<TState> : IStateMachine<TState>
+    internal interface IStateMachineParent<TState>
     {
         IStateMachine StateMachine { get; }
         void TransitionBegan();
