@@ -85,14 +85,14 @@ namespace StateMechanic
             set { this.innerTransition.Guard = value; }
         }
 
-        internal Transition(TState from, TState to, Event evt, ITransitionDelegate<TState> transitionRepository)
+        internal Transition(TState from, TState to, Event evt, ITransitionDelegate<TState> transitionDelegate)
         {
-            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt, transitionRepository, isInnerTransition: false);
+            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(from, to, evt, transitionDelegate, isInnerTransition: false);
         }
 
-        internal Transition(TState fromAndTo, Event evt, ITransitionDelegate<TState> transitionRepository)
+        internal Transition(TState fromAndTo, Event evt, ITransitionDelegate<TState> transitionDelegate)
         {
-            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(fromAndTo, fromAndTo, evt, transitionRepository, isInnerTransition: true);
+            this.innerTransition = new TransitionInner<TState, Event, TransitionHandler<TState>>(fromAndTo, fromAndTo, evt, transitionDelegate, isInnerTransition: true);
         }
 
         public ITransition<TState> WithHandler(TransitionHandler<TState> handler)

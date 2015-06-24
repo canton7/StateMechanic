@@ -8,10 +8,6 @@ namespace StateMechanic
 {
     internal interface ITransitionDelegate<TState> where TState : IState<TState>
     {
-        void AddTransition(Event evt, Transition<TState> transition);
-
-        void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition);
-
         void UpdateCurrentState(TState from, TState state, IEvent evt);
 
         // TODO: This are duplicated in IStateMachineDelegate

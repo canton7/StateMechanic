@@ -10,19 +10,19 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event evt;
-        private readonly ITransitionDelegate<TState> transitionRepository;
+        private readonly ITransitionDelegate<TState> transitionDelegate;
 
-        public TransitionBuilder(TState fromState, Event evt, ITransitionDelegate<TState> transitionRepository)
+        public TransitionBuilder(TState fromState, Event evt, ITransitionDelegate<TState> transitionDelegate)
         {
             this.fromState = fromState;
             this.evt = evt;
-            this.transitionRepository = transitionRepository;
+            this.transitionDelegate = transitionDelegate;
         }
 
         ITransition<TState> ITransitionBuilder<TState>.To(TState state)
         {
-            var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionRepository);
-            this.transitionRepository.AddTransition(this.evt, transition);
+            var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionDelegate);
+            this.evt.AddTransition(state, transition);
             return transition;
         }
     }
@@ -31,19 +31,19 @@ namespace StateMechanic
     {
         private readonly TState fromState;
         private readonly Event<TEventData> evt;
-        private readonly ITransitionDelegate<TState> transitionRepository;
+        private readonly ITransitionDelegate<TState> transitionDelegate;
 
-        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionDelegate<TState> transitionRepository)
+        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionDelegate<TState> transitionDelegate)
         {
             this.fromState = fromState;
             this.evt = evt;
-            this.transitionRepository = transitionRepository;
+            this.transitionDelegate = transitionDelegate;
         }
 
         ITransition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
-            var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionRepository);
-            this.transitionRepository.AddTransition(this.evt, transition);
+            var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
+            this.evt.AddTransition(state, transition);
             return transition;
         }
     }

@@ -151,16 +151,6 @@ namespace StateMechanic
             this.OnRecursiveTransition(from, to, evt);
         }
 
-        public void AddTransition(Event evt, Transition<TState> transition)
-        {
-            evt.AddTransition(transition.From, transition);
-        }
-
-        public void AddTransition<TEventData>(Event<TEventData> evt, Transition<TState, TEventData> transition)
-        {
-            evt.AddTransition(transition.From, transition);
-        }
-
         public void TransitionBegan()
         {
             Debug.Assert(!this.executingTransition);
