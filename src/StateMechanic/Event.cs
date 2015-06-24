@@ -9,7 +9,7 @@ namespace StateMechanic
     // Given an IState, returns an action to invoke the transition handler on it, or null if it doesn't exist
     internal delegate bool EventInvocation(Func<IState, Action> transitionInvocation);
 
-    internal class EventInner<TEvent, TTransition> where TTransition : ITransitionGuard
+    internal class EventInner<TEvent, TTransition>
     {
         private readonly Dictionary<IState, TTransition> transitions = new Dictionary<IState, TTransition>();
 
@@ -27,16 +27,15 @@ namespace StateMechanic
             this.transitions.Add(state, transitionInvocation);
         }
 
-        public bool Fire(Action<TTransition> action)
+        public bool Fire(Func<TTransition, bool> transitionInvoker)
         {
             return this.eventDelegate.RequestEventFire(state =>
             {
                 TTransition transition;
-                if (!this.transitions.TryGetValue(state, out transition) || !transition.CanInvoke())
+                if (!this.transitions.TryGetValue(state, out transition))
                     return false;
 
-                action(transition);
-                return true;
+                return transitionInvoker(transition);
             });
         }
     }
@@ -59,7 +58,7 @@ namespace StateMechanic
 
         public bool Fire(TEventData eventData)
         {
-            return this.innerEvent.Fire((transition) => transition.Invoke(eventData));
+            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData));
         }
 
         public void EnsureFire(TEventData eventData)
@@ -87,7 +86,7 @@ namespace StateMechanic
 
         public bool Fire()
         {
-            return this.innerEvent.Fire((transition) => transition.Invoke());
+            return this.innerEvent.Fire(transition => transition.TryInvoke());
         }
 
         public void EnsureFire()

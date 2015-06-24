@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface ITransitionGuard
+    internal interface IInvocableTransition
     {
-        bool CanInvoke();
+        bool TryInvoke();
     }
 
-    internal interface IInvocableTransition : ITransitionGuard
+    internal interface IInvocableTransition<TEventData>
     {
-        void Invoke();
-    }
-
-    internal interface IInvocableTransition<TEventData> : ITransitionGuard
-    {
-        void Invoke(TEventData eventData);
+        bool TryInvoke(TEventData eventData);
     }
 }

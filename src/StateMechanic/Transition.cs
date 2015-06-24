@@ -18,7 +18,7 @@ namespace StateMechanic
         private readonly bool isInnerTransition;
 
         public TTransitionHandler Handler;
-        public Func<bool> Guard;
+        public Func<TransitionInfo<TState, TEvent>, bool> Guard;
 
         public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionRepository, bool isInnerTransition)
         {
@@ -32,8 +32,13 @@ namespace StateMechanic
             this.isInnerTransition = isInnerTransition;
         }
 
-        public void Invoke(Action<TTransitionHandler> transitionHandlerInvoker)
+        public bool TryInvoke(Action<TTransitionHandler, TransitionInfo<TState, TEvent>> transitionHandlerInvoker)
         {
+            var transitionInfo = new TransitionInfo<TState, TEvent>(this.From, this.To, this.Event);
+
+            if (this.Guard != null && !this.Guard(transitionInfo))
+                return false;
+
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
             if (!this.isInnerTransition)
@@ -45,7 +50,7 @@ namespace StateMechanic
                     this.From.FireOnExit(stateHandlerInfo);
 
                 if (this.Handler != null)
-                    transitionHandlerInvoker(this.Handler);
+                    transitionHandlerInvoker(this.Handler, transitionInfo);
 
                 this.transitionDelegate.UpdateCurrentState(this.To);
 
@@ -56,11 +61,8 @@ namespace StateMechanic
             {
                 this.transitionDelegate.TransitionEnded();
             }
-        }
 
-        public bool CanInvoke()
-        {
-            return this.Guard == null || this.Guard();
+            return true;
         }
     }
 
@@ -75,7 +77,7 @@ namespace StateMechanic
             get { return this.innerTransition.Handler; }
             set { this.innerTransition.Handler = value; }
         }
-        public Func<bool> Guard
+        public Func<TransitionInfo<TState, Event>, bool> Guard
         {
             get { return this.innerTransition.Guard; }
             set { this.innerTransition.Guard = value; }
@@ -97,24 +99,15 @@ namespace StateMechanic
             return this;
         }
 
-        public ITransition<TState> WithGuard(Func<bool> guard)
+        public ITransition<TState> WithGuard(Func<TransitionInfo<TState, Event>, bool> guard)
         {
             this.Guard = guard;
             return this;
         }
 
-        public bool CanInvoke()
+        public bool TryInvoke()
         {
-            return this.innerTransition.CanInvoke();
-        }
-
-        public void Invoke()
-        {
-            this.innerTransition.Invoke(handler =>
-            {
-                var transitionInfo = new TransitionInfo<TState, Event>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
-                handler(transitionInfo);
-            });
+            return this.innerTransition.TryInvoke((handler, info) => handler(info));
         }
     }
 
@@ -129,7 +122,7 @@ namespace StateMechanic
             get { return this.innerTransition.Handler; }
             set { this.innerTransition.Handler = value; }
         }
-        public Func<bool> Guard
+        public Func<TransitionInfo<TState, Event<TEventData>>, bool> Guard
         {
             get { return this.innerTransition.Guard; }
             set { this.innerTransition.Guard = value; }
@@ -151,24 +144,15 @@ namespace StateMechanic
             return this;
         }
 
-        public ITransition<TState, TEventData> WithGuard(Func<bool> guard)
+        public ITransition<TState, TEventData> WithGuard(Func<TransitionInfo<TState, Event<TEventData>>, bool> guard)
         {
             this.Guard = guard;
             return this;
         }
 
-        public bool CanInvoke()
+        public bool TryInvoke(TEventData eventData)
         {
-            return this.innerTransition.CanInvoke();
-        }
-
-        public void Invoke(TEventData eventData)
-        {
-            this.innerTransition.Invoke(handler =>
-            {
-                var transitionInfo = new TransitionInfo<TState, Event<TEventData>>(this.innerTransition.From, this.innerTransition.To, this.innerTransition.Event);
-                handler(transitionInfo, eventData);
-            });
+            return this.innerTransition.TryInvoke((handler, info) => handler(info, eventData));
         }
     }
 }
