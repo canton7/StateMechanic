@@ -75,12 +75,12 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        public bool Fire(TEventData eventData)
+        public bool TryFire(TEventData eventData)
         {
             return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, false);
         }
 
-        public void EnsureFire(TEventData eventData)
+        public void Fire(TEventData eventData)
         {
             this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, true);
         }
@@ -103,12 +103,12 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        public bool Fire()
+        public bool TryFire()
         {
             return this.innerEvent.Fire(transition => transition.TryInvoke(), this, false);
         }
 
-        public void EnsureFire()
+        public void Fire()
         {
             this.innerEvent.Fire(transition => transition.TryInvoke(), this, true);
         }
