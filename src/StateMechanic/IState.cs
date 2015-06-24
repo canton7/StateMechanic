@@ -9,6 +9,7 @@ namespace StateMechanic
     public interface IState
     {
         string Name { get; }
+        IStateMachine StateMachine { get; }
     }
 
     internal interface IState<TState> : IState
@@ -16,7 +17,5 @@ namespace StateMechanic
         IStateMachine<TState> ChildStateMachine { get; }
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);
-
-        bool BelongsToSameStateMachineAs(TState otherState);
     }
 }

@@ -13,7 +13,7 @@ namespace StateMechanic
         public IStateMachine StateMachine { get; private set; }
 
         internal InvalidTransitionException(IState from, IState to, IStateMachine stateMachine)
-            : base(String.Format("Unable to create transition from {0} to {1}, as they below to different state machines", from.Name, to.Name))
+            : base(String.Format("Unable to create transition from {0} to {1}, as they belong to different state machines", from.Name, to.Name))
         {
             this.From = from;
             this.To = to;

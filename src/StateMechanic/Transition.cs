@@ -22,7 +22,7 @@ namespace StateMechanic
 
         public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
         {
-            if (!from.BelongsToSameStateMachineAs(to))
+            if (from.StateMachine != to.StateMachine)
                 throw new InvalidTransitionException(from, to, transitionDelegate);
 
             this.From = from;

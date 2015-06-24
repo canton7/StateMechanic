@@ -58,6 +58,11 @@ namespace StateMechanic
             get { return this.innerState.StateDelegate; }
         }
 
+        public IStateMachine StateMachine
+        {
+            get { return this.innerState.StateDelegate; }
+        }
+
         internal State(string name, IStateDelegate<State> stateDelegate)
         {
             this.innerState = new StateInner<State>(name, stateDelegate);
@@ -130,11 +135,6 @@ namespace StateMechanic
         {
             get { return this.ChildStateMachine; }
         }
-
-        bool IState<State>.BelongsToSameStateMachineAs(State otherState)
-        {
-            return this.StateDelegate == otherState.StateDelegate;
-        }
     }
 
     public class State<TStateData> : IState<State<TStateData>>
@@ -150,6 +150,11 @@ namespace StateMechanic
         public string Name { get { return this.innerState.Name; } }
 
         internal IStateDelegate<State<TStateData>> StateDelegate
+        {
+            get { return this.innerState.StateDelegate; }
+        }
+
+        public IStateMachine StateMachine
         {
             get { return this.innerState.StateDelegate; }
         }
@@ -231,11 +236,6 @@ namespace StateMechanic
         IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine
         {
             get { return this.ChildStateMachine; }
-        }
-
-        bool IState<State<TStateData>>.BelongsToSameStateMachineAs(State<TStateData> otherState)
-        {
-            return this.StateDelegate == otherState.StateDelegate;
         }
     }
 }
