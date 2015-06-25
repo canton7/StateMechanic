@@ -84,6 +84,16 @@ namespace StateMechanic
         {
             this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, true);
         }
+
+        void IEvent.Fire()
+        {
+            this.Fire(default(TEventData));
+        }
+
+        bool IEvent.TryFire()
+        {
+            return this.TryFire(default(TEventData));
+        }
     }
 
     public class Event : IEvent

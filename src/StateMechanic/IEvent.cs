@@ -10,5 +10,7 @@ namespace StateMechanic
     {
         string Name { get; }
         IStateMachine ParentStateMachine { get; }
+        bool TryFire();
+        void Fire();
     }
 }

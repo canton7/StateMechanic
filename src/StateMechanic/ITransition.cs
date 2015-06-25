@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public interface ITransition<TState>
+    public interface ITransition
     {
-        TState From { get; }
-        TState To { get; }
+        IState From { get; }
+        IState To { get; }
+        IEvent Event { get; }
+    }
+
+    public interface ITransition<TState> : ITransition
+    {
+        new TState From { get; }
+        new TState To { get; }
         TransitionHandler<TState> Handler { get; set; }
         Func<TransitionInfo<TState, Event>, bool> Guard { get; set; }
 
@@ -17,10 +24,10 @@ namespace StateMechanic
         ITransition<TState> WithGuard(Func<TransitionInfo<TState, Event>, bool> guard);
     }
 
-    public interface ITransition<TState, TEventData>
+    public interface ITransition<TState, TEventData> : ITransition
     {
-        TState From { get; }
-        TState To { get; }
+        new TState From { get; }
+        new TState To { get; }
         TransitionHandler<TState, TEventData> Handler { get; set; }
         Func<TransitionInfo<TState, Event<TEventData>>, bool> Guard { get; set; }
 

@@ -102,6 +102,9 @@ namespace StateMechanic
 
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
+        IState ITransition.From { get { return this.innerTransition.From; } }
+        IState ITransition.To {  get { return this.innerTransition.To; } }
+        public IEvent Event {  get { return this.innerTransition.Event; } }
         public TransitionHandler<TState> Handler
         {
             get { return this.innerTransition.Handler; }
@@ -147,6 +150,9 @@ namespace StateMechanic
 
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
+        IState ITransition.From { get { return this.innerTransition.From; } }
+        IState ITransition.To { get { return this.innerTransition.To; } }
+        public IEvent Event { get { return this.innerTransition.Event; } }
         public TransitionHandler<TState, TEventData> Handler
         {
             get { return this.innerTransition.Handler; }
