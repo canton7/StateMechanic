@@ -111,9 +111,18 @@ namespace StateMechanic
             else
             {
                 // No? Invoke it on ourselves
-                success = invoker(this.CurrentState);
-                if (!success)
-                    this.HandleTransitionNotFound(sourceEvent, throwIfNotFound);
+                try
+                {
+                    this.TransitionBegan();
+                    success = invoker(this.CurrentState);
+
+                    if (!success)
+                        this.HandleTransitionNotFound(sourceEvent, throwIfNotFound);
+                }
+                finally
+                {
+                    this.TransitionEnded();
+                }
             }
 
             this.FireQueuedEvents();

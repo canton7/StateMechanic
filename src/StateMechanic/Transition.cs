@@ -44,25 +44,16 @@ namespace StateMechanic
 
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
-            this.transitionDelegate.TransitionBegan();
+            if (!this.isInnerTransition)
+                this.From.FireOnExit(stateHandlerInfo);
 
-            try
-            {
-                if (!this.isInnerTransition)
-                    this.From.FireOnExit(stateHandlerInfo);
+            if (this.Handler != null)
+                transitionHandlerInvoker(this.Handler, transitionInfo);
 
-                if (this.Handler != null)
-                    transitionHandlerInvoker(this.Handler, transitionInfo);
+            this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event);
 
-                this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event);
-
-                if (!this.isInnerTransition)
-                    this.To.FireOnEntry(stateHandlerInfo);
-            }
-            finally
-            {
-                this.transitionDelegate.TransitionEnded();
-            }
+            if (!this.isInnerTransition)
+                this.To.FireOnEntry(stateHandlerInfo);
 
             return true;
         }
