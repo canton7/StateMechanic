@@ -10,6 +10,7 @@ namespace StateMechanic
     {
         IStateMachine StateMachine { get; }
         bool ExecutingTransition { get; set; }
+        StateMachineFaultInfo Fault { get; set; }
         void EnqueueEventFire(Func<bool> invoker);
         void FireQueuedEvents();
         void OnRecursiveTransition(TState from, TState to, IEvent evt);

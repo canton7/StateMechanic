@@ -52,6 +52,26 @@ namespace StateMechanic
             }
         }
 
+        private StateMachineFaultInfo _fault;
+        public StateMachineFaultInfo Fault
+        {
+            get
+            {
+                if (this.parentStateMachine != null)
+                    return this.parentStateMachine.Fault;
+                else
+                    return this._fault;
+            }
+            set
+            {
+                if (this.parentStateMachine != null)
+                    this.parentStateMachine.Fault = value;
+                else
+                    this._fault = value;
+            }
+        }
+
+
         public StateMachineInner(string name, IStateMachine outerStateMachine, IStateMachineParent<TState> parentStateMachine)
         {
             this.Name = name;
@@ -102,6 +122,9 @@ namespace StateMechanic
         /// <returns></returns>
         public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
+            if (this.Fault != null)
+                throw new StateMachineFaultedException(this.Fault);
+
             if (this.ExecutingTransition)
             {
                 // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
@@ -135,6 +158,12 @@ namespace StateMechanic
 
                     if (!success)
                         this.HandleTransitionNotFound(sourceEvent, throwIfNotFound);
+                }
+                catch (InternalTransitionFaultException e)
+                {
+                    var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event);
+                    this.Fault = faultInfo;
+                    throw new TransitionFailedException(faultInfo);
                 }
                 finally
                 {

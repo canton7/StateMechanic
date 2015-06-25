@@ -39,21 +39,58 @@ namespace StateMechanic
         {
             var transitionInfo = new TransitionInfo<TState, TEvent>(this.From, this.To, this.Event, this.isInnerTransition);
 
-            if (this.Guard != null && !this.Guard(transitionInfo))
-                return false;
+            if (this.Guard != null)
+            {
+                try
+                {
+                    if (!this.Guard(transitionInfo))
+                        return false;
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.Guard, e);
+                }
+            }
 
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
 
             if (!this.isInnerTransition)
-                this.From.FireOnExit(stateHandlerInfo);
+            {
+                try
+                {
+                    this.From.FireOnExit(stateHandlerInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.ExitHandler, e);
+                }
+            }
 
             if (this.Handler != null)
-                transitionHandlerInvoker(this.Handler, transitionInfo);
-
+            {
+                try
+                {
+                    transitionHandlerInvoker(this.Handler, transitionInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.TransitionHandler, e);
+                }
+            }
+                
             this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event);
 
             if (!this.isInnerTransition)
-                this.To.FireOnEntry(stateHandlerInfo);
+            {
+                try
+                {
+                    this.To.FireOnEntry(stateHandlerInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.EntryHandler, e);
+                }
+            }
 
             return true;
         }
