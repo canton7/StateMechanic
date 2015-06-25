@@ -36,6 +36,7 @@ namespace StateMechanic
         public Transition<TState> AddInnerSelfTransitionOn(TState fromAndToState, Event evt)
         {
             var transition = new Transition<TState>(fromAndToState, evt, this.StateDelegate);
+            evt.AddTransition(fromAndToState, transition);
             this.AddTransition(transition);
             return transition;
         }
@@ -43,6 +44,7 @@ namespace StateMechanic
         public Transition<TState, TEventData> AddInnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
         {
             var transition = new Transition<TState, TEventData>(fromAndToState, evt, this.StateDelegate);
+            evt.AddTransition(fromAndToState, transition);
             this.AddTransition(transition);
             return transition;
         }
