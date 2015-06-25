@@ -13,7 +13,7 @@ namespace StateMechanic
         StateMachineFaultInfo Fault { get; set; }
         void EnqueueEventFire(Func<bool> invoker);
         void FireQueuedEvents();
-        void OnRecursiveTransition(TState from, TState to, IEvent evt);
+        void OnRecursiveTransition(TState from, TState to, IEvent evt, bool isInnerTransition);
         void OnRecursiveTransitionNotFound(TState from, IEvent evt);
     }
 }

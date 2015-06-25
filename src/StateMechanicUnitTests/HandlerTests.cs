@@ -16,7 +16,6 @@ namespace StateMechanicUnitTests
         private StateMachine sm;
         private State state1;
         private State state2;
-        private State state3;
 
         private Event event1;
         private Event event2;

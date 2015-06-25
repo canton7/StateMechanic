@@ -229,11 +229,11 @@ namespace StateMechanic
                 throw new TransitionNotFoundException(this.CurrentState, evt);
         }
 
-        public void UpdateCurrentState(TState from, TState to, IEvent evt)
+        public void UpdateCurrentState(TState from, TState to, IEvent evt, bool isInnerTransition)
         {
             this.CurrentState = to;
-            this.OnTransition(from, to, evt);
-            this.OnRecursiveTransition(from, to, evt);
+            this.OnTransition(from, to, evt, isInnerTransition);
+            this.OnRecursiveTransition(from, to, evt, isInnerTransition);
         }
 
         public void TransitionBegan()
@@ -264,21 +264,21 @@ namespace StateMechanic
             return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInState(state));
         }
 
-        private void OnTransition(TState from, TState to, IEvent evt)
+        private void OnTransition(TState from, TState to, IEvent evt, bool isInnerTransition)
         {
             var handler = this.Transition;
             if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, evt));
+                handler(this, new TransitionEventArgs<TState>(from, to, evt, isInnerTransition));
         }
 
-        public void OnRecursiveTransition(TState from, TState to, IEvent evt)
+        public void OnRecursiveTransition(TState from, TState to, IEvent evt, bool isInnerTransition)
         {
             if (this.parentStateMachine != null)
-                this.parentStateMachine.OnRecursiveTransition(from, to, evt);
+                this.parentStateMachine.OnRecursiveTransition(from, to, evt, isInnerTransition);
 
             var handler = this.RecursiveTransition;
             if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, evt));
+                handler(this, new TransitionEventArgs<TState>(from, to, evt, isInnerTransition));
         }
 
         private void OnTransitionNotFound(TState from, IEvent evt)

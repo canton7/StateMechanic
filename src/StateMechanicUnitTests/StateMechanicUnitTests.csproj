@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="HandlerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransitionNotificationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

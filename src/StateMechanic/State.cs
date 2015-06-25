@@ -159,6 +159,11 @@ namespace StateMechanic
         {
             this.innerState.AddTransition(transition);
         }
+
+        public override string ToString()
+        {
+            return String.Format("<State Name={0}>", this.Name);
+        }
     }
 
     public class State<TStateData> : IState<State<TStateData>>
@@ -272,6 +277,11 @@ namespace StateMechanic
         void IState<State<TStateData>>.AddTransition(ITransition transition)
         {
             this.innerState.AddTransition(transition);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("<State Name={0} Data={1}>", this.Name, this.Data);
         }
     }
 }

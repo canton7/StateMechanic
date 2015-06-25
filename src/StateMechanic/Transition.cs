@@ -78,7 +78,7 @@ namespace StateMechanic
                 }
             }
                 
-            this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event);
+            this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event, this.isInnerTransition);
 
             if (!this.isInnerTransition)
             {

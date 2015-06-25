@@ -94,6 +94,11 @@ namespace StateMechanic
         {
             return this.TryFire(default(TEventData));
         }
+
+        public override string ToString()
+        {
+            return String.Format("<Event Name={0}>", this.Name);
+        }
     }
 
     public class Event : IEvent
@@ -121,6 +126,11 @@ namespace StateMechanic
         public void Fire()
         {
             this.innerEvent.Fire(transition => transition.TryInvoke(), this, true);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("<Event Name={0}>", this.Name);
         }
     }
 }
