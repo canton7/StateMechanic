@@ -314,6 +314,8 @@ namespace StateMechanic
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         public event EventHandler<TransitionEventArgs<State>> Transition
         {
@@ -415,6 +417,8 @@ namespace StateMechanic
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
         public string Name { get { return this.InnerStateMachine.Name; } }
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition
         {

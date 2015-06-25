@@ -10,6 +10,8 @@ namespace StateMechanic
     {
         string Name { get; }
         IState CurrentState { get; }
+        IState CurrentStateRecursive { get; }
+        IState InitialState { get; }
         bool IsChildOf(IStateMachine parentStateMachine);
         bool IsInState(IState state);
         void Reset();
@@ -17,7 +19,7 @@ namespace StateMechanic
 
     internal interface IStateMachine<TState> : IStateMachine
     {
-        TState CurrentStateRecursive { get; }
+        new TState CurrentStateRecursive { get; }
         bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }
