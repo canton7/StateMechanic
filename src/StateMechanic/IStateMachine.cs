@@ -12,6 +12,7 @@ namespace StateMechanic
         IState CurrentState { get; }
         IState CurrentStateRecursive { get; }
         IState InitialState { get; }
+        IReadOnlyList<IState> States { get; }
         bool IsChildOf(IStateMachine parentStateMachine);
         bool IsInState(IState state);
         void Reset();

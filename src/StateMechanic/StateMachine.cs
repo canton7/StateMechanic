@@ -28,6 +28,7 @@ namespace StateMechanic
         }
         public string Name { get; private set; }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
+        public IReadOnlyList<TState> States { get { return this.states.AsReadOnly(); } }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
@@ -316,6 +317,8 @@ namespace StateMechanic
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
         IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public IReadOnlyList<State> States { get { return this.InnerStateMachine.States; } }
+        IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
         public event EventHandler<TransitionEventArgs<State>> Transition
         {
@@ -419,6 +422,8 @@ namespace StateMechanic
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
         IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public IReadOnlyList<State<TStateData>> States { get { return this.InnerStateMachine.States; } }
+        IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
         public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition
         {
