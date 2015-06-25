@@ -56,6 +56,7 @@
     <Compile Include="State.cs" />
     <Compile Include="StateHandlerInfo.cs" />
     <Compile Include="StateMachine.cs" />
+    <Compile Include="StateMachineFaultedEventArgs.cs" />
     <Compile Include="StateMachineFaultedException.cs" />
     <Compile Include="StateMachineFaultInfo.cs" />
     <Compile Include="Transition.cs" />

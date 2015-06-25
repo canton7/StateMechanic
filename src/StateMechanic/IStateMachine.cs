@@ -12,6 +12,7 @@ namespace StateMechanic
         IState CurrentState { get; }
         bool IsChildOf(IStateMachine parentStateMachine);
         bool IsInState(IState state);
+        void Reset();
     }
 
     internal interface IStateMachine<TState> : IStateMachine

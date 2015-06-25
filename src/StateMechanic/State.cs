@@ -135,6 +135,12 @@ namespace StateMechanic
         {
             get { return this.ChildStateMachine; }
         }
+
+        void IState<State>.Reset()
+        {
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.Reset();
+        }
     }
 
     public class State<TStateData> : IState<State<TStateData>>
@@ -236,6 +242,12 @@ namespace StateMechanic
         IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine
         {
             get { return this.ChildStateMachine; }
+        }
+
+        void IState<State<TStateData>>.Reset()
+        {
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.Reset();
         }
     }
 }

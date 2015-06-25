@@ -17,5 +17,6 @@ namespace StateMechanic
         IStateMachine<TState> ChildStateMachine { get; }
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);
+        void Reset();
     }
 }

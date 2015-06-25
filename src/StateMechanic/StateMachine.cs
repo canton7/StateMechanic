@@ -9,6 +9,11 @@ namespace StateMechanic
 {
     internal class StateMachineInner<TState> : IStateDelegate<TState>, IEventDelegate where TState : class, IState<TState>
     {
+        private readonly IStateMachine outerStateMachine;
+        private readonly IStateMachineParent<TState> parentStateMachine;
+        private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
+        private readonly List<TState> states = new List<TState>();
+
         public TState InitialState { get; private set; }
         public TState CurrentState { get; private set; }
         public TState CurrentStateRecursive
@@ -28,10 +33,7 @@ namespace StateMechanic
         public event EventHandler<TransitionEventArgs<TState>> RecursiveTransition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> RecursiveTransitionNotFound;
-
-        private readonly IStateMachine outerStateMachine;
-        private readonly IStateMachineParent<TState> parentStateMachine;
-        private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
+        public event EventHandler<StateMachineFaultedEventArgs> Faulted;
 
         private bool _executingTransition; // Only used if we don't have a parent
         public bool ExecutingTransition
@@ -90,6 +92,11 @@ namespace StateMechanic
             // Normal state machines start in the start state
             if (this.parentStateMachine == null)
                 this.CurrentState = state;
+        }
+
+        public void AddState(TState state)
+        {
+            this.states.Add(state);
         }
 
         public Event CreateEvent(string name)
@@ -163,6 +170,7 @@ namespace StateMechanic
                 {
                     var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event);
                     this.Fault = faultInfo;
+                    this.OnFaulted(faultInfo);
                     throw new TransitionFailedException(faultInfo);
                 }
                 finally
@@ -198,6 +206,17 @@ namespace StateMechanic
                     this.eventQueue.Dequeue()();
                 }
             }
+        }
+
+        public void Reset()
+        {
+            foreach (var state in this.states)
+            {
+                state.Reset();
+            }
+
+            this.Fault = null;
+            this.CurrentState = this.parentStateMachine == null ? this.InitialState : null;
         }
 
         private void HandleTransitionNotFound(IEvent evt, bool throwException)
@@ -277,6 +296,13 @@ namespace StateMechanic
             if (handler != null)
                 handler(this, new TransitionNotFoundEventArgs<TState>(from, evt));
         }
+
+        private void OnFaulted(StateMachineFaultInfo faultInfo)
+        {
+            var handler = this.Faulted;
+            if (handler != null)
+                handler(this, new StateMachineFaultedEventArgs(faultInfo));
+        }
     }
 
     public class StateMachine : IStateMachine<State>, IStateMachine
@@ -309,6 +335,11 @@ namespace StateMechanic
             add { this.InnerStateMachine.RecursiveTransitionNotFound += value; }
             remove { this.InnerStateMachine.RecursiveTransitionNotFound -= value; }
         }
+        public event EventHandler<StateMachineFaultedEventArgs> Faulted
+        {
+            add { this.InnerStateMachine.Faulted += value; }
+            remove { this.InnerStateMachine.Faulted -= value; }
+        }
 
         public StateMachine(string name)
             : this(name, null)
@@ -321,13 +352,16 @@ namespace StateMechanic
 
         public State CreateState(string name)
         {
-            return new State(name, this.InnerStateMachine);
+            var state = new State(name, this.InnerStateMachine);
+            this.InnerStateMachine.AddState(state);
+            return state;
         }
 
         public State CreateInitialState(string name)
         {
             var state = this.CreateState(name);
             this.InnerStateMachine.SetInitialState(state);
+            this.InnerStateMachine.AddState(state);
             return state;
         }
 
@@ -344,6 +378,11 @@ namespace StateMechanic
         public void ForceTransition(State toState, IEvent evt)
         {
             this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+        }
+
+        public void Reset()
+        {
+            this.InnerStateMachine.Reset();
         }
 
         internal void ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent evt)
@@ -397,6 +436,11 @@ namespace StateMechanic
             add { this.InnerStateMachine.RecursiveTransitionNotFound += value; }
             remove { this.InnerStateMachine.RecursiveTransitionNotFound -= value; }
         }
+        public event EventHandler<StateMachineFaultedEventArgs> Faulted
+        {
+            add { this.InnerStateMachine.Faulted += value; }
+            remove { this.InnerStateMachine.Faulted -= value; }
+        }
 
         public StateMachine(string name)
             : this(name, null)
@@ -432,6 +476,11 @@ namespace StateMechanic
         public void ForceTransition(State<TStateData> toState, IEvent evt)
         {
             this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+        }
+
+        public void Reset()
+        {
+            this.InnerStateMachine.Reset();
         }
 
         internal void ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent evt)
