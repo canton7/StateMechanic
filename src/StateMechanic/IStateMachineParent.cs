@@ -9,8 +9,7 @@ namespace StateMechanic
     internal interface IStateMachineParent<TState>
     {
         IStateMachine StateMachine { get; }
-        void TransitionBegan();
-        void TransitionEnded();
+        bool ExecutingTransition { get; set; }
         void EnqueueEventFire(Func<bool> invoker);
         void FireQueuedEvents();
         void OnRecursiveTransition(TState from, TState to, IEvent evt);

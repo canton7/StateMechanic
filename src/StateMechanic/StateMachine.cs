@@ -33,7 +33,24 @@ namespace StateMechanic
         private readonly IStateMachineParent<TState> parentStateMachine;
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
 
-        private bool executingTransition;
+        private bool _executingTransition; // Only used if we don't have a parent
+        public bool ExecutingTransition
+        {
+            get
+            {
+                if (this.parentStateMachine != null)
+                    return this.parentStateMachine.ExecutingTransition;
+                else
+                    return this._executingTransition;
+            }
+            set
+            {
+                if (this.parentStateMachine != null)
+                    this.parentStateMachine.ExecutingTransition = value;
+                else
+                    this._executingTransition = value;
+            }
+        }
 
         public StateMachineInner(string name, IStateMachine outerStateMachine, IStateMachineParent<TState> parentStateMachine)
         {
@@ -85,7 +102,7 @@ namespace StateMechanic
         /// <returns></returns>
         public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
-            if (this.executingTransition)
+            if (this.ExecutingTransition)
             {
                 // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
                 this.EnqueueEventFire(() => this.RequestEventFire(sourceEvent, invoker, throwIfNotFound));
@@ -172,20 +189,14 @@ namespace StateMechanic
 
         public void TransitionBegan()
         {
-            Debug.Assert(!this.executingTransition);
-            this.executingTransition = true;
-            // Make sure everyone's aware of this fact
-            if (this.parentStateMachine != null)
-                this.parentStateMachine.TransitionBegan();
+            Debug.Assert(!this.ExecutingTransition);
+            this.ExecutingTransition = true;
         }
 
         public void TransitionEnded()
         {
-            Debug.Assert(this.executingTransition);
-            this.executingTransition = false;
-            // Make sure everyone's aware of this fact
-            if (this.parentStateMachine != null)
-                this.parentStateMachine.TransitionEnded();
+            Debug.Assert(this.ExecutingTransition);
+            this.ExecutingTransition = false;
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)
