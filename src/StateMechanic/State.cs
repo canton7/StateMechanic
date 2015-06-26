@@ -12,10 +12,10 @@ namespace StateMechanic
     internal class StateInner<TState> where TState : class, IState<TState>
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
-        private readonly List<ITransition> transitions = new List<ITransition>();
+        private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
 
         public string Name { get; private set; }
-        public IReadOnlyList<ITransition> Transitions { get { return this.transitions.AsReadOnly(); } }
+        public IReadOnlyList<ITransition<TState>> Transitions { get { return this.transitions.AsReadOnly(); } }
 
         internal StateInner(string name, ITransitionDelegate<TState> transitionDelegate)
         {
@@ -49,7 +49,7 @@ namespace StateMechanic
             return transition;
         }
 
-        public void AddTransition(ITransition transition)
+        public void AddTransition(ITransition<TState> transition)
         {
             this.transitions.Add(transition);
         }
@@ -65,9 +65,11 @@ namespace StateMechanic
         public string Name { get { return this.innerState.Name; } }
         public StateMachine ChildStateMachine { get; private set; }
         public StateMachine ParentStateMachine { get; private set; }
-        IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
+        public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
-        public IReadOnlyList<ITransition> Transitions { get { return this.innerState.Transitions; } }
+        IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
 
         internal State(string name, StateMachine parentStateMachine)
         {
@@ -149,7 +151,7 @@ namespace StateMechanic
                 this.ChildStateMachine.Reset();
         }
 
-        void IState<State>.AddTransition(ITransition transition)
+        void IState<State>.AddTransition(ITransition<State> transition)
         {
             this.innerState.AddTransition(transition);
         }
@@ -170,9 +172,11 @@ namespace StateMechanic
 
         public StateMachine<TStateData> ChildStateMachine { get; private set; }
         public StateMachine<TStateData> ParentStateMachine { get; private set; }
-        IStateMachine<State<TStateData>> IState<State<TStateData>>.ParentStateMachine { get { return this.ParentStateMachine; } }
+        public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
-        public IReadOnlyList<ITransition> Transitions { get { return this.innerState.Transitions; } }
+        IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine<State<TStateData>> IState<State<TStateData>>.ParentStateMachine { get { return this.ParentStateMachine; } }
 
         public string Name { get { return this.innerState.Name; } }
 
@@ -262,7 +266,7 @@ namespace StateMechanic
                 this.ChildStateMachine.Reset();
         }
 
-        void IState<State<TStateData>>.AddTransition(ITransition transition)
+        void IState<State<TStateData>>.AddTransition(ITransition<State<TStateData>> transition)
         {
             this.innerState.AddTransition(transition);
         }

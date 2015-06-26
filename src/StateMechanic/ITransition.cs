@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public interface ITransition
+    public interface ITransition<out TState> where TState : class, IState
     {
-        IState From { get; }
-        IState To { get; }
+        TState From { get; }
+        TState To { get; }
         IEvent Event { get; }
     }
 }

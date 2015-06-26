@@ -107,16 +107,14 @@ namespace StateMechanic
         }
     }
 
-    public class Transition<TState> : ITransition, IInvokableTransition where TState : class, IState
+    public class Transition<TState> : ITransition<TState>, IInvokableTransition where TState : class, IState
     {
         private readonly ITransitionInner<TState, Event, TransitionHandler<TState>> innerTransition;
 
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
         public Event Event { get { return this.innerTransition.Event; } }
-        IState ITransition.From { get { return this.innerTransition.From; } }
-        IState ITransition.To { get { return this.innerTransition.To; } }
-        IEvent ITransition.Event { get { return this.innerTransition.Event; } }
+        IEvent ITransition<TState>.Event { get { return this.innerTransition.Event; } }
         public TransitionHandler<TState> Handler
         {
             get { return this.innerTransition.Handler; }
@@ -151,16 +149,14 @@ namespace StateMechanic
         }
     }
 
-    public class Transition<TState, TEventData> : ITransition, IInvokableTransition<TEventData> where TState : class, IState
+    public class Transition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData> where TState : class, IState
     {
         private readonly ITransitionInner<TState, Event<TEventData>, TransitionHandler<TState, TEventData>> innerTransition;
 
         public TState From { get { return this.innerTransition.From; } }
         public TState To { get { return this.innerTransition.To; } }
         public Event<TEventData> Event { get { return this.innerTransition.Event; } }
-        IState ITransition.From { get { return this.innerTransition.From; } }
-        IState ITransition.To { get { return this.innerTransition.To; } }
-        IEvent ITransition.Event { get { return this.innerTransition.Event; } }
+        IEvent ITransition<TState>.Event { get { return this.innerTransition.Event; } }
         public TransitionHandler<TState, TEventData> Handler
         {
             get { return this.innerTransition.Handler; }

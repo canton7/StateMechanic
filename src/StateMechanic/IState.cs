@@ -10,14 +10,16 @@ namespace StateMechanic
     {
         string Name { get; }
         IStateMachine ParentStateMachine { get; }
-        IReadOnlyList<ITransition> Transitions { get; }
+        IStateMachine ChildStateMachine { get; }
+        IReadOnlyList<ITransition<IState>> Transitions { get; }
     }
 
-    internal interface IState<TState> : IState where TState: IState<TState>
+    internal interface IState<TState> : IState where TState: class, IState<TState>
     {
         new IStateMachine<TState> ParentStateMachine { get; }
-        IStateMachine<TState> ChildStateMachine { get; }
-        void AddTransition(ITransition transition);
+        new IStateMachine<TState> ChildStateMachine { get; }
+        new IReadOnlyList<ITransition<TState>> Transitions { get; }
+        void AddTransition(ITransition<TState> transition);
         void FireOnEntry(StateHandlerInfo<TState> info);
         void FireOnExit(StateHandlerInfo<TState> info);
         void Reset();

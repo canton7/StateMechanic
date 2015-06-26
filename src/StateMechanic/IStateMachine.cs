@@ -18,7 +18,7 @@ namespace StateMechanic
         void Reset();
     }
 
-    internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : IState<TState>
+    internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : class, IState<TState>
     {
         new TState CurrentStateRecursive { get; }
         bool ExecutingTransition { get; set; }
