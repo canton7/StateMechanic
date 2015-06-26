@@ -59,8 +59,8 @@ namespace StateMechanic
     {
         private readonly StateInner<State> innerState;
 
-        public StateHandler OnEntry { get; set; }
-        public StateHandler OnExit { get; set; }
+        public StateHandler EntryHandler { get; set; }
+        public StateHandler ExitHandler { get; set; }
 
         public string Name { get { return this.innerState.Name; } }
         public StateMachine ChildStateMachine { get; private set; }
@@ -97,15 +97,15 @@ namespace StateMechanic
             return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, evt);
         }
 
-        public State WithEntry(StateHandler onEntry)
+        public State WithEntry(StateHandler entryHandler)
         {
-            this.OnEntry = onEntry;
+            this.EntryHandler = entryHandler;
             return this;
         }
 
-        public State WithExit(StateHandler onExit)
+        public State WithExit(StateHandler exitHandler)
         {
-            this.OnExit = onExit;
+            this.ExitHandler = exitHandler;
             return this;
         }
 
@@ -115,24 +115,24 @@ namespace StateMechanic
             return this.ChildStateMachine;
         }
 
-        void IState<State>.FireOnEntry(StateHandlerInfo<State> info)
+        void IState<State>.FireEntryHandler(StateHandlerInfo<State> info)
         {
-            var onEntry = this.OnEntry;
-            if (onEntry != null)
-                onEntry(info);
+            var entryHandler = this.EntryHandler;
+            if (entryHandler != null)
+                entryHandler(info);
 
             if (this.ChildStateMachine != null)
                 this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
-        void IState<State>.FireOnExit(StateHandlerInfo<State> info)
+        void IState<State>.FireExitHandler(StateHandlerInfo<State> info)
         {
             if (this.ChildStateMachine != null)
                 this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
 
-            var onExit = this.OnExit;
-            if (onExit != null)
-                onExit(info);
+            var exitHandler = this.ExitHandler;
+            if (exitHandler != null)
+                exitHandler(info);
         }
 
         string IState.Name
@@ -167,8 +167,8 @@ namespace StateMechanic
         private readonly StateInner<State<TStateData>> innerState;
 
         public TStateData Data { get; set; }
-        public StateHandler<TStateData> OnEntry { get; set; }
-        public StateHandler<TStateData> OnExit { get; set; }
+        public StateHandler<TStateData> EntryHandler { get; set; }
+        public StateHandler<TStateData> ExitHandler { get; set; }
 
         public StateMachine<TStateData> ChildStateMachine { get; private set; }
         public StateMachine<TStateData> ParentStateMachine { get; private set; }
@@ -212,15 +212,15 @@ namespace StateMechanic
             return this;
         }
 
-        public State<TStateData> WithEntry(StateHandler<TStateData> onEntry)
+        public State<TStateData> WithEntry(StateHandler<TStateData> entryHandler)
         {
-            this.OnEntry = onEntry;
+            this.EntryHandler = entryHandler;
             return this;
         }
 
-        public State<TStateData> WithExit(StateHandler<TStateData> onExit)
+        public State<TStateData> WithExit(StateHandler<TStateData> exitHandler)
         {
-            this.OnExit = onExit;
+            this.ExitHandler = exitHandler;
             return this;
         }
 
@@ -230,24 +230,24 @@ namespace StateMechanic
             return this.ChildStateMachine;
         }
 
-        void IState<State<TStateData>>.FireOnEntry(StateHandlerInfo<State<TStateData>> info)
+        void IState<State<TStateData>>.FireEntryHandler(StateHandlerInfo<State<TStateData>> info)
         {
-            var onEntry = this.OnEntry;
-            if (onEntry != null)
-                onEntry(info);
+            var entryHandler = this.EntryHandler;
+            if (entryHandler != null)
+                entryHandler(info);
 
             if (this.ChildStateMachine != null)
                 this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
-        void IState<State<TStateData>>.FireOnExit(StateHandlerInfo<State<TStateData>> info)
+        void IState<State<TStateData>>.FireExitHandler(StateHandlerInfo<State<TStateData>> info)
         {
             if (this.ChildStateMachine != null)
                 this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
 
-            var onExit = this.OnExit;
-            if (onExit != null)
-                onExit(info);
+            var exitHandler = this.ExitHandler;
+            if (exitHandler != null)
+                exitHandler(info);
         }
 
         string IState.Name

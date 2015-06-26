@@ -69,7 +69,7 @@ namespace StateMechanic
             {
                 try
                 {
-                    this.From.FireOnExit(stateHandlerInfo);
+                    this.From.FireExitHandler(stateHandlerInfo);
                 }
                 catch (Exception e)
                 {
@@ -95,7 +95,7 @@ namespace StateMechanic
             {
                 try
                 {
-                    this.To.FireOnEntry(stateHandlerInfo);
+                    this.To.FireEntryHandler(stateHandlerInfo);
                 }
                 catch (Exception e)
                 {

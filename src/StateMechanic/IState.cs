@@ -20,8 +20,8 @@ namespace StateMechanic
         new IStateMachine<TState> ChildStateMachine { get; }
         new IReadOnlyList<ITransition<TState>> Transitions { get; }
         void AddTransition(ITransition<TState> transition);
-        void FireOnEntry(StateHandlerInfo<TState> info);
-        void FireOnExit(StateHandlerInfo<TState> info);
+        void FireEntryHandler(StateHandlerInfo<TState> info);
+        void FireExitHandler(StateHandlerInfo<TState> info);
         void Reset();
     }
 }

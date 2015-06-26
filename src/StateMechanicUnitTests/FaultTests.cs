@@ -32,10 +32,10 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ExceptionInOnExitPropagatedCorrectly()
+        public void ExceptionInExitHandlerPropagatedCorrectly()
         {
             var exception = new Exception("Foo");
-            this.state1.OnExit = i => { throw exception; };
+            this.state1.ExitHandler = i => { throw exception; };
 
             var e = Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
             Assert.AreEqual(this.event1, e.FaultInfo.Event);
@@ -47,10 +47,10 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ExceptionInOnEntryPropagatedCorrectly()
+        public void ExceptionInEntryHandlerPropagatedCorrectly()
         {
             var exception = new Exception("Foo");
-            this.state2.OnEntry = i => { throw exception; };
+            this.state2.EntryHandler = i => { throw exception; };
 
             var e = Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
             Assert.AreEqual(this.event1, e.FaultInfo.Event);
@@ -98,7 +98,7 @@ namespace StateMechanicUnitTests
             this.stateMachine.Faulted += (o, e) => ea = e;
 
             var exception = new Exception("foo");
-            this.state1.OnExit = i => { throw exception; };
+            this.state1.ExitHandler = i => { throw exception; };
 
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
 
@@ -115,7 +115,7 @@ namespace StateMechanicUnitTests
         public void FaultedStateMachineReportsCorrectFaultedInfo()
         {
             var exception = new Exception("foo");
-            this.state1.OnExit = i => { throw exception; };
+            this.state1.ExitHandler = i => { throw exception; };
 
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
 
@@ -133,7 +133,7 @@ namespace StateMechanicUnitTests
         public void StateMachineRefusesToActOnceFaulted()
         {
             var exception = new Exception("foo");
-            this.state1.OnExit = i => { throw exception; };
+            this.state1.ExitHandler = i => { throw exception; };
 
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
 
@@ -156,7 +156,7 @@ namespace StateMechanicUnitTests
             subState1.AddTransitionOn(this.event1).To(subState2);
 
             var exception = new Exception("foo");
-            subState1.OnExit = i => { throw exception; };
+            subState1.ExitHandler = i => { throw exception; };
 
             this.event1.TryFire();
         }

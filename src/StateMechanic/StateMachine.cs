@@ -130,12 +130,12 @@ namespace StateMechanic
             var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
 
             if (this.CurrentState != null)
-                this.CurrentState.FireOnExit(handlerInfo);
+                this.CurrentState.FireExitHandler(handlerInfo);
 
             this.CurrentState = newState;
 
             if (this.CurrentState != null)
-                this.CurrentState.FireOnEntry(handlerInfo);
+                this.CurrentState.FireEntryHandler(handlerInfo);
         }
 
         /// <summary>
