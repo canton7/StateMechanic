@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class TransitionBuilder<TState> : ITransitionBuilder<TState> where TState : IState<TState>
+    internal class TransitionBuilder<TState> : ITransitionBuilder<TState> where TState : class, IState<TState>
     {
         private readonly TState fromState;
         private readonly Event evt;
@@ -19,15 +19,15 @@ namespace StateMechanic
             this.transitionDelegate = transitionDelegate;
         }
 
-        ITransition<TState> ITransitionBuilder<TState>.To(TState state)
+        Transition<TState> ITransitionBuilder<TState>.To(TState state)
         {
-            var transition = new Transition<TState>(this.fromState, state, this.evt, this.transitionDelegate);
+            var transition = Transition.Create<TState>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
             return transition;
         }
     }
 
-    internal class TransitionBuilder<TState, TEventData> : ITransitionBuilder<TState, TEventData> where TState : IState<TState>
+    internal class TransitionBuilder<TState, TEventData> : ITransitionBuilder<TState, TEventData> where TState : class, IState<TState>
     {
         private readonly TState fromState;
         private readonly Event<TEventData> evt;
@@ -40,9 +40,9 @@ namespace StateMechanic
             this.transitionDelegate = transitionDelegate;
         }
 
-        ITransition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
+        Transition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
-            var transition = new Transition<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
+            var transition = Transition.Create<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
             return transition;
         }

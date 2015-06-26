@@ -60,17 +60,17 @@ namespace StateMechanic
 
     public class Event<TEventData> : IEvent
     {
-        private readonly EventInner<Event<TEventData>, IInvocableTransition<TEventData>> innerEvent;
+        private readonly EventInner<Event<TEventData>, IInvokableTransition<TEventData>> innerEvent;
 
         public string Name { get { return this.innerEvent.Name; } }
         public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate; } }
 
         internal Event(string name, IEventDelegate eventDelegate)
         {
-            this.innerEvent = new EventInner<Event<TEventData>, IInvocableTransition<TEventData>>(name, eventDelegate);
+            this.innerEvent = new EventInner<Event<TEventData>, IInvokableTransition<TEventData>>(name, eventDelegate);
         }
 
-        internal void AddTransition(IState state, IInvocableTransition<TEventData> transition)
+        internal void AddTransition(IState state, IInvokableTransition<TEventData> transition)
         {
             this.innerEvent.AddTransition(state, transition);
         }
@@ -103,17 +103,17 @@ namespace StateMechanic
 
     public class Event : IEvent
     {
-        private readonly EventInner<Event, IInvocableTransition> innerEvent;
+        private readonly EventInner<Event, IInvokableTransition> innerEvent;
 
         public string Name { get { return this.innerEvent.Name; } }
         public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate; } }
 
         internal Event(string name, IEventDelegate eventDelegate)
         {
-            this.innerEvent = new EventInner<Event, IInvocableTransition>(name, eventDelegate);
+            this.innerEvent = new EventInner<Event, IInvokableTransition>(name, eventDelegate);
         }
 
-        internal void AddTransition(IState state, IInvocableTransition transition)
+        internal void AddTransition(IState state, IInvokableTransition transition)
         {
             this.innerEvent.AddTransition(state, transition);
         }
