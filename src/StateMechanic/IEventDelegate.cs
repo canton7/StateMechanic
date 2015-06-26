@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal interface IEventDelegate
+    internal interface IEventDelegate : IStateMachine
     {
-        IStateMachine StateMachine { get; }
         bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }

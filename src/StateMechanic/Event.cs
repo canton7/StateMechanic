@@ -63,7 +63,7 @@ namespace StateMechanic
         private readonly EventInner<Event<TEventData>, IInvocableTransition<TEventData>> innerEvent;
 
         public string Name { get { return this.innerEvent.Name; } }
-        public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate.StateMachine; } }
+        public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate; } }
 
         internal Event(string name, IEventDelegate eventDelegate)
         {
@@ -106,7 +106,7 @@ namespace StateMechanic
         private readonly EventInner<Event, IInvocableTransition> innerEvent;
 
         public string Name { get { return this.innerEvent.Name; } }
-        public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate.StateMachine; } }
+        public IStateMachine ParentStateMachine { get { return this.innerEvent.eventDelegate; } }
 
         internal Event(string name, IEventDelegate eventDelegate)
         {

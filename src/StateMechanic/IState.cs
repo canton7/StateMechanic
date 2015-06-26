@@ -13,8 +13,9 @@ namespace StateMechanic
         IReadOnlyList<ITransition> Transitions { get; }
     }
 
-    internal interface IState<TState> : IState
+    internal interface IState<TState> : IState where TState: IState<TState>
     {
+        new IStateMachine<TState> ParentStateMachine { get; }
         IStateMachine<TState> ChildStateMachine { get; }
         void AddTransition(ITransition transition);
         void FireOnEntry(StateHandlerInfo<TState> info);

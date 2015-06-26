@@ -7,10 +7,16 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    internal class StateMachineInner<TState> : IStateDelegate<TState>, IEventDelegate where TState : class, IState<TState>
+    internal class StateMachineInner<TState> where TState : class, IState<TState>
     {
-        private readonly IStateMachine outerStateMachine;
-        private readonly IStateMachineParent<TState> parentStateMachine;
+        private readonly IStateMachine<TState> outerStateMachine;
+
+        private readonly TState parentState;
+        private IStateMachine<TState> parentStateMachine
+        {
+            get { return this.parentState == null ? null : this.parentState.ParentStateMachine; }
+        }
+
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
         private readonly List<TState> states = new List<TState>();
 
@@ -75,11 +81,11 @@ namespace StateMechanic
         }
 
 
-        public StateMachineInner(string name, IStateMachine outerStateMachine, IStateMachineParent<TState> parentStateMachine)
+        public StateMachineInner(string name, IStateMachine<TState> outerStateMachine, TState parentState)
         {
             this.Name = name;
             this.outerStateMachine = outerStateMachine;
-            this.parentStateMachine = parentStateMachine;
+            this.parentState = parentState;
         }
 
         public void SetInitialState(TState state)
@@ -91,8 +97,17 @@ namespace StateMechanic
 
             // Child state machines start off in no state, and progress to the initial state
             // Normal state machines start in the start state
-            if (this.parentStateMachine == null)
-                this.CurrentState = state;
+            // The exception is child state machines which are children of their parent's initial state, where the parent is not a child state machine
+
+            this.ResetCurrentState();
+        }
+
+        private void ResetCurrentState()
+        {
+            if (this.parentState == null || this.parentState == this.parentState.ParentStateMachine.CurrentState)
+                this.CurrentState = this.InitialState;
+            else
+                this.CurrentState = null;
         }
 
         public void AddState(TState state)
@@ -102,12 +117,12 @@ namespace StateMechanic
 
         public Event CreateEvent(string name)
         {
-            return new Event(name, this);
+            return new Event(name, this.outerStateMachine);
         }
 
         public Event<TEventData> CreateEvent<TEventData>(string name)
         {
-            return new Event<TEventData>(name, this);
+            return new Event<TEventData>(name, this.outerStateMachine);
         }
 
         internal void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
@@ -217,7 +232,7 @@ namespace StateMechanic
             }
 
             this.Fault = null;
-            this.CurrentState = this.parentStateMachine == null ? this.InitialState : null;
+            this.ResetCurrentState();
         }
 
         private void HandleTransitionNotFound(IEvent evt, bool throwException)
@@ -251,7 +266,7 @@ namespace StateMechanic
         public bool IsChildOf(IStateMachine parentStateMachine)
         {
             if (this.parentStateMachine != null)
-                return this.parentStateMachine.StateMachine == parentStateMachine || this.parentStateMachine.StateMachine.IsChildOf(parentStateMachine);
+                return this.parentStateMachine == parentStateMachine || this.parentStateMachine.IsChildOf(parentStateMachine);
 
             return false;
         }
@@ -306,7 +321,7 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine : IStateMachine<State>, IStateMachine
+    public class StateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -319,6 +334,8 @@ namespace StateMechanic
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
         public IReadOnlyList<State> States { get { return this.InnerStateMachine.States; } }
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
+        public StateMachineFaultInfo Fault { get { return this.InnerStateMachine.Fault; } }
+        public bool IsFaulted { get { return this.Fault != null; } }
 
         public event EventHandler<TransitionEventArgs<State>> Transition
         {
@@ -350,14 +367,14 @@ namespace StateMechanic
             : this(name, null)
         { }
 
-        internal StateMachine(string name, IStateMachineParent<State> parentStateMachine)
+        internal StateMachine(string name, State parentState)
         {
-            this.InnerStateMachine = new StateMachineInner<State>(name, this, parentStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State>(name, this, parentState);
         }
 
         public State CreateState(string name)
         {
-            var state = new State(name, this.InnerStateMachine);
+            var state = new State(name, this);
             this.InnerStateMachine.AddState(state);
             return state;
         }
@@ -395,11 +412,6 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
-        {
-            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
-        }
-
         public bool IsChildOf(IStateMachine parentStateMachine)
         {
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
@@ -409,9 +421,51 @@ namespace StateMechanic
         {
             return this.InnerStateMachine.IsInState(state);
         }
+
+        bool IStateMachine<State>.ExecutingTransition
+        {
+            get { return this.InnerStateMachine.ExecutingTransition; }
+            set { this.InnerStateMachine.ExecutingTransition = true; }
+        }
+
+        StateMachineFaultInfo IStateMachine<State>.Fault
+        {
+            get { return this.InnerStateMachine.Fault; }
+            set { this.InnerStateMachine.Fault = value; }
+        }
+
+        void IStateMachine<State>.EnqueueEventFire(Func<bool> invoker)
+        {
+            this.InnerStateMachine.EnqueueEventFire(invoker);
+        }
+
+        void IStateMachine<State>.FireQueuedEvents()
+        {
+            this.InnerStateMachine.FireQueuedEvents();
+        }
+
+        void IStateMachine<State>.OnRecursiveTransition(State from, State to, IEvent evt, bool isInnerTransition)
+        {
+            this.InnerStateMachine.OnRecursiveTransition(from, to, evt, isInnerTransition);
+        }
+
+        void IStateMachine<State>.OnRecursiveTransitionNotFound(State from, IEvent evt)
+        {
+            this.InnerStateMachine.OnRecursiveTransitionNotFound(from, evt);
+        }
+
+        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent evt, bool isInnerSelfTransition)
+        {
+            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
+        }
+
+        bool IEventDelegate.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        {
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+        }
     }
 
-    public class StateMachine<TStateData> : IStateMachine<State<TStateData>>, IStateMachine
+    public class StateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
@@ -424,6 +478,8 @@ namespace StateMechanic
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
         public IReadOnlyList<State<TStateData>> States { get { return this.InnerStateMachine.States; } }
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
+        public StateMachineFaultInfo Fault { get { return this.InnerStateMachine.Fault; } }
+        public bool IsFaulted { get { return this.Fault != null; } }
 
         public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition
         {
@@ -455,14 +511,14 @@ namespace StateMechanic
             : this(name, null)
         { }
 
-        internal StateMachine(string name, IStateMachineParent<State<TStateData>> parentStateMachine)
+        internal StateMachine(string name, State<TStateData> parentState)
         {
-            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, this, parentStateMachine);
+            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, this, parentState);
         }
 
         public State<TStateData> CreateState(string name)
         {
-            return new State<TStateData>(name, this.InnerStateMachine);
+            return new State<TStateData>(name, this);
         }
 
         public State<TStateData> CreateInitialState(string name)
@@ -497,11 +553,6 @@ namespace StateMechanic
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
 
-        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
-        {
-            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
-        }
-
         public bool IsChildOf(IStateMachine parentStateMachine)
         {
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
@@ -510,6 +561,48 @@ namespace StateMechanic
         public bool IsInState(IState state)
         {
             return this.InnerStateMachine.IsInState(state);
+        }
+
+        bool IStateMachine<State<TStateData>>.ExecutingTransition
+        {
+            get { return this.InnerStateMachine.ExecutingTransition; }
+            set { this.InnerStateMachine.ExecutingTransition = true; }
+        }
+
+        StateMachineFaultInfo IStateMachine<State<TStateData>>.Fault
+        {
+            get { return this.InnerStateMachine.Fault; }
+            set { this.InnerStateMachine.Fault = value; }
+        }
+
+        void IStateMachine<State<TStateData>>.EnqueueEventFire(Func<bool> invoker)
+        {
+            this.InnerStateMachine.EnqueueEventFire(invoker);
+        }
+
+        void IStateMachine<State<TStateData>>.FireQueuedEvents()
+        {
+            this.InnerStateMachine.FireQueuedEvents();
+        }
+
+        void IStateMachine<State<TStateData>>.OnRecursiveTransition(State<TStateData> from, State<TStateData> to, IEvent evt, bool isInnerTransition)
+        {
+            this.InnerStateMachine.OnRecursiveTransition(from, to, evt, isInnerTransition);
+        }
+
+        void IStateMachine<State<TStateData>>.OnRecursiveTransitionNotFound(State<TStateData> from, IEvent evt)
+        {
+            this.InnerStateMachine.OnRecursiveTransitionNotFound(from, evt);
+        }
+
+        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent evt, bool isInnerSelfTransition)
+        {
+            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
+        }
+
+        bool IEventDelegate.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        {
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace StateMechanic
 
         public TransitionFailedException(StateMachineFaultInfo faultInfo)
             : base(String.Format("The transition from {0} to {1} (on event {2}) failed at stage {3} with exception '{4}'",
-            faultInfo.FromState.Name, faultInfo.ToState.Name, faultInfo.Event.Name, faultInfo.FaultedComponent, faultInfo.Exception.Message), faultInfo.Exception)
+            faultInfo.From.Name, faultInfo.To.Name, faultInfo.Event.Name, faultInfo.FaultedComponent, faultInfo.Exception.Message), faultInfo.Exception)
         {
             this.FaultInfo = faultInfo;
         }
