@@ -60,7 +60,7 @@
     <Compile Include="StateMachineFaultInfo.cs" />
     <Compile Include="StateMachineInner.cs" />
     <Compile Include="StateMachineKernel.cs" />
-    <Compile Include="SubStateMachine.cs" />
+    <Compile Include="ChildStateMachine.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="TransitionBuilder.cs" />
     <Compile Include="TransitionEventArgs.cs" />

@@ -155,10 +155,10 @@ namespace StateMechanicUnitTests
             var subState2 = childStateMachine.CreateState("State 1.2");
             subState1.AddTransitionOn(this.event1).To(subState2);
 
-            var exception = new Exception("foo");
-            subState1.ExitHandler = i => { throw exception; };
+            subState1.ExitHandler = i => { throw new Exception("foo"); };
 
-            this.event1.TryFire();
+            Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
+            Assert.True(this.stateMachine.IsFaulted);
         }
     }
 }

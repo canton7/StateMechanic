@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public class SubStateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate
+    public class ChildStateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -31,7 +31,7 @@ namespace StateMechanic
             remove { this.InnerStateMachine.TransitionNotFound -= value; }
         }
 
-        internal SubStateMachine(string name, StateMachineKernel<State> kernel, State parentState)
+        internal ChildStateMachine(string name, StateMachineKernel<State> kernel, State parentState)
         {
             this.InnerStateMachine = new StateMachineInner<State>(name, kernel, this, parentState);
         }
@@ -102,7 +102,7 @@ namespace StateMechanic
         }
     }
 
-    public class SubStateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate
+    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
@@ -127,20 +127,23 @@ namespace StateMechanic
             remove { this.InnerStateMachine.TransitionNotFound -= value; }
         }
 
-        internal SubStateMachine(string name, StateMachineKernel<State<TStateData>> kernel, State<TStateData> parentState)
+        internal ChildStateMachine(string name, StateMachineKernel<State<TStateData>> kernel, State<TStateData> parentState)
         {
             this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, kernel, this, parentState);
         }
 
-        public State<TStateData> CreateState(string name)
+        public State<TStateData> CreateState(string name, TStateData data)
         {
-            return new State<TStateData>(name, this);
+            var state = new State<TStateData>(name, data, this);
+            this.InnerStateMachine.AddState(state);
+            return state;
         }
 
-        public State<TStateData> CreateInitialState(string name)
+        public State<TStateData> CreateInitialState(string name, TStateData data)
         {
-            var state = this.CreateState(name);
+            var state = this.CreateState(name, data);
             this.InnerStateMachine.SetInitialState(state);
+            this.InnerStateMachine.AddState(state);
             return state;
         }
 

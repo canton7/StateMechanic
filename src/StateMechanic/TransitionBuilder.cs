@@ -21,6 +21,8 @@ namespace StateMechanic
 
         Transition<TState> ITransitionBuilder<TState>.To(TState state)
         {
+            if (state == null)
+                throw new ArgumentNullException("state");
             var transition = Transition.Create<TState>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
             return transition;
@@ -42,6 +44,8 @@ namespace StateMechanic
 
         Transition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
         {
+            if (state == null)
+                throw new ArgumentNullException("state");
             var transition = Transition.Create<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
             return transition;

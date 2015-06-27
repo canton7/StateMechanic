@@ -63,38 +63,46 @@ namespace StateMechanic
         public StateHandler ExitHandler { get; set; }
 
         public string Name { get { return this.innerState.Name; } }
-        public SubStateMachine ChildStateMachine { get; private set; }
-        public SubStateMachine ParentStateMachine { get; private set; }
+        public ChildStateMachine ChildStateMachine { get; private set; }
+        public ChildStateMachine ParentStateMachine { get; private set; }
         public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
         IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
 
-        internal State(string name, SubStateMachine parentStateMachine)
+        internal State(string name, ChildStateMachine parentStateMachine)
         {
             this.ParentStateMachine = parentStateMachine;
             this.innerState = new StateInner<State>(name, parentStateMachine);
         }
 
-        public ITransitionBuilder<State> AddTransitionOn(Event evt)
+        public ITransitionBuilder<State> AddTransitionOn(Event @event)
         {
-             return this.innerState.AddTransitionOn(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddTransitionOn(this, @event);
         }
 
-        public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
+        public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> @event)
         {
-            return this.innerState.AddTransitionOn<TEventData>(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddTransitionOn<TEventData>(this, @event);
         }
 
-        public Transition<State> AddInnerSelfTransitionOn(Event evt)
+        public Transition<State> AddInnerSelfTransitionOn(Event @event)
         {
-            return this.innerState.AddInnerSelfTransitionOn(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddInnerSelfTransitionOn(this, @event);
         }
 
-        public Transition<State, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> evt)
+        public Transition<State, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
-            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
         }
 
         public State WithEntry(StateHandler entryHandler)
@@ -109,9 +117,9 @@ namespace StateMechanic
             return this;
         }
 
-        public SubStateMachine CreateChildStateMachine(string name)
+        public ChildStateMachine CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new SubStateMachine(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
+            this.ChildStateMachine = new ChildStateMachine(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             return this.ChildStateMachine;
         }
 
@@ -170,8 +178,8 @@ namespace StateMechanic
         public StateHandler<TStateData> EntryHandler { get; set; }
         public StateHandler<TStateData> ExitHandler { get; set; }
 
-        public SubStateMachine<TStateData> ChildStateMachine { get; private set; }
-        public SubStateMachine<TStateData> ParentStateMachine { get; private set; }
+        public ChildStateMachine<TStateData> ChildStateMachine { get; private set; }
+        public ChildStateMachine<TStateData> ParentStateMachine { get; private set; }
         public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
@@ -180,36 +188,39 @@ namespace StateMechanic
 
         public string Name { get { return this.innerState.Name; } }
 
-        internal State(string name, SubStateMachine<TStateData> parentStateMachine)
+        internal State(string name, TStateData data, ChildStateMachine<TStateData> parentStateMachine)
         {
+            this.Data = data;
             this.ParentStateMachine = parentStateMachine;
             this.innerState = new StateInner<State<TStateData>>(name, parentStateMachine);
         }
 
-        public ITransitionBuilder<State<TStateData>> AddTransitionOn(Event evt)
+        public ITransitionBuilder<State<TStateData>> AddTransitionOn(Event @event)
         {
-            return this.innerState.AddTransitionOn(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddTransitionOn(this, @event);
         }
 
-        public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> evt)
+        public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> @event)
         {
-            return this.innerState.AddTransitionOn<TEventData>(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddTransitionOn<TEventData>(this, @event);
         }
 
-        public Transition<State<TStateData>> AddInnerSelfTransitionOn(Event evt)
+        public Transition<State<TStateData>> AddInnerSelfTransitionOn(Event @event)
         {
-            return this.innerState.AddInnerSelfTransitionOn(this, evt);
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddInnerSelfTransitionOn(this, @event);
         }
 
-        public Transition<State<TStateData>, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> evt)
+        public Transition<State<TStateData>, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
-            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, evt);
-        }
-
-        public State<TStateData> WithData(TStateData data)
-        {
-            this.Data = data;
-            return this;
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
         }
 
         public State<TStateData> WithEntry(StateHandler<TStateData> entryHandler)
@@ -224,9 +235,9 @@ namespace StateMechanic
             return this;
         }
 
-        public SubStateMachine<TStateData> CreateChildStateMachine(string name)
+        public ChildStateMachine<TStateData> CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new SubStateMachine<TStateData>(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
+            this.ChildStateMachine = new ChildStateMachine<TStateData>(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             return this.ChildStateMachine;
         }
 

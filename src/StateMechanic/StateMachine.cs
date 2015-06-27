@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public class StateMachine : SubStateMachine
+    public class StateMachine : ChildStateMachine
     {
         public StateMachineFaultInfo Fault { get { return this.InnerStateMachine.Kernel.Fault; } }
         public bool IsFaulted { get { return this.Fault != null; } }
@@ -50,7 +50,7 @@ namespace StateMechanic
         }
     }
 
-    public class StateMachine<TStateData> : SubStateMachine<TStateData>
+    public class StateMachine<TStateData> : ChildStateMachine<TStateData>
     {
         public StateMachineFaultInfo Fault { get { return this.InnerStateMachine.Kernel.Fault; } }
         public bool IsFaulted { get { return this.Fault != null; } }
