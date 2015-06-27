@@ -63,15 +63,15 @@ namespace StateMechanic
         public StateHandler ExitHandler { get; set; }
 
         public string Name { get { return this.innerState.Name; } }
-        public StateMachine ChildStateMachine { get; private set; }
-        public StateMachine ParentStateMachine { get; private set; }
+        public SubStateMachine ChildStateMachine { get; private set; }
+        public SubStateMachine ParentStateMachine { get; private set; }
         public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
         IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
 
-        internal State(string name, StateMachine parentStateMachine)
+        internal State(string name, SubStateMachine parentStateMachine)
         {
             this.ParentStateMachine = parentStateMachine;
             this.innerState = new StateInner<State>(name, parentStateMachine);
@@ -109,9 +109,9 @@ namespace StateMechanic
             return this;
         }
 
-        public StateMachine CreateChildStateMachine(string name)
+        public SubStateMachine CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new StateMachine(name, this);
+            this.ChildStateMachine = new SubStateMachine(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             return this.ChildStateMachine;
         }
 
@@ -148,7 +148,7 @@ namespace StateMechanic
         void IState<State>.Reset()
         {
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.Reset();
+                this.ChildStateMachine.ResetSubStateMachine();
         }
 
         void IState<State>.AddTransition(ITransition<State> transition)
@@ -170,8 +170,8 @@ namespace StateMechanic
         public StateHandler<TStateData> EntryHandler { get; set; }
         public StateHandler<TStateData> ExitHandler { get; set; }
 
-        public StateMachine<TStateData> ChildStateMachine { get; private set; }
-        public StateMachine<TStateData> ParentStateMachine { get; private set; }
+        public SubStateMachine<TStateData> ChildStateMachine { get; private set; }
+        public SubStateMachine<TStateData> ParentStateMachine { get; private set; }
         public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
@@ -180,7 +180,7 @@ namespace StateMechanic
 
         public string Name { get { return this.innerState.Name; } }
 
-        internal State(string name, StateMachine<TStateData> parentStateMachine)
+        internal State(string name, SubStateMachine<TStateData> parentStateMachine)
         {
             this.ParentStateMachine = parentStateMachine;
             this.innerState = new StateInner<State<TStateData>>(name, parentStateMachine);
@@ -224,9 +224,9 @@ namespace StateMechanic
             return this;
         }
 
-        public StateMachine<TStateData> CreateChildStateMachine(string name)
+        public SubStateMachine<TStateData> CreateChildStateMachine(string name)
         {
-            this.ChildStateMachine = new StateMachine<TStateData>(name, this);
+            this.ChildStateMachine = new SubStateMachine<TStateData>(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             return this.ChildStateMachine;
         }
 
@@ -263,7 +263,7 @@ namespace StateMechanic
         void IState<State<TStateData>>.Reset()
         {
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.Reset();
+                this.ChildStateMachine.ResetSubStateMachine();
         }
 
         void IState<State<TStateData>>.AddTransition(ITransition<State<TStateData>> transition)

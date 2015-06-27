@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StateMachineKernel.cs" />
+    <Compile Include="SubStateMachine.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="StateMachineFaultedEventArgs.cs" />
     <Compile Include="StateMachineFaultedException.cs" />
     <Compile Include="StateMachineFaultInfo.cs" />
+    <Compile Include="StateMachineInner.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="TransitionBuilder.cs" />
     <Compile Include="TransitionEventArgs.cs" />
