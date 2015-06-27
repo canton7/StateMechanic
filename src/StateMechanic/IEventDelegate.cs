@@ -8,6 +8,6 @@ namespace StateMechanic
 {
     internal interface IEventDelegate : IStateMachine
     {
-        bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
+        bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }

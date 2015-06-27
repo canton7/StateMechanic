@@ -84,8 +84,14 @@ namespace StateMechanic
             return new Event<TEventData>(name, this.outerStateMachine);
         }
 
-        internal void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
+        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
         {
+            if (this.Kernel.Synchronizer != null)
+            {
+                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransition(pretendNewState, pretendNewState, newState, evt));
+                return;
+            }
+
             var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
 
             if (this.CurrentState != null)
@@ -102,6 +108,14 @@ namespace StateMechanic
         /// </summary>
         /// <param name="invoker">Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
         /// <returns></returns>
+        public bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        {
+            if (this.Kernel.Synchronizer != null)
+                return this.Kernel.Synchronizer.FireEvent(() => this.RequestEventFire(sourceEvent, invoker, throwIfNotFound));
+            else
+                return this.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+        }
+
         public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
             if (this.Kernel.Fault != null)

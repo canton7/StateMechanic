@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IStateMachineSynchronizer.cs" />
+    <Compile Include="LockingStateMachineSynchronizer.cs" />
     <Compile Include="StateMachineKernel.cs" />
     <Compile Include="SubStateMachine.cs" />
     <Compile Include="Event.cs" />

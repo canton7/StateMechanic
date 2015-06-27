@@ -20,5 +20,6 @@ namespace StateMechanic
     internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : class, IState<TState>
     {
         new TState CurrentStateRecursive { get; }
+        bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound);
     }
 }

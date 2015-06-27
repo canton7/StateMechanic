@@ -91,9 +91,14 @@ namespace StateMechanic
             this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
         }
 
-        bool IEventDelegate.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
             return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        {
+            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, throwIfNotFound);
         }
     }
 
@@ -179,9 +184,14 @@ namespace StateMechanic
             this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
         }
 
-        bool IEventDelegate.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
         {
             return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        {
+            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, throwIfNotFound);
         }
     }
 }

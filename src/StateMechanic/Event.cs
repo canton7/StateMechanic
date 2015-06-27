@@ -36,7 +36,7 @@ namespace StateMechanic
 
         public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent, bool throwIfNotFound)
         {
-            return this.eventDelegate.RequestEventFire(parentEvent, state =>
+            return this.eventDelegate.RequestEventFireFromEvent(parentEvent, state =>
             {
                 List<TTransition> transitions;
                 if (!this.transitions.TryGetValue(state, out transitions))

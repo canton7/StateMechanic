@@ -9,6 +9,7 @@ namespace StateMechanic
     internal class StateMachineKernel<TState>
     {
         private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
+        public IStateMachineSynchronizer Synchronizer { get; set; }
         public StateMachineFaultInfo Fault { get; private set; }
         public bool ExecutingTransition { get; set; }
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
