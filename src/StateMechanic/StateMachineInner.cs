@@ -34,7 +34,7 @@ namespace StateMechanic
         }
         public string Name { get; private set; }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
-        public IReadOnlyList<TState> States { get { return this.states.AsReadOnly(); } }
+        public IReadOnlyList<TState> States { get { return this.states; } }
 
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;

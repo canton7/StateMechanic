@@ -15,7 +15,7 @@ namespace StateMechanic
         private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
 
         public string Name { get; private set; }
-        public IReadOnlyList<ITransition<TState>> Transitions { get { return this.transitions.AsReadOnly(); } }
+        public IReadOnlyList<ITransition<TState>> Transitions { get { return this.transitions; } }
 
         internal StateInner(string name, ITransitionDelegate<TState> transitionDelegate)
         {

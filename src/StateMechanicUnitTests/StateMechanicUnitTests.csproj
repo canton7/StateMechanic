@@ -52,13 +52,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StateMechanic\StateMechanic.csproj">
-      <Project>{67b19f61-1fe9-4b88-8a25-2bc7e8eaff85}</Project>
-      <Name>StateMechanic</Name>
-    </ProjectReference>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\StateMechanic\StateMechanic.csproj">
+      <Project>{ebb8741e-0f75-4f46-9d28-5e4b484c59a1}</Project>
+      <Name>StateMechanic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
