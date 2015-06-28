@@ -25,6 +25,11 @@ namespace StateMechanicUnitTests
 
         private List<string> events;
 
+        private struct EventData
+        {
+            public int Foo { get; set;  }
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -71,7 +76,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInGuard()
         {
-            TransitionInfo<State, Event> guardInfo = null;
+            TransitionInfo<State> guardInfo = null;
             this.transition12.Guard = i => { guardInfo = i; return true; };
 
             this.event1.Fire();
@@ -114,7 +119,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInTransitionHandler()
         {
-            TransitionInfo<State, Event> transitionInfo = null;
+            TransitionInfo<State> transitionInfo = null;
             this.transition12.Handler = i => transitionInfo = i;
 
             this.event1.Fire();
@@ -124,6 +129,18 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(this.state2, transitionInfo.To);
             Assert.AreEqual(this.event1, transitionInfo.Event);
             Assert.False(transitionInfo.IsInnerTransition);
+        }
+
+        [Test]
+        public void EventDataIsGivenToTransitionHandler()
+        {
+            var evt = this.sm.CreateEvent<EventData>("Evt");
+            EventData eventData = new EventData();
+            this.state1.AddTransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
+
+            evt.Fire(new EventData() { Foo = 2 });
+
+            Assert.AreEqual(2, eventData.Foo);
         }
     }
 }

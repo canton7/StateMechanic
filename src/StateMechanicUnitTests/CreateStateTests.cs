@@ -11,33 +11,57 @@ namespace StateMechanicUnitTests
     [TestFixture]
     public class CreateStateTests
     {
-        private StateMachine stateMachine;
-
-        [SetUp]
-        public void SetUp()
+        private class StateData
         {
-            this.stateMachine = new StateMachine("State Machine");
+            public int Foo { get; set; }
         }
 
         [Test]
         public void StateCreatedWithCorrectName()
         {
-            var state = this.stateMachine.CreateState("State");
+            var stateMachine = new StateMachine("State Machine");
+            var state = stateMachine.CreateState("State");
             Assert.AreEqual("State", state.Name);
+        }
+
+        [Test]
+        public void StateTCreatedWithCorrectName()
+        {
+            var stateMachine = new StateMachine<StateData>("State Machine");
+            var state = stateMachine.CreateState("StateT", new StateData());
+            Assert.AreEqual("StateT", state.Name);
         }
 
         [Test]
         public void StateAddedToParentStateMachine()
         {
-            var state = this.stateMachine.CreateState("State");
-            Assert.That(this.stateMachine.States, Is.EquivalentTo(new[] { state }));
+            var stateMachine = new StateMachine("State Machine");
+            var state = stateMachine.CreateState("State");
+            Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
+        }
+
+        [Test]
+        public void StateTAddedToParentStateMachine()
+        {
+            var stateMachine = new StateMachine<StateData>("State Machine");
+            var state = stateMachine.CreateState("StateT", new StateData());
+            Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
         }
 
         [Test]
         public void StateReferencesParentStateMachine()
         {
-            var state = this.stateMachine.CreateState("State");
-            Assert.AreEqual(this.stateMachine, state.ParentStateMachine);
+            var stateMachine = new StateMachine("State Machine");
+            var state = stateMachine.CreateState("State");
+            Assert.AreEqual(stateMachine, state.ParentStateMachine);
+        }
+
+        [Test]
+        public void StateTReferencesParentStateMachine()
+        {
+            var stateMachine = new StateMachine<StateData>("State Machine");
+            var state = stateMachine.CreateState("State", new StateData());
+            Assert.AreEqual(stateMachine, state.ParentStateMachine);
         }
     }
 }
