@@ -61,6 +61,7 @@
     <Compile Include="StateMachineInner.cs" />
     <Compile Include="StateMachineKernel.cs" />
     <Compile Include="ChildStateMachine.cs" />
+    <Compile Include="StateMachinePrinter.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="TransitionBuilder.cs" />
     <Compile Include="TransitionEventArgs.cs" />

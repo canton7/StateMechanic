@@ -25,6 +25,7 @@ namespace StateMechanic
                 throw new ArgumentNullException("state");
             var transition = Transition.Create<TState>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
+            this.fromState.AddTransition(transition);
             return transition;
         }
     }
@@ -48,6 +49,7 @@ namespace StateMechanic
                 throw new ArgumentNullException("state");
             var transition = Transition.Create<TState, TEventData>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
+            this.fromState.AddTransition(transition);
             return transition;
         }
     }

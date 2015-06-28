@@ -25,15 +25,17 @@ namespace Sandbox
 
             var subSm = state2.CreateChildStateMachine("childSm");
 
-            var state11 = subSm.CreateInitialState("State 1.1").WithEntry(i => Debug.WriteLine("State 1.1 Entry")).WithExit(i => Debug.WriteLine("State 1.1 Exit"));
-            var state12 = subSm.CreateState("State 1.2").WithEntry(i => Debug.WriteLine("State 1.2 Entry")).WithExit(i => Debug.WriteLine("State 1.2 Exit"));
-            //state11.AddTransitionOn(event1).To(state12);
+            var state11 = subSm.CreateInitialState("State 2.1").WithEntry(i => Debug.WriteLine("State 1.1 Entry")).WithExit(i => Debug.WriteLine("State 1.1 Exit"));
+            var state12 = subSm.CreateState("State 2.2").WithEntry(i => Debug.WriteLine("State 1.2 Entry")).WithExit(i => Debug.WriteLine("State 1.2 Exit"));
+            state11.AddTransitionOn(event1).To(state12);
 
 
-            event1.Fire();
-            event1.Fire();
-            event1.Fire();
-            event2.Fire();
+            //event1.Fire();
+            //event1.Fire();
+            //event1.Fire();
+            //event2.Fire();
+
+            var dot = StateMachinePrinter.FormatDot(sm);
         }
     }
 }

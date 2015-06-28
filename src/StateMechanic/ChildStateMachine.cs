@@ -47,7 +47,6 @@ namespace StateMechanic
         {
             var state = this.CreateState(name);
             this.InnerStateMachine.SetInitialState(state);
-            this.InnerStateMachine.AddState(state);
             return state;
         }
 
@@ -143,7 +142,6 @@ namespace StateMechanic
         {
             var state = this.CreateState(name, data);
             this.InnerStateMachine.SetInitialState(state);
-            this.InnerStateMachine.AddState(state);
             return state;
         }
 
