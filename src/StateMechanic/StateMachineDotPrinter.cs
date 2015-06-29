@@ -10,9 +10,9 @@ namespace StateMechanic
     {
         private static readonly string[] colors = new[] 
         {
-            "#f0a3ff", "#0075dc", "#993f00", "#4c005c", "#191919", "#005c31", "#2bce48", "#808080", "#8f7c00", "#c20088", "#ffa405", "#ffa8bb",
-            "#426600", "#ff0010", "#00998f", "#740aff", "#990000", "#ff5005", "#4d4d4d", "#5da5da", "#faa43a", "#60bd68", "#f17cb0", "#b2912f",
-            "#b276b2", "#f15854"
+            "#0075dc", "#993f00", "#4c005c", "#191919", "#005c31", "#2bce48", "#808080", "#8f7c00", "#c20088", "#ffa405", "#ffa8bb",
+            "#426600", "#ff0010", "#00998f", "#740aff", "#990000", "#ff5005", "#4d4d4d", "#5da5da", "#faa43a", "#60bd68", "#f17cb0",
+            "#b2912f", "#b276b2", "#f15854"
         };
 
         private readonly IStateMachine stateMachine;
@@ -74,7 +74,7 @@ namespace StateMechanic
                     sb.AppendFormat("{0}subgraph \"cluster_{1}\" {{\n", indent, state.Name);
                     sb.AppendFormat("{0}   label=\"{1} / {2}\";\n", indent, state.Name, state.ChildStateMachine.Name);
                     if (this.Colorize)
-                        sb.AppendFormat("{0}   color=\"{1}\";\n", indent, this.ColorForState(state));
+                        sb.AppendFormat("{0}   color=\"{1}\";\n{0}   fontcolor=\"{1}\";\n", indent, this.ColorForState(state));
                     RenderStateMachine(sb, state.ChildStateMachine, indent + "   ");
                     sb.AppendFormat("{0}}}\n", indent);
                 }
