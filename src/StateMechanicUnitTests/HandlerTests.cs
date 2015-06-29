@@ -13,78 +13,71 @@ namespace StateMechanicUnitTests
     [TestFixture]
     public class HandlerTests
     {
-        private StateMachine sm;
-        private State state1;
-        private State state2;
-
-        private Event event1;
-        private Event event2;
-        private Event event3;
-
-        private Transition<State> transition12;
-
-        private List<string> events;
-
         private struct EventData
         {
             public int Foo { get; set;  }
         }
 
-        [SetUp]
-        public void SetUp()
-        {
-            this.events = new List<string>();
-
-            this.sm = new StateMachine("test");
-            this.state1 = this.sm.CreateInitialState("State 1").WithEntry(i => this.events.Add("State 1 Entry")).WithExit(i => this.events.Add("State 1 Exit"));
-            this.state2 = this.sm.CreateState("State 2").WithEntry(i => this.events.Add("State 2 Entry")).WithExit(i => this.events.Add("State 2 Exit"));
-
-            this.event1 = this.sm.CreateEvent("Event 1");
-            this.event2 = this.sm.CreateEvent("Event 2");
-            this.event3 = this.sm.CreateEvent("Event 3");
-
-            this.transition12 = this.state1.AddTransitionOn(this.event1).To(this.state2).WithHandler(x => this.events.Add("Transition 1 2"));
-            this.state1.AddTransitionOn(this.event2).To(this.state1).WithHandler(i => this.events.Add("Transition 1 1"));
-            this.state1.AddInnerSelfTransitionOn(this.event3).WithHandler(i => this.events.Add("Transition 1 1 Inner"));
-        }
-
         [Test]
         public void CorrectHandlersAreInvokedInNormalTransition()
         {
+            var events = new List<string>();
             var sm = new StateMachine("State Machine");
-            this.event1.Fire();
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => events.Add("State 1 Exit"));
+            var state2 = sm.CreateState("State 2").WithEntry(i => events.Add("State 2 Entry"));
+            var transition = state1.AddTransitionOn(evt).To(state2).WithHandler(i => events.Add("Transition 1 2"));
 
-            Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "State 2 Entry" }));
+            evt.Fire();
+
+            Assert.That(events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "State 2 Entry" }));
         }
 
         [Test]
         public void NormalSelfTransitionShouldFireExitAndEntry()
         {
-            this.event2.Fire();
+            var events = new List<string>();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
+            state1.AddTransitionOn(evt).To(state1).WithHandler(i => events.Add("Transition 1 1"));
 
-            Assert.That(this.events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 1", "State 1 Entry" }));
+            evt.Fire();
+
+            Assert.That(events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 1", "State 1 Entry" }));
         }
 
         [Test]
         public void InnerSelfTransitionShouldNotFireExitAndEntry()
         {
-            this.event3.Fire();
+            var events = new List<string>();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
+            state1.AddInnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
 
-            Assert.That(this.events, Is.EquivalentTo(new[] { "Transition 1 1 Inner" }));
+            evt.Fire();
+
+            Assert.That(events, Is.EquivalentTo(new[] { "Transition 1 1 Inner" }));
         }
 
         [Test]
         public void CorrectInfoIsGivenInGuard()
         {
             TransitionInfo<State> guardInfo = null;
-            this.transition12.Guard = i => { guardInfo = i; return true; };
 
-            this.event1.Fire();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            state1.AddTransitionOn(evt).To(state2).WithGuard(i => { guardInfo = i; return true; });
+
+            evt.Fire();
 
             Assert.NotNull(guardInfo);
-            Assert.AreEqual(this.state1, guardInfo.From);
-            Assert.AreEqual(this.state2, guardInfo.To);
-            Assert.AreEqual(this.event1, guardInfo.Event);
+            Assert.AreEqual(state1, guardInfo.From);
+            Assert.AreEqual(state2, guardInfo.To);
+            Assert.AreEqual(evt, guardInfo.Event);
             Assert.False(guardInfo.IsInnerTransition);
         }
 
@@ -92,55 +85,127 @@ namespace StateMechanicUnitTests
         public void CorrectInfoIsGivenInExitHandler()
         {
             StateHandlerInfo<State> handlerInfo = null;
-            this.state1.ExitHandler = i => handlerInfo = i;
 
-            this.event1.Fire();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
+            var state2 = sm.CreateState("State 2");
+            state1.AddTransitionOn(evt).To(state2);
+
+            evt.Fire();
 
             Assert.NotNull(handlerInfo);
-            Assert.AreEqual(this.state1, handlerInfo.From);
-            Assert.AreEqual(this.state2, handlerInfo.To);
-            Assert.AreEqual(this.event1, handlerInfo.Event);
+            Assert.AreEqual(state1, handlerInfo.From);
+            Assert.AreEqual(state2, handlerInfo.To);
+            Assert.AreEqual(evt, handlerInfo.Event);
         }
 
         [Test]
         public void CorrectInfoIsGivenInEntryHandler()
         {
             StateHandlerInfo<State> handlerInfo = null;
-            this.state2.EntryHandler = i => handlerInfo = i;
 
-            this.event1.Fire();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
+            state1.AddTransitionOn(evt).To(state2);
+
+            evt.Fire();
 
             Assert.NotNull(handlerInfo);
-            Assert.AreEqual(this.state1, handlerInfo.From);
-            Assert.AreEqual(this.state2, handlerInfo.To);
-            Assert.AreEqual(this.event1, handlerInfo.Event);
+            Assert.AreEqual(state1, handlerInfo.From);
+            Assert.AreEqual(state2, handlerInfo.To);
+            Assert.AreEqual(evt, handlerInfo.Event);
         }
 
         [Test]
         public void CorrectInfoIsGivenInTransitionHandler()
         {
             TransitionInfo<State> transitionInfo = null;
-            this.transition12.Handler = i => transitionInfo = i;
 
-            this.event1.Fire();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            state1.AddTransitionOn(evt).To(state2).WithHandler(i => transitionInfo = i);
+
+            evt.Fire();
 
             Assert.NotNull(transitionInfo);
-            Assert.AreEqual(this.state1, transitionInfo.From);
-            Assert.AreEqual(this.state2, transitionInfo.To);
-            Assert.AreEqual(this.event1, transitionInfo.Event);
+            Assert.AreEqual(state1, transitionInfo.From);
+            Assert.AreEqual(state2, transitionInfo.To);
+            Assert.AreEqual(evt, transitionInfo.Event);
             Assert.False(transitionInfo.IsInnerTransition);
         }
 
         [Test]
         public void EventDataIsGivenToTransitionHandler()
         {
-            var evt = this.sm.CreateEvent<EventData>("Evt");
             EventData eventData = new EventData();
-            this.state1.AddTransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
+
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent<EventData>("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+
+            state1.AddTransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
 
             evt.Fire(new EventData() { Foo = 2 });
 
             Assert.AreEqual(2, eventData.Foo);
+        }
+
+        [Test]
+        public void TransitioningToChildStateMachineCallsEntryHandlerOnInitialState()
+        {
+            StateHandlerInfo<State> state21EntryInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
+            state1.AddTransitionOn(evt).To(state2);
+
+            evt.Fire();
+
+            Assert.NotNull(state21EntryInfo);
+            Assert.AreEqual(state1, state21EntryInfo.From);
+            Assert.AreEqual(state21, state21EntryInfo.To);
+            Assert.AreEqual(evt, state21EntryInfo.Event);
+        }
+
+        [Test]
+        public void TransitioningFromChildStateMachineCallsExitHandlerOnCurrentState()
+        {
+            StateHandlerInfo<State> state22ExitInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt1 = sm.CreateEvent("Event 1");
+            var evt2 = sm.CreateEvent("Event 2");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var state21 = subSm.CreateInitialState("State 2.1");
+            var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
+
+            state1.AddTransitionOn(evt1).To(state2);
+            state2.AddTransitionOn(evt2).To(state1);
+            state21.AddTransitionOn(evt1).To(state22);
+
+            // Enter state2, and start child state machine
+            evt1.Fire();
+            // Enter State 2.2
+            evt1.Fire();
+            // Transition from state2 to state1, exiting the child state machine
+            evt2.Fire();
+
+            Assert.NotNull(state22ExitInfo);
+            Assert.AreEqual(state22, state22ExitInfo.From);
+            Assert.AreEqual(state1, state22ExitInfo.To);
+            Assert.AreEqual(evt2, state22ExitInfo.Event);
         }
     }
 }

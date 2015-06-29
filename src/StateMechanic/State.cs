@@ -130,13 +130,13 @@ namespace StateMechanic
                 entryHandler(info);
 
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
+                this.ChildStateMachine.ForceTransition(info.From, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
         void IState<State>.FireExitHandler(StateHandlerInfo<State> info)
         {
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
+                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.To, null, info.Event);
 
             var exitHandler = this.ExitHandler;
             if (exitHandler != null)
