@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public class ChildStateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate
+    public class ChildStateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate, IStateDelegate<State>
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -62,6 +62,11 @@ namespace StateMechanic
 
         public void ForceTransition(State toState, IEvent evt)
         {
+            if (toState == null)
+                throw new ArgumentNullException("toState");
+            if (evt == null)
+                throw new ArgumentNullException("evt");
+
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
             if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
@@ -75,7 +80,7 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        internal void ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent evt)
+        void IStateDelegate<State>.ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent evt)
         {
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }
@@ -106,7 +111,7 @@ namespace StateMechanic
         }
     }
 
-    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate
+    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate, IStateDelegate<State<TStateData>>
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
@@ -162,6 +167,11 @@ namespace StateMechanic
 
         public void ForceTransition(State<TStateData> toState, IEvent evt)
         {
+            if (toState == null)
+                throw new ArgumentNullException("toState");
+            if (evt == null)
+                throw new ArgumentNullException("evt");
+
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
             if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
@@ -175,7 +185,7 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        internal void ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent evt)
+        void IStateDelegate<State<TStateData>>.ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent evt)
         {
             this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
         }

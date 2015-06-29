@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    public delegate void StateHandler(StateHandlerInfo<State> info);
-    public delegate void StateHandler<TStateData>(StateHandlerInfo<State<TStateData>> info);
-
     internal class StateInner<TState> where TState : class, IState<TState>
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
+        public IStateDelegate<TState> ChildStateMachine { get; set; }
         private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
 
         public string Name { get; private set; }
         public IReadOnlyList<ITransition<TState>> Transitions { get { return this.transitions; } }
+
+        public Action<StateHandlerInfo<TState>> EntryHandler { get; set; }
+        public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
 
         internal StateInner(string name, ITransitionDelegate<TState> transitionDelegate)
         {
@@ -53,14 +54,31 @@ namespace StateMechanic
         {
             this.transitions.Add(transition);
         }
+
+        public void FireEntryHandler(StateHandlerInfo<TState> info)
+        {
+            var entryHandler = this.EntryHandler;
+            if (entryHandler != null)
+                entryHandler(info);
+
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(info.From, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
+        }
+
+        public void FireExitHandler(StateHandlerInfo<TState> info)
+        {
+            if (this.ChildStateMachine != null)
+                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.To, null, info.Event);
+
+            var exitHandler = this.ExitHandler;
+            if (exitHandler != null)
+                exitHandler(info);
+        }
     }
 
     public class State : IState<State>
     {
         private readonly StateInner<State> innerState;
-
-        public StateHandler EntryHandler { get; set; }
-        public StateHandler ExitHandler { get; set; }
 
         public string Name { get { return this.innerState.Name; } }
         public ChildStateMachine ChildStateMachine { get; private set; }
@@ -69,7 +87,18 @@ namespace StateMechanic
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine<State> IState<State>.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
+        public Action<StateHandlerInfo<State>> EntryHandler
+        {
+            get { return this.innerState.EntryHandler; }
+            set { this.innerState.EntryHandler = value; }
+        }
+        public Action<StateHandlerInfo<State>> ExitHandler
+        {
+            get { return this.innerState.ExitHandler; }
+            set { this.innerState.ExitHandler = value; }
+        }
 
         internal State(string name, ChildStateMachine parentStateMachine)
         {
@@ -105,13 +134,13 @@ namespace StateMechanic
             return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
         }
 
-        public State WithEntry(StateHandler entryHandler)
+        public State WithEntry(Action<StateHandlerInfo<State>> entryHandler)
         {
             this.EntryHandler = entryHandler;
             return this;
         }
 
-        public State WithExit(StateHandler exitHandler)
+        public State WithExit(Action<StateHandlerInfo<State>> exitHandler)
         {
             this.ExitHandler = exitHandler;
             return this;
@@ -120,37 +149,18 @@ namespace StateMechanic
         public ChildStateMachine CreateChildStateMachine(string name)
         {
             this.ChildStateMachine = new ChildStateMachine(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
+            this.innerState.ChildStateMachine = this.ChildStateMachine;
             return this.ChildStateMachine;
         }
 
         void IState<State>.FireEntryHandler(StateHandlerInfo<State> info)
         {
-            var entryHandler = this.EntryHandler;
-            if (entryHandler != null)
-                entryHandler(info);
-
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(info.From, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
+            this.innerState.FireEntryHandler(info);
         }
 
         void IState<State>.FireExitHandler(StateHandlerInfo<State> info)
         {
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.To, null, info.Event);
-
-            var exitHandler = this.ExitHandler;
-            if (exitHandler != null)
-                exitHandler(info);
-        }
-
-        string IState.Name
-        {
-            get { return this.innerState.Name; }
-        }
-
-        IStateMachine<State> IState<State>.ChildStateMachine
-        {
-            get { return this.ChildStateMachine; }
+            this.innerState.FireExitHandler(info);
         }
 
         void IState<State>.Reset()
@@ -175,18 +185,26 @@ namespace StateMechanic
         private readonly StateInner<State<TStateData>> innerState;
 
         public TStateData Data { get; set; }
-        public StateHandler<TStateData> EntryHandler { get; set; }
-        public StateHandler<TStateData> ExitHandler { get; set; }
 
+        public string Name { get { return this.innerState.Name; } }
         public ChildStateMachine<TStateData> ChildStateMachine { get; private set; }
         public ChildStateMachine<TStateData> ParentStateMachine { get; private set; }
         public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
+        IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine<State<TStateData>> IState<State<TStateData>>.ParentStateMachine { get { return this.ParentStateMachine; } }
-
-        public string Name { get { return this.innerState.Name; } }
+        public Action<StateHandlerInfo<State<TStateData>>> EntryHandler
+        {
+            get { return this.innerState.EntryHandler; }
+            set { this.innerState.EntryHandler = value; }
+        }
+        public Action<StateHandlerInfo<State<TStateData>>> ExitHandler
+        {
+            get { return this.innerState.ExitHandler; }
+            set { this.innerState.ExitHandler = value; }
+        }
 
         internal State(string name, TStateData data, ChildStateMachine<TStateData> parentStateMachine)
         {
@@ -223,13 +241,13 @@ namespace StateMechanic
             return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
         }
 
-        public State<TStateData> WithEntry(StateHandler<TStateData> entryHandler)
+        public State<TStateData> WithEntry(Action<StateHandlerInfo<State<TStateData>>> entryHandler)
         {
             this.EntryHandler = entryHandler;
             return this;
         }
 
-        public State<TStateData> WithExit(StateHandler<TStateData> exitHandler)
+        public State<TStateData> WithExit(Action<StateHandlerInfo<State<TStateData>>> exitHandler)
         {
             this.ExitHandler = exitHandler;
             return this;
@@ -238,37 +256,18 @@ namespace StateMechanic
         public ChildStateMachine<TStateData> CreateChildStateMachine(string name)
         {
             this.ChildStateMachine = new ChildStateMachine<TStateData>(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
+            this.innerState.ChildStateMachine = this.ChildStateMachine;
             return this.ChildStateMachine;
         }
 
         void IState<State<TStateData>>.FireEntryHandler(StateHandlerInfo<State<TStateData>> info)
         {
-            var entryHandler = this.EntryHandler;
-            if (entryHandler != null)
-                entryHandler(info);
-
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(info.To, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
+            this.innerState.FireEntryHandler(info);
         }
 
         void IState<State<TStateData>>.FireExitHandler(StateHandlerInfo<State<TStateData>> info)
         {
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.From, null, info.Event);
-
-            var exitHandler = this.ExitHandler;
-            if (exitHandler != null)
-                exitHandler(info);
-        }
-
-        string IState.Name
-        {
-            get { return this.innerState.Name; }
-        }
-
-        IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine
-        {
-            get { return this.ChildStateMachine; }
+            this.innerState.FireExitHandler(info);
         }
 
         void IState<State<TStateData>>.Reset()
