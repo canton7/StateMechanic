@@ -87,11 +87,13 @@ namespace StateMechanic
         public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
         {
             if (this.Kernel.Synchronizer != null)
-            {
-                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransition(pretendNewState, pretendNewState, newState, evt));
-                return;
-            }
+                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransitionImpl(pretendNewState, pretendNewState, newState, evt));
+            else
+                this.ForceTransitionImpl(pretendOldState, pretendNewState, newState, evt);
+        }
 
+        private void ForceTransitionImpl(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
+        {
             var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
 
             if (this.CurrentState != null)
@@ -102,6 +104,7 @@ namespace StateMechanic
             if (this.CurrentState != null)
                 this.CurrentState.FireEntryHandler(handlerInfo);
         }
+
 
         /// <summary>
         /// Attempt to fire an event

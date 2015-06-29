@@ -62,6 +62,11 @@ namespace StateMechanic
 
         public void ForceTransition(State toState, IEvent evt)
         {
+            if (toState.ParentStateMachine != this)
+                throw new InvalidStateTransitionException(this.CurrentState, toState);
+            if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
+                throw new InvalidEventTransitionException(this.CurrentState, evt);
+
             this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
         }
 
@@ -157,6 +162,11 @@ namespace StateMechanic
 
         public void ForceTransition(State<TStateData> toState, IEvent evt)
         {
+            if (toState.ParentStateMachine != this)
+                throw new InvalidStateTransitionException(this.CurrentState, toState);
+            if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
+                throw new InvalidEventTransitionException(this.CurrentState, evt);
+
             this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
         }
 
