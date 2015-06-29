@@ -35,7 +35,7 @@ namespace Sandbox
             //event1.Fire();
             //event2.Fire();
 
-            var dot = StateMachinePrinter.FormatDot(sm);
+            var dot = sm.FormatDot(colorize: true);
         }
     }
 }
