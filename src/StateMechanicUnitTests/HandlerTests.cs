@@ -207,5 +207,54 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state1, state22ExitInfo.To);
             Assert.AreEqual(evt2, state22ExitInfo.Event);
         }
+
+        [Test]
+        public void ForcefullyTransitioningToChildStateMachineCallsEntryHandlerOnInitialState()
+        {
+            StateHandlerInfo<State> state21EntryInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
+
+            sm.ForceTransition(state2, evt);
+
+            Assert.NotNull(state21EntryInfo);
+            Assert.AreEqual(state1, state21EntryInfo.From);
+            Assert.AreEqual(state21, state21EntryInfo.To);
+            Assert.AreEqual(evt, state21EntryInfo.Event);
+        }
+
+        [Test]
+        public void ForcefullyTransitioningFromChildStateMachineCallsExitHandlerOnCurrentState()
+        {
+            StateHandlerInfo<State> state22ExitInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt1 = sm.CreateEvent("Event 1");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2");
+            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var state21 = subSm.CreateInitialState("State 2.1");
+            var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
+
+            state1.TransitionOn(evt1).To(state2);
+            state21.TransitionOn(evt1).To(state22);
+
+            // Enter state2, and start child state machine
+            evt1.Fire();
+            // Enter State 2.2
+            evt1.Fire();
+            // Transition from state2 to state1, exiting the child state machine
+            sm.ForceTransition(state1, evt1);
+
+            Assert.NotNull(state22ExitInfo);
+            Assert.AreEqual(state22, state22ExitInfo.From);
+            Assert.AreEqual(state1, state22ExitInfo.To);
+            Assert.AreEqual(evt1, state22ExitInfo.Event);
+        }
     }
 }

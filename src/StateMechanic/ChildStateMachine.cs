@@ -95,9 +95,9 @@ namespace StateMechanic
             return this.InnerStateMachine.IsInState(state);
         }
 
-        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent evt, bool isInnerSelfTransition)
+        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent evt, bool isInnerTransition)
         {
-            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
+            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerTransition);
         }
 
         bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
@@ -200,9 +200,9 @@ namespace StateMechanic
             return this.InnerStateMachine.IsInState(state);
         }
 
-        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent evt, bool isInnerSelfTransition)
+        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent evt, bool isInnerTransition)
         {
-            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerSelfTransition);
+            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerTransition);
         }
 
         bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)

@@ -8,6 +8,6 @@ namespace StateMechanic
 {
     internal interface ITransitionDelegate<TState> where TState : IState
     {
-        void UpdateCurrentState(TState from, TState state, IEvent evt, bool isInnerSelfTransition);
+        void UpdateCurrentState(TState from, TState state, IEvent evt, bool isInnerTransition);
     }
 }

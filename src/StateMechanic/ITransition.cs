@@ -11,5 +11,6 @@ namespace StateMechanic
         TState From { get; }
         TState To { get; }
         IEvent Event { get; }
+        bool IsInnerTransition { get; }
     }
 }

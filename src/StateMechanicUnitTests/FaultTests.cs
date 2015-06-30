@@ -160,5 +160,17 @@ namespace StateMechanicUnitTests
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
             Assert.True(this.stateMachine.IsFaulted);
         }
+
+        [Test]
+        public void ResettingStateMachineRemovesFault()
+        {
+            var exception = new Exception("foo");
+            this.state1.ExitHandler = i => { throw exception; };
+
+            Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
+
+            this.stateMachine.Reset();
+            Assert.False(this.stateMachine.IsFaulted);
+        }
     }
 }

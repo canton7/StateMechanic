@@ -100,5 +100,37 @@ namespace StateMechanicUnitTests
 
             subSm.ForceTransition(subState2, evt);
         }
+
+        [Test]
+        public void ThrowsIfEventFiredOnStateMachineThatIsNotActive()
+        {
+            var sm = new StateMachine("State Machine");
+            var state1 = sm.CreateInitialState("Initial State");
+            var state2 = sm.CreateState("State 2");
+            var subSm = state2.CreateChildStateMachine("Child SM");
+            var evt = subSm.CreateEvent("Event");
+            var subState1 = subSm.CreateInitialState("Child Initial State");
+            subState1.AddInnerSelfTransitionOn(evt);
+
+            Assert.Throws<InvalidOperationException>(() => evt.Fire());
+        }
+
+        [Test]
+        public void ThrowsIfEventFiredAndInitialStateNotSet()
+        {
+            var sm = new StateMachine("State Machine");
+            var state1 = sm.CreateState("Initial State");
+            var evt = sm.CreateEvent("Event");
+
+            Assert.Throws<InvalidOperationException>(() => evt.Fire());
+        }
+
+        [Test]
+        public void ThrowsIfInitialStateSetTwice()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("State 1");
+            Assert.Throws<InvalidOperationException>(() => sm.CreateInitialState("State 2"));
+        }
     }
 }
