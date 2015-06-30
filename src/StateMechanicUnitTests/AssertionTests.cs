@@ -110,7 +110,7 @@ namespace StateMechanicUnitTests
             var subSm = state2.CreateChildStateMachine("Child SM");
             var evt = subSm.CreateEvent("Event");
             var subState1 = subSm.CreateInitialState("Child Initial State");
-            subState1.AddInnerSelfTransitionOn(evt);
+            subState1.InnerSelfTransitionOn(evt);
 
             Assert.Throws<InvalidOperationException>(() => evt.Fire());
         }

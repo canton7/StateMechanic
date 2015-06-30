@@ -138,7 +138,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var evt = stateMachine.CreateEvent("Event");
-            state1.AddInnerSelfTransitionOn(evt);
+            state1.InnerSelfTransitionOn(evt);
 
             Assert.AreEqual(1, state1.Transitions.Count);
             Assert.AreEqual(state1, state1.Transitions[0].From);

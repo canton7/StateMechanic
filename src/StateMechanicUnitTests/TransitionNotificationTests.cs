@@ -33,7 +33,7 @@ namespace StateMechanicUnitTests
             this.event3 = this.stateMachine.CreateEvent("Event 3");
 
             this.state1.TransitionOn(this.event1).To(this.state2);
-            this.state1.AddInnerSelfTransitionOn(this.event2);
+            this.state1.InnerSelfTransitionOn(this.event2);
         }
 
         [Test]

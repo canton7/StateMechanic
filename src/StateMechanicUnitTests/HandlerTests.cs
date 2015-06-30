@@ -54,7 +54,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
-            state1.AddInnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
+            state1.InnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
 
             evt.Fire();
 

@@ -34,7 +34,7 @@ namespace StateMechanic
             return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionDelegate);
         }
 
-        public Transition<TState> AddInnerSelfTransitionOn(TState fromAndToState, Event evt)
+        public Transition<TState> InnerSelfTransitionOn(TState fromAndToState, Event evt)
         {
             var transition = Transition.CreateInner<TState>(fromAndToState, evt, this.transitionDelegate);
             evt.AddTransition(fromAndToState, transition);
@@ -42,7 +42,7 @@ namespace StateMechanic
             return transition;
         }
 
-        public Transition<TState, TEventData> AddInnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
+        public Transition<TState, TEventData> InnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> evt)
         {
             var transition = Transition.CreateInner<TState, TEventData>(fromAndToState, evt, this.transitionDelegate);
             evt.AddTransition(fromAndToState, transition);
@@ -120,18 +120,18 @@ namespace StateMechanic
             return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
-        public Transition<State> AddInnerSelfTransitionOn(Event @event)
+        public Transition<State> InnerSelfTransitionOn(Event @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddInnerSelfTransitionOn(this, @event);
+            return this.innerState.InnerSelfTransitionOn(this, @event);
         }
 
-        public Transition<State, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
+        public Transition<State, TEventData> InnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
+            return this.innerState.InnerSelfTransitionOn<TEventData>(this, @event);
         }
 
         public State WithEntry(Action<StateHandlerInfo<State>> entryHandler)
@@ -227,18 +227,18 @@ namespace StateMechanic
             return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
-        public Transition<State<TStateData>> AddInnerSelfTransitionOn(Event @event)
+        public Transition<State<TStateData>> InnerSelfTransitionOn(Event @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddInnerSelfTransitionOn(this, @event);
+            return this.innerState.InnerSelfTransitionOn(this, @event);
         }
 
-        public Transition<State<TStateData>, TEventData> AddInnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
+        public Transition<State<TStateData>, TEventData> InnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddInnerSelfTransitionOn<TEventData>(this, @event);
+            return this.innerState.InnerSelfTransitionOn<TEventData>(this, @event);
         }
 
         public State<TStateData> WithEntry(Action<StateHandlerInfo<State<TStateData>>> entryHandler)
