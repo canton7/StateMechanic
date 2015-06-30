@@ -26,7 +26,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithExit(i => events.Add("State 1 Exit"));
             var state2 = sm.CreateState("State 2").WithEntry(i => events.Add("State 2 Entry"));
-            var transition = state1.AddTransitionOn(evt).To(state2).WithHandler(i => events.Add("Transition 1 2"));
+            var transition = state1.TransitionOn(evt).To(state2).WithHandler(i => events.Add("Transition 1 2"));
 
             evt.Fire();
 
@@ -40,7 +40,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
-            state1.AddTransitionOn(evt).To(state1).WithHandler(i => events.Add("Transition 1 1"));
+            state1.TransitionOn(evt).To(state1).WithHandler(i => events.Add("Transition 1 1"));
 
             evt.Fire();
 
@@ -70,7 +70,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            state1.AddTransitionOn(evt).To(state2).WithGuard(i => { guardInfo = i; return true; });
+            state1.TransitionOn(evt).To(state2).WithGuard(i => { guardInfo = i; return true; });
 
             evt.Fire();
 
@@ -90,7 +90,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
             var state2 = sm.CreateState("State 2");
-            state1.AddTransitionOn(evt).To(state2);
+            state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
@@ -109,7 +109,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
-            state1.AddTransitionOn(evt).To(state2);
+            state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
@@ -128,7 +128,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            state1.AddTransitionOn(evt).To(state2).WithHandler(i => transitionInfo = i);
+            state1.TransitionOn(evt).To(state2).WithHandler(i => transitionInfo = i);
 
             evt.Fire();
 
@@ -149,7 +149,7 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
 
-            state1.AddTransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
+            state1.TransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
 
             evt.Fire(new EventData() { Foo = 2 });
 
@@ -167,7 +167,7 @@ namespace StateMechanicUnitTests
             var state2 = sm.CreateState("State 2");
             var subSm = state2.CreateChildStateMachine("Child State Machine");
             var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
-            state1.AddTransitionOn(evt).To(state2);
+            state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
@@ -191,9 +191,9 @@ namespace StateMechanicUnitTests
             var state21 = subSm.CreateInitialState("State 2.1");
             var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
 
-            state1.AddTransitionOn(evt1).To(state2);
-            state2.AddTransitionOn(evt2).To(state1);
-            state21.AddTransitionOn(evt1).To(state22);
+            state1.TransitionOn(evt1).To(state2);
+            state2.TransitionOn(evt2).To(state1);
+            state21.TransitionOn(evt1).To(state22);
 
             // Enter state2, and start child state machine
             evt1.Fire();

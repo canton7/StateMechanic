@@ -28,7 +28,7 @@ namespace StateMechanicUnitTests
 
             this.event1 = this.stateMachine.CreateEvent("Event 1");
 
-            this.transition12 = this.state1.AddTransitionOn(this.event1).To(this.state2);
+            this.transition12 = this.state1.TransitionOn(this.event1).To(this.state2);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace StateMechanicUnitTests
 
             var subState1 = childStateMachine.CreateInitialState("State 1.1");
             var subState2 = childStateMachine.CreateState("State 1.2");
-            subState1.AddTransitionOn(this.event1).To(subState2);
+            subState1.TransitionOn(this.event1).To(subState2);
 
             subState1.ExitHandler = i => { throw new Exception("foo"); };
 

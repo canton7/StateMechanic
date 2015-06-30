@@ -20,14 +20,14 @@ namespace Sandbox
             var event1 = sm.CreateEvent("Event 1");
             var event2 = sm.CreateEvent("Event 2");
 
-            state1.AddTransitionOn(event1).To(state2);
-            state2.AddTransitionOn(event2).To(state1);
+            state1.TransitionOn(event1).To(state2);
+            state2.TransitionOn(event2).To(state1);
 
             var subSm = state2.CreateChildStateMachine("childSm");
 
             var state11 = subSm.CreateInitialState("State 2.1").WithEntry(i => Debug.WriteLine("State 1.1 Entry")).WithExit(i => Debug.WriteLine("State 1.1 Exit"));
             var state12 = subSm.CreateState("State 2.2").WithEntry(i => Debug.WriteLine("State 1.2 Entry")).WithExit(i => Debug.WriteLine("State 1.2 Exit"));
-            state11.AddTransitionOn(event1).To(state12);
+            state11.TransitionOn(event1).To(state12);
 
 
             //event1.Fire();

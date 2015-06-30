@@ -24,12 +24,12 @@ namespace StateMechanic
             this.transitionDelegate = transitionDelegate;
         }
 
-        public ITransitionBuilder<TState> AddTransitionOn(TState fromState, Event evt)
+        public ITransitionBuilder<TState> TransitionOn(TState fromState, Event evt)
         {
             return new TransitionBuilder<TState>(fromState, evt, this.transitionDelegate);
         }
 
-        public ITransitionBuilder<TState, TEventData> AddTransitionOn<TEventData>(TState fromState, Event<TEventData> evt)
+        public ITransitionBuilder<TState, TEventData> TransitionOn<TEventData>(TState fromState, Event<TEventData> evt)
         {
             return new TransitionBuilder<TState, TEventData>(fromState, evt, this.transitionDelegate);
         }
@@ -106,18 +106,18 @@ namespace StateMechanic
             this.innerState = new StateInner<State>(name, parentStateMachine);
         }
 
-        public ITransitionBuilder<State> AddTransitionOn(Event @event)
+        public ITransitionBuilder<State> TransitionOn(Event @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddTransitionOn(this, @event);
+            return this.innerState.TransitionOn(this, @event);
         }
 
-        public ITransitionBuilder<State, TEventData> AddTransitionOn<TEventData>(Event<TEventData> @event)
+        public ITransitionBuilder<State, TEventData> TransitionOn<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddTransitionOn<TEventData>(this, @event);
+            return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
         public Transition<State> AddInnerSelfTransitionOn(Event @event)
@@ -213,18 +213,18 @@ namespace StateMechanic
             this.innerState = new StateInner<State<TStateData>>(name, parentStateMachine);
         }
 
-        public ITransitionBuilder<State<TStateData>> AddTransitionOn(Event @event)
+        public ITransitionBuilder<State<TStateData>> TransitionOn(Event @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddTransitionOn(this, @event);
+            return this.innerState.TransitionOn(this, @event);
         }
 
-        public ITransitionBuilder<State<TStateData>, TEventData> AddTransitionOn<TEventData>(Event<TEventData> @event)
+        public ITransitionBuilder<State<TStateData>, TEventData> TransitionOn<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            return this.innerState.AddTransitionOn<TEventData>(this, @event);
+            return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
         public Transition<State<TStateData>> AddInnerSelfTransitionOn(Event @event)

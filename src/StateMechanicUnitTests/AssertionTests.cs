@@ -20,7 +20,7 @@ namespace StateMechanicUnitTests
             var subState = subSm.CreateInitialState("Child Initial State");
             var evt = sm.CreateEvent("Event");
             
-            var e = Assert.Throws<InvalidStateTransitionException>(() => subState.AddTransitionOn(evt).To(state));
+            var e = Assert.Throws<InvalidStateTransitionException>(() => subState.TransitionOn(evt).To(state));
             Assert.AreEqual(subState, e.From);
             Assert.AreEqual(state, e.To);
         }
@@ -34,7 +34,7 @@ namespace StateMechanicUnitTests
             var subState = subSm.CreateInitialState("Child Initial State");
             var evt = sm.CreateEvent("Event");
 
-            var e = Assert.Throws<InvalidStateTransitionException>(() => state.AddTransitionOn(evt).To(subState));
+            var e = Assert.Throws<InvalidStateTransitionException>(() => state.TransitionOn(evt).To(subState));
             Assert.AreEqual(state, e.From);
             Assert.AreEqual(subState, e.To);
         }
@@ -47,7 +47,7 @@ namespace StateMechanicUnitTests
             var subSm = state.CreateChildStateMachine("Child SM");
             var evt = subSm.CreateEvent("Event");
 
-            var e = Assert.Throws<InvalidEventTransitionException>(() => state.AddTransitionOn(evt).To(state));
+            var e = Assert.Throws<InvalidEventTransitionException>(() => state.TransitionOn(evt).To(state));
             Assert.AreEqual(state, e.From);
             Assert.AreEqual(evt, e.Event);
         }
@@ -61,7 +61,7 @@ namespace StateMechanicUnitTests
             var subState = subSm.CreateInitialState("Child Initial State");
             var evt = sm.CreateEvent("Event");
 
-            Assert.DoesNotThrow(() => subState.AddTransitionOn(evt).To(subState));
+            Assert.DoesNotThrow(() => subState.TransitionOn(evt).To(subState));
         }
 
         [Test]
