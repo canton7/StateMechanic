@@ -141,14 +141,14 @@ namespace StateMechanic
             this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, kernel, this, parentState);
         }
 
-        public State<TStateData> CreateState(string name, TStateData data)
+        public State<TStateData> CreateState(string name, TStateData data = default(TStateData))
         {
             var state = new State<TStateData>(name, data, this);
             this.InnerStateMachine.AddState(state);
             return state;
         }
 
-        public State<TStateData> CreateInitialState(string name, TStateData data)
+        public State<TStateData> CreateInitialState(string name, TStateData data = default(TStateData))
         {
             var state = this.CreateState(name, data);
             this.InnerStateMachine.SetInitialState(state);
