@@ -6,11 +6,29 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
+    /// <summary>
+    /// Indicates which component of the transition threw an exception
+    /// </summary>
     public enum FaultedComponent
-    { 
+    {
+        /// <summary>
+        /// A transition guard threw an exception
+        /// </summary>
         Guard,
+
+        /// <summary>
+        /// A state exit handler threw an excpetion
+        /// </summary>
         ExitHandler,
+
+        /// <summary>
+        /// A transition handler threw an exception
+        /// </summary>
         TransitionHandler,
+
+        /// <summary>
+        /// A state entry handler threw an exception
+        /// </summary>
         EntryHandler
     }
 

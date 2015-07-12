@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
+    /// <summary>
+    /// Event args for events indicating that the requested transition could not be found
+    /// </summary>
+    /// <typeparam name="TState">Type of state</typeparam>
     public class TransitionNotFoundEventArgs<TState> : EventArgs
     {
-        public IStateMachine StateMachine { get; private set; }
         public TState From { get; private set; }
         public IEvent Event { get; private set; }
 
-        public TransitionNotFoundEventArgs(IStateMachine stateMachine, TState from, IEvent evt)
+        internal TransitionNotFoundEventArgs(TState from, IEvent evt)
         {
-            this.StateMachine = stateMachine;
             this.From = from;
             this.Event = evt;
         }

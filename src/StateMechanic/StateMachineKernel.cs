@@ -37,11 +37,11 @@ namespace StateMechanic
                 handler(this, new TransitionEventArgs<TState>(from, to, evt, isInnerTransition));
         }
 
-        public void OnTransitionNotFound(IStateMachine stateMachine, TState fromState, IEvent evt)
+        public void OnTransitionNotFound(TState fromState, IEvent evt)
         {
             var handler = this.TransitionNotFound;
             if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(stateMachine, fromState, evt));
+                handler(this, new TransitionNotFoundEventArgs<TState>(fromState, evt));
         }
 
         public void SetFault(StateMachineFaultInfo faultInfo)

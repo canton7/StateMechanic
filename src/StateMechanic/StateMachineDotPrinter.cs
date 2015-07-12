@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
+    /// <summary>
+    /// Class which can take a state machine, and output graphviz which cab be rendered using dot, allowing the state machine to be visualised
+    /// </summary>
     public class StateMachineDotPrinter
     {
         private static readonly string[] colors = new[] 
@@ -20,13 +23,24 @@ namespace StateMechanic
         private Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
         private int colorUseCount = 0;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether colors should be used
+        /// </summary>
         public bool Colorize { get; set; }
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="StateMachienDotPrinter"/> class
+        /// </summary>
+        /// <param name="stateMachine">State machine to print</param>
         public StateMachineDotPrinter(IStateMachine stateMachine)
         {
             this.stateMachine = stateMachine;
         }
 
+        /// <summary>
+        /// Generate graphviz allowing the state machine to be rendered using dot
+        /// </summary>
+        /// <returns>graphviz allowing the state machine to be rendered using dot</returns>
         public string Format()
         {
             var sb = new StringBuilder();

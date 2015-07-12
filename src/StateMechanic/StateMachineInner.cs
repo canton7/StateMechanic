@@ -188,7 +188,7 @@ namespace StateMechanic
         private void HandleTransitionNotFound(IEvent evt, bool throwException)
         {
             this.OnTransitionNotFound(this.CurrentState, evt);
-            this.Kernel.OnTransitionNotFound(this.outerStateMachine, this.CurrentState, evt);
+            this.Kernel.OnTransitionNotFound(this.CurrentState, evt);
 
             if (throwException)
                 throw new TransitionNotFoundException(this.CurrentState, evt);
@@ -228,7 +228,7 @@ namespace StateMechanic
         {
             var handler = this.TransitionNotFound;
             if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(this.outerStateMachine, from, evt));
+                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt));
         }
     }
 }
