@@ -8,7 +8,7 @@ It supports data attached to states, data attached to events, entry/exit/transit
 Installation
 ------------
 
-StateMechinic has not yet been released. Check back sooN!
+StateMechinic has not yet been released. Check back soon!
 
 
 Quick Start
