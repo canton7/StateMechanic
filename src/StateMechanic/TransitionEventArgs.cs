@@ -28,15 +28,21 @@ namespace StateMechanic
         public IEvent Event { get; private set; }
 
         /// <summary>
+        /// Gets the state machine on which the transition occurred
+        /// </summary>
+        public IStateMachine StateMachine { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
         /// </summary>
         public bool IsInnerTransition { get; private set; }
 
-        internal TransitionEventArgs(TState from, TState to, IEvent evt, bool isInnerTransition)
+        internal TransitionEventArgs(TState from, TState to, IEvent evt, IStateMachine stateMachine, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
             this.Event = evt;
+            this.StateMachine = stateMachine;
             this.IsInnerTransition = isInnerTransition;
         }
     }

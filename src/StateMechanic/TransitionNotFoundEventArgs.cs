@@ -14,11 +14,13 @@ namespace StateMechanic
     {
         public TState From { get; private set; }
         public IEvent Event { get; private set; }
+        public IStateMachine StateMachine { get; private set; }
 
-        internal TransitionNotFoundEventArgs(TState from, IEvent evt)
+        internal TransitionNotFoundEventArgs(TState from, IEvent evt, IStateMachine stateMachine)
         {
             this.From = from;
             this.Event = evt;
+            this.StateMachine = stateMachine;
         }
     }
 }

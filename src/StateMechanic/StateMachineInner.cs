@@ -187,18 +187,18 @@ namespace StateMechanic
 
         private void HandleTransitionNotFound(IEvent evt, bool throwException)
         {
-            this.OnTransitionNotFound(this.CurrentState, evt);
-            this.Kernel.OnTransitionNotFound(this.CurrentState, evt);
+            this.OnTransitionNotFound(this.CurrentState, evt, this.outerStateMachine);
+            this.Kernel.OnGlobalTransitionNotFound(this.CurrentState, evt, this.outerStateMachine);
 
             if (throwException)
-                throw new TransitionNotFoundException(this.CurrentState, evt);
+                throw new TransitionNotFoundException(this.CurrentState, evt, this.outerStateMachine);
         }
 
         public void UpdateCurrentState(TState from, TState to, IEvent evt, bool isInnerTransition)
         {
             this.CurrentState = to;
-            this.OnTransition(from, to, evt, isInnerTransition);
-            this.Kernel.OnTransition(from, to, evt, isInnerTransition);
+            this.OnTransition(from, to, evt, this.outerStateMachine, isInnerTransition);
+            this.Kernel.OnGlobalTransition(from, to, evt, this.outerStateMachine, isInnerTransition);
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)
@@ -209,26 +209,26 @@ namespace StateMechanic
             return false;
         }
 
-        public bool IsInState(IState state)
+        public bool IsInStateRecursive(IState state)
         {
             if (this.CurrentState == null)
                 return false;
 
-            return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInState(state));
+            return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInStateRecursive(state));
         }
 
-        private void OnTransition(TState from, TState to, IEvent evt, bool isInnerTransition)
+        private void OnTransition(TState from, TState to, IEvent evt, IStateMachine stateMachine, bool isInnerTransition)
         {
             var handler = this.Transition;
             if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, evt, isInnerTransition));
+                handler(this, new TransitionEventArgs<TState>(from, to, evt, stateMachine, isInnerTransition));
         }
 
-        private void OnTransitionNotFound(TState from, IEvent evt)
+        private void OnTransitionNotFound(TState from, IEvent evt, IStateMachine stateMachine)
         {
             var handler = this.TransitionNotFound;
             if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt));
+                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt, stateMachine));
         }
     }
 }

@@ -203,20 +203,20 @@ namespace StateMechanicUnitTests
             state1.TransitionOn(evt).To(state2);
             state21.TransitionOn(evt).To(state22);
 
-            Assert.True(stateMachine.IsInState(state1));
-            Assert.False(stateMachine.IsInState(state21));
+            Assert.True(stateMachine.IsInStateRecursive(state1));
+            Assert.False(stateMachine.IsInStateRecursive(state21));
 
             evt.Fire();
 
-            Assert.True(stateMachine.IsInState(state2));
-            Assert.True(stateMachine.IsInState(state21));
-            Assert.False(stateMachine.IsInState(state22));
+            Assert.True(stateMachine.IsInStateRecursive(state2));
+            Assert.True(stateMachine.IsInStateRecursive(state21));
+            Assert.False(stateMachine.IsInStateRecursive(state22));
 
             evt.Fire();
 
-            Assert.True(stateMachine.IsInState(state2));
-            Assert.False(stateMachine.IsInState(state21));
-            Assert.True(stateMachine.IsInState(state22));
+            Assert.True(stateMachine.IsInStateRecursive(state2));
+            Assert.False(stateMachine.IsInStateRecursive(state21));
+            Assert.True(stateMachine.IsInStateRecursive(state22));
         }
     }
 }

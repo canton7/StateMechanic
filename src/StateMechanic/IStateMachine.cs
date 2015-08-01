@@ -14,7 +14,7 @@ namespace StateMechanic
         IState InitialState { get; }
         IReadOnlyList<IState> States { get; }
         bool IsChildOf(IStateMachine parentStateMachine);
-        bool IsInState(IState state);
+        bool IsInStateRecursive(IState state);
     }
 
     internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : class, IState<TState>

@@ -29,7 +29,7 @@ namespace StateMechanic
         public bool Colorize { get; set; }
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="StateMachienDotPrinter"/> class
+        /// Initialises a new instance of the <see cref="StateMachineDotPrinter"/> class
         /// </summary>
         /// <param name="stateMachine">State machine to print</param>
         public StateMachineDotPrinter(IStateMachine stateMachine)

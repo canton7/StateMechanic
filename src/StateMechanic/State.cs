@@ -166,7 +166,7 @@ namespace StateMechanic
         void IState<State>.Reset()
         {
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ResetSubStateMachine();
+                this.ChildStateMachine.ResetChildStateMachine();
         }
 
         void IState<State>.AddTransition(ITransition<State> transition)
@@ -273,7 +273,7 @@ namespace StateMechanic
         void IState<State<TStateData>>.Reset()
         {
             if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ResetSubStateMachine();
+                this.ChildStateMachine.ResetChildStateMachine();
         }
 
         void IState<State<TStateData>>.AddTransition(ITransition<State<TStateData>> transition)
