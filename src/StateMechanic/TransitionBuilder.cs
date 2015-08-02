@@ -15,7 +15,7 @@ namespace StateMechanic
             this.transitionDelegate = transitionDelegate;
         }
 
-        Transition<TState> ITransitionBuilder<TState>.To(TState state)
+        public Transition<TState> To(TState state)
         {
             if (state == null)
                 throw new ArgumentNullException("state");
@@ -39,7 +39,7 @@ namespace StateMechanic
             this.transitionDelegate = transitionDelegate;
         }
 
-        Transition<TState, TEventData> ITransitionBuilder<TState, TEventData>.To(TState state)
+        public Transition<TState, TEventData> To(TState state)
         {
             if (state == null)
                 throw new ArgumentNullException("state");

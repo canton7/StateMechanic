@@ -184,6 +184,14 @@ namespace StateMechanic
 
         public void Reset()
         {
+            if (this.Kernel.Synchronizer != null)
+            {
+                this.Kernel.Synchronizer.Reset(this.Reset);
+                return;
+            }
+
+            this.Kernel.Reset();
+
             foreach (var state in this.states)
             {
                 state.Reset();

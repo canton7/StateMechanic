@@ -58,13 +58,6 @@ namespace StateMechanic
         /// </summary>
         public void Reset()
         {
-            if (this.InnerStateMachine.Kernel.Synchronizer != null)
-            {
-                this.InnerStateMachine.Kernel.Synchronizer.Reset(this.Reset);
-                return;
-            }
-
-            this.InnerStateMachine.Kernel.Reset();
             this.InnerStateMachine.Reset();
         }
 
@@ -146,13 +139,6 @@ namespace StateMechanic
         /// </summary>
         public void Reset()
         {
-            if (this.InnerStateMachine.Kernel.Synchronizer != null)
-            {
-                this.InnerStateMachine.Kernel.Synchronizer.Reset(this.Reset);
-                return;
-            }
-
-            this.InnerStateMachine.Kernel.Reset();
             this.InnerStateMachine.Reset();
         }
 
