@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
     /// <summary>
     /// The result of calling <see cref="State.TransitionOn(Event)"/> or <see cref="State{TStateData}.TransitionOn(Event)"/>, represents a builder creating a transition
