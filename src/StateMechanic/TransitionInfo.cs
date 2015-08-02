@@ -32,11 +32,11 @@ namespace StateMechanic
         /// </summary>
         public bool IsInnerTransition { get; private set; }
 
-        internal TransitionInfo(TState from, TState to, Event evt, bool isInnerTransition)
+        internal TransitionInfo(TState from, TState to, Event @event, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
-            this.Event = evt;
+            this.Event = @event;
             this.IsInnerTransition = isInnerTransition;
         }
     }
@@ -45,6 +45,7 @@ namespace StateMechanic
     /// Contains information on the currently-executing transition
     /// </summary>
     /// <typeparam name="TState">Type of state</typeparam>
+    /// <typeparam name="TEventData">Type of event data associated with the event</typeparam>
     public class TransitionInfo<TState, TEventData>
     {
         /// <summary>
@@ -72,11 +73,11 @@ namespace StateMechanic
         /// </summary>
         public bool IsInnerTransition { get; private set; }
 
-        internal TransitionInfo(TState from, TState to, Event<TEventData> evt, TEventData eventData, bool isInnerTransition)
+        internal TransitionInfo(TState from, TState to, Event<TEventData> @event, TEventData eventData, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
-            this.Event = evt;
+            this.Event = @event;
             this.EventData = eventData;
             this.IsInnerTransition = isInnerTransition;
         }

@@ -100,17 +100,17 @@ namespace StateMechanic
             return new Event<TEventData>(name, this.outerStateMachine);
         }
 
-        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
+        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
         {
             if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransitionImpl(pretendNewState, pretendNewState, newState, evt));
+                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransitionImpl(pretendNewState, pretendNewState, newState, @event));
             else
-                this.ForceTransitionImpl(pretendOldState, pretendNewState, newState, evt);
+                this.ForceTransitionImpl(pretendOldState, pretendNewState, newState, @event);
         }
 
-        private void ForceTransitionImpl(TState pretendOldState, TState pretendNewState, TState newState, IEvent evt)
+        private void ForceTransitionImpl(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
         {
-            var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, evt);
+            var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, @event);
 
             if (this.CurrentState != null)
                 this.CurrentState.FireExitHandler(handlerInfo);
@@ -121,21 +121,16 @@ namespace StateMechanic
                 this.CurrentState.FireEntryHandler(handlerInfo);
         }
 
-
-        /// <summary>
-        /// Attempt to fire an event
-        /// </summary>
-        /// <param name="invoker">Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
-        /// <returns></returns>
-        public bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
+        public bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
         {
             if (this.Kernel.Synchronizer != null)
-                return this.Kernel.Synchronizer.FireEvent(() => this.RequestEventFire(sourceEvent, invoker, throwIfNotFound));
+                return this.Kernel.Synchronizer.FireEvent(() => this.RequestEventFire(sourceEvent, invoker, fireMethod), fireMethod);
             else
-                return this.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+                return this.RequestEventFire(sourceEvent, invoker, fireMethod);
         }
 
-        public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
         {
             if (this.Kernel.Fault != null)
                 throw new StateMachineFaultedException(this.Kernel.Fault);
@@ -143,7 +138,7 @@ namespace StateMechanic
             if (this.Kernel.ExecutingTransition)
             {
                 // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
-                this.Kernel.EnqueueEventFire(() => this.RequestEventFire(sourceEvent, invoker, throwIfNotFound));
+                this.Kernel.EnqueueEventFire(() => this.RequestEventFire(sourceEvent, invoker, fireMethod));
                 return true; // We don't know whether it succeeded or failed, so pretend it succeeded
             }
 
@@ -159,7 +154,7 @@ namespace StateMechanic
 
             // Try and fire it on the child state machine - see if that works
             var childStateMachine = this.CurrentState == null ? null : this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, false))
+            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire))
             {
                 success = true;
             }
@@ -172,7 +167,7 @@ namespace StateMechanic
                     success = invoker(this.CurrentState);
 
                     if (!success)
-                        this.HandleTransitionNotFound(sourceEvent, throwIfNotFound);
+                        this.HandleTransitionNotFound(sourceEvent, throwException: fireMethod == EventFireMethod.Fire);
                 }
                 catch (InternalTransitionFaultException e)
                 {
@@ -201,20 +196,20 @@ namespace StateMechanic
             this.ResetCurrentState();
         }
 
-        private void HandleTransitionNotFound(IEvent evt, bool throwException)
+        private void HandleTransitionNotFound(IEvent @event, bool throwException)
         {
-            this.OnTransitionNotFound(this.CurrentState, evt, this.outerStateMachine);
-            this.Kernel.OnGlobalTransitionNotFound(this.CurrentState, evt, this.outerStateMachine);
+            this.OnTransitionNotFound(this.CurrentState, @event, this.outerStateMachine);
+            this.Kernel.OnGlobalTransitionNotFound(this.CurrentState, @event, this.outerStateMachine);
 
             if (throwException)
-                throw new TransitionNotFoundException(this.CurrentState, evt, this.outerStateMachine);
+                throw new TransitionNotFoundException(this.CurrentState, @event, this.outerStateMachine);
         }
 
-        public void UpdateCurrentState(TState from, TState to, IEvent evt, bool isInnerTransition)
+        public void UpdateCurrentState(TState from, TState to, IEvent @event, bool isInnerTransition)
         {
             this.CurrentState = to;
-            this.OnTransition(from, to, evt, this.outerStateMachine, isInnerTransition);
-            this.Kernel.OnGlobalTransition(from, to, evt, this.outerStateMachine, isInnerTransition);
+            this.OnTransition(from, to, @event, this.outerStateMachine, isInnerTransition);
+            this.Kernel.OnGlobalTransition(from, to, @event, this.outerStateMachine, isInnerTransition);
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)
@@ -233,18 +228,18 @@ namespace StateMechanic
             return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInStateRecursive(state));
         }
 
-        private void OnTransition(TState from, TState to, IEvent evt, IStateMachine stateMachine, bool isInnerTransition)
+        private void OnTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
             var handler = this.Transition;
             if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, evt, stateMachine, isInnerTransition));
+                handler(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
-        private void OnTransitionNotFound(TState from, IEvent evt, IStateMachine stateMachine)
+        private void OnTransitionNotFound(TState from, IEvent @event, IStateMachine stateMachine)
         {
             var handler = this.TransitionNotFound;
             if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(from, evt, stateMachine));
+                handler(this, new TransitionNotFoundEventArgs<TState>(from, @event, stateMachine));
         }
     }
 }

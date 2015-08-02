@@ -10,7 +10,7 @@ namespace StateMechanic
     {
         private readonly object lockObject = new object();
 
-        public bool FireEvent(Func<bool> invoker)
+        public bool FireEvent(Func<bool> invoker, EventFireMethod fireMethod)
         {
             lock (this.lockObject)
             {

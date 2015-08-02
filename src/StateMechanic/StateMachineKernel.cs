@@ -30,18 +30,18 @@ namespace StateMechanic
             }
         }
 
-        public void OnGlobalTransition(TState from, TState to, IEvent evt, IStateMachine stateMachine, bool isInnerTransition)
+        public void OnGlobalTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
             var handler = this.GlobalTransition;
             if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, evt, stateMachine, isInnerTransition));
+                handler(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
-        public void OnGlobalTransitionNotFound(TState fromState, IEvent evt, IStateMachine stateMachine)
+        public void OnGlobalTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
         {
             var handler = this.GlobalTransitionNotFound;
             if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(fromState, evt, stateMachine));
+                handler(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
         }
 
         public void SetFault(StateMachineFaultInfo faultInfo)

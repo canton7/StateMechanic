@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Event.cs" />
+    <Compile Include="EventFireMethod.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
     <Compile Include="IInvokableTransition.cs" />

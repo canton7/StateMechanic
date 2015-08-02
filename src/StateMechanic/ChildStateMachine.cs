@@ -33,19 +33,8 @@ namespace StateMechanic
         /// </summary>
         public string Name { get { return this.InnerStateMachine.Name; } }
 
-        /// <summary>
-        /// Gets the state which this state machine is currently in
-        /// </summary>
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-
-        /// <summary>
-        /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
-        /// </summary>
         IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
-
-        /// <summary>
-        /// Gets the initial state of this state machine
-        /// </summary>
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
@@ -53,9 +42,6 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<State> States { get { return this.InnerStateMachine.States; } }
 
-        /// <summary>
-        /// Gets a list of all states which are part of this state machine
-        /// </summary>
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
         /// <summary>
@@ -124,20 +110,20 @@ namespace StateMechanic
         /// </summary>
         /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
         /// <param name="toState">State to transition to</param>
-        /// <param name="evt">Event pass to the exit/entry handlers</param>
-        public void ForceTransition(State toState, IEvent evt)
+        /// <param name="event">Event pass to the exit/entry handlers</param>
+        public void ForceTransition(State toState, IEvent @event)
         {
             if (toState == null)
                 throw new ArgumentNullException("toState");
-            if (evt == null)
-                throw new ArgumentNullException("evt");
+            if (@event == null)
+                throw new ArgumentNullException("event");
 
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
-            if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
-                throw new InvalidEventTransitionException(this.CurrentState, evt);
+            if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
+                throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, @event);
         }
 
         /// <summary>
@@ -171,24 +157,24 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        void IStateDelegate<State>.ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent evt)
+        void IStateDelegate<State>.ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent @event)
         {
-            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
+            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, @event);
         }
 
-        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent evt, bool isInnerTransition)
+        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent @event, bool isInnerTransition)
         {
-            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerTransition);
+            this.InnerStateMachine.UpdateCurrentState(from, state, @event, isInnerTransition);
         }
 
-        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, throwIfNotFound);
+            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
         }
 
         private void OnTransition(object sender, TransitionEventArgs<State> eventArgs)
@@ -233,19 +219,8 @@ namespace StateMechanic
         /// </summary>
         public string Name { get { return this.InnerStateMachine.Name; } }
 
-        /// <summary>
-        /// Gets the state which this state machine is currently in
-        /// </summary>
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-
-        /// <summary>
-        /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
-        /// </summary>
         IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
-
-        /// <summary>
-        /// Gets the initial state of this state machine
-        /// </summary>
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
@@ -253,9 +228,6 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<State<TStateData>> States { get { return this.InnerStateMachine.States; } }
 
-        /// <summary>
-        /// Gets a list of all states which are part of this state machine
-        /// </summary>
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
         /// <summary>
@@ -326,20 +298,20 @@ namespace StateMechanic
         /// </summary>
         /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
         /// <param name="toState">State to transition to</param>
-        /// <param name="evt">Event pass to the exit/entry handlers</param>
-        public void ForceTransition(State<TStateData> toState, IEvent evt)
+        /// <param name="event">Event pass to the exit/entry handlers</param>
+        public void ForceTransition(State<TStateData> toState, IEvent @event)
         {
             if (toState == null)
                 throw new ArgumentNullException("toState");
-            if (evt == null)
-                throw new ArgumentNullException("evt");
+            if (@event == null)
+                throw new ArgumentNullException("event");
 
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
-            if (evt.ParentStateMachine != this && !this.IsChildOf(evt.ParentStateMachine))
-                throw new InvalidEventTransitionException(this.CurrentState, evt);
+            if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
+                throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, evt);
+            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, @event);
         }
 
         /// <summary>
@@ -373,24 +345,24 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        void IStateDelegate<State<TStateData>>.ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent evt)
+        void IStateDelegate<State<TStateData>>.ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent @event)
         {
-            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, evt);
+            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, @event);
         }
 
-        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent evt, bool isInnerTransition)
+        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent @event, bool isInnerTransition)
         {
-            this.InnerStateMachine.UpdateCurrentState(from, state, evt, isInnerTransition);
+            this.InnerStateMachine.UpdateCurrentState(from, state, @event, isInnerTransition);
         }
 
-        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, throwIfNotFound);
+            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, bool throwIfNotFound)
+        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, throwIfNotFound);
+            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
         }
 
         private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)

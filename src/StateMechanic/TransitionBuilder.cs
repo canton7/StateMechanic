@@ -12,10 +12,10 @@ namespace StateMechanic
         private readonly Event evt;
         private readonly ITransitionDelegate<TState> transitionDelegate;
 
-        public TransitionBuilder(TState fromState, Event evt, ITransitionDelegate<TState> transitionDelegate)
+        public TransitionBuilder(TState fromState, Event @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.fromState = fromState;
-            this.evt = evt;
+            this.evt = @event;
             this.transitionDelegate = transitionDelegate;
         }
 
@@ -36,10 +36,10 @@ namespace StateMechanic
         private readonly Event<TEventData> evt;
         private readonly ITransitionDelegate<TState> transitionDelegate;
 
-        public TransitionBuilder(TState fromState, Event<TEventData> evt, ITransitionDelegate<TState> transitionDelegate)
+        public TransitionBuilder(TState fromState, Event<TEventData> @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.fromState = fromState;
-            this.evt = evt;
+            this.evt = @event;
             this.transitionDelegate = transitionDelegate;
         }
 

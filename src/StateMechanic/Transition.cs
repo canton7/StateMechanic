@@ -29,17 +29,17 @@ namespace StateMechanic
         public Action<TTransitionInfo> Handler { get; set; }
         public Func<TTransitionInfo, bool> Guard { get; set; }
 
-        public TransitionInner(TState from, TState to, TEvent evt, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
+        public TransitionInner(TState from, TState to, TEvent @event, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
         {
             if (from.ParentStateMachine != to.ParentStateMachine)
                 throw new InvalidStateTransitionException(from, to);
 
-            if (from.ParentStateMachine != evt.ParentStateMachine && !from.ParentStateMachine.IsChildOf(evt.ParentStateMachine))
-                throw new InvalidEventTransitionException(from, evt);
+            if (from.ParentStateMachine != @event.ParentStateMachine && !from.ParentStateMachine.IsChildOf(@event.ParentStateMachine))
+                throw new InvalidEventTransitionException(from, @event);
 
             this.From = from;
             this.To = to;
-            this.Event = evt;
+            this.Event = @event;
             this.transitionDelegate = transitionDelegate;
             this.IsInnerTransition = isInnerTransition;
         }
@@ -193,24 +193,24 @@ namespace StateMechanic
 
     internal static class Transition
     {
-        internal static Transition<TState> Create<TState>(TState from, TState to, Event evt, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
+        internal static Transition<TState> Create<TState>(TState from, TState to, Event @event, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
         {
-            return new Transition<TState>(new TransitionInner<TState, Event, TransitionInfo<TState>>(from, to, evt, transitionDelegate, isInnerTransition: false));
+            return new Transition<TState>(new TransitionInner<TState, Event, TransitionInfo<TState>>(from, to, @event, transitionDelegate, isInnerTransition: false));
         }
 
-        internal static Transition<TState> CreateInner<TState>(TState fromAndTo, Event evt, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
+        internal static Transition<TState> CreateInner<TState>(TState fromAndTo, Event @event, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
         {
-            return new Transition<TState>(new TransitionInner<TState, Event, TransitionInfo<TState>>(fromAndTo, fromAndTo, evt, transitionDelegate, isInnerTransition: true));
+            return new Transition<TState>(new TransitionInner<TState, Event, TransitionInfo<TState>>(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true));
         }
 
-        internal static Transition<TState, TEventData> Create<TState, TEventData>(TState from, TState to, Event<TEventData> evt, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
+        internal static Transition<TState, TEventData> Create<TState, TEventData>(TState from, TState to, Event<TEventData> @event, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
         {
-            return new Transition<TState, TEventData>(new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(from, to, evt, transitionDelegate, isInnerTransition: false));
+            return new Transition<TState, TEventData>(new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(from, to, @event, transitionDelegate, isInnerTransition: false));
         }
 
-        internal static Transition<TState, TEventData> CreateInner<TState, TEventData>(TState fromAndTo, Event<TEventData> evt, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
+        internal static Transition<TState, TEventData> CreateInner<TState, TEventData>(TState fromAndTo, Event<TEventData> @event, ITransitionDelegate<TState> transitionDelegate) where TState : class, IState<TState>
         {
-            return new Transition<TState, TEventData>(new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(fromAndTo, fromAndTo, evt, transitionDelegate, isInnerTransition: true));
+            return new Transition<TState, TEventData>(new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true));
         }
     }
 }

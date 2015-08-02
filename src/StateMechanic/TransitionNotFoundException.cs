@@ -21,13 +21,16 @@ namespace StateMechanic
         /// </summary>
         public IEvent Event { get; private set; }
 
+        /// <summary>
+        /// Gets the state machine associated with the failed transition
+        /// </summary>
         public IStateMachine StateMachine { get; private set; }
 
-        internal TransitionNotFoundException(IState from, IEvent evt, IStateMachine stateMachine)
-            : base(String.Format("Could not find a transition which we could invoke from state {0} (or any of its children) on event {1}", from.Name, evt.Name))
+        internal TransitionNotFoundException(IState from, IEvent @event, IStateMachine stateMachine)
+            : base(String.Format("Could not find a transition which we could invoke from state {0} (or any of its children) on event {1}", from.Name, @event.Name))
         {
             this.From = from;
-            this.Event = evt;
+            this.Event = @event;
             this.StateMachine = stateMachine;
         }
     }

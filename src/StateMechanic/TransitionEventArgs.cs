@@ -37,11 +37,11 @@ namespace StateMechanic
         /// </summary>
         public bool IsInnerTransition { get; private set; }
 
-        internal TransitionEventArgs(TState from, TState to, IEvent evt, IStateMachine stateMachine, bool isInnerTransition)
+        internal TransitionEventArgs(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
-            this.Event = evt;
+            this.Event = @event;
             this.StateMachine = stateMachine;
             this.IsInnerTransition = isInnerTransition;
         }
