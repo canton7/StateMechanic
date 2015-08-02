@@ -21,7 +21,23 @@ namespace StateMechanic
         private readonly List<TState> states = new List<TState>();
 
         public TState InitialState { get; private set; }
-        public TState CurrentState { get; private set; }
+
+        private TState _currentState;
+        public TState CurrentState
+        {
+            get
+            {
+                if (this.Kernel.Fault != null)
+                    throw new StateMachineFaultedException(this.Kernel.Fault);
+
+                return this._currentState;
+            }
+            set
+            {
+                this._currentState = value;
+            }
+        }
+
         public TState CurrentStateRecursive
         {
             get

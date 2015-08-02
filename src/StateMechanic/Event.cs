@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 namespace StateMechanic
 {
-    // Given an IState, returns an action to invoke the transition handler on it, or null if it doesn't exist
-    internal delegate bool EventInvocation(Func<IState, Action> transitionInvocation);
-
     internal class EventInner<TEvent, TTransition>
     {
         private readonly Dictionary<IState, List<TTransition>> transitions = new Dictionary<IState, List<TTransition>>();
