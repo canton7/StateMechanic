@@ -23,6 +23,54 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void CurrentStateReflectsCurrentState()
+        {
+            var sm = new StateMachine("state machine");
+            var initialState = sm.CreateInitialState("initial state");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+            initialState.TransitionOn(evt).To(state1);
+
+            Assert.AreEqual(initialState, sm.CurrentState);
+
+            evt.Fire();
+
+            Assert.AreEqual(state1, sm.CurrentState);
+        }
+
+        [Test]
+        public void CurrentStateRecursiveReflectsCurrentStateOfChild()
+        {
+            var sm = new StateMachine("state machine");
+            var initialState = sm.CreateInitialState("initial state");
+            var state1 = sm.CreateState("state1");
+            var childSm = state1.CreateChildStateMachine("childsm");
+            var childInitialState = childSm.CreateInitialState("childInitialState");
+            var childState1 = childSm.CreateState("childState1");
+
+            var evt = sm.CreateEvent("evt");
+            var evt2 = sm.CreateEvent("evt2");
+
+            initialState.TransitionOn(evt).To(state1);
+            childInitialState.TransitionOn(evt).To(childState1);
+            state1.TransitionOn(evt2).To(initialState);
+
+            Assert.AreEqual(initialState, sm.CurrentStateRecursive);
+
+            evt.Fire();
+
+            Assert.AreEqual(childInitialState, sm.CurrentStateRecursive);
+
+            evt.Fire();
+
+            Assert.AreEqual(childState1, sm.CurrentStateRecursive);
+
+            evt2.Fire();
+
+            Assert.AreEqual(initialState, sm.CurrentStateRecursive);
+        }
+
+        [Test]
         public void ChildStateMachineStartsInInitialStateIfParentStateIsInitialState()
         {
             var parent = new StateMachine("parent");

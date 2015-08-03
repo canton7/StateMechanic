@@ -11,81 +11,251 @@ namespace StateMechanicUnitTests
     [TestFixture]
     public class TransitionNotificationTests
     {
-        private StateMachine stateMachine;
-
-        private State state1;
-        private State state2;
-
-        private Event event1;
-        private Event event2;
-        private Event event3;
-
-        [SetUp]
-        public void SetUp()
-        {
-            this.stateMachine = new StateMachine("State Machine");
-
-            this.state1 = this.stateMachine.CreateInitialState("State 1");
-            this.state2 = this.stateMachine.CreateState("State 2");
-
-            this.event1 = this.stateMachine.CreateEvent("Event 1");
-            this.event2 = this.stateMachine.CreateEvent("Event 2");
-            this.event3 = this.stateMachine.CreateEvent("Event 3");
-
-            this.state1.TransitionOn(this.event1).To(this.state2);
-            this.state1.InnerSelfTransitionOn(this.event2);
-        }
-
         [Test]
         public void NotifiesOfTransition()
         {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+            initial.TransitionOn(evt).To(state1);
+
             TransitionEventArgs<State> ea = null;
-            this.stateMachine.Transition += (o, e) =>
+
+            sm.Transition += (o, e) =>
             {
                 ea = e;
             };
 
-            this.event1.Fire();
+            evt.Fire();
 
             Assert.NotNull(ea);
-            Assert.AreEqual(this.state1, ea.From);
-            Assert.AreEqual(this.state2, ea.To);
-            Assert.AreEqual(this.event1, ea.Event);
+            Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(state1, ea.To);
+            Assert.AreEqual(evt, ea.Event);
             Assert.False(ea.IsInnerTransition);
         }
 
         [Test]
         public void NotifiesOfInnerSelfTransition()
         {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var evt = sm.CreateEvent("evt");
+            initial.InnerSelfTransitionOn(evt);
+
             TransitionEventArgs<State> ea = null;
-            this.stateMachine.Transition += (o, e) =>
+            sm.Transition += (o, e) =>
             {
                 ea = e;
             };
 
-            this.event2.Fire();
+            evt.Fire();
 
             Assert.NotNull(ea);
-            Assert.AreEqual(this.state1, ea.From);
-            Assert.AreEqual(this.state1, ea.To);
-            Assert.AreEqual(this.event2, ea.Event);
+            Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(initial, ea.To);
+            Assert.AreEqual(evt, ea.Event);
             Assert.True(ea.IsInnerTransition);
         }
 
         [Test]
         public void NotifiesOfTransitionNotFound()
         {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var evt = sm.CreateEvent("evt");
+
             TransitionNotFoundEventArgs<State> ea = null;
-            this.stateMachine.TransitionNotFound += (o, e) =>
+            sm.TransitionNotFound += (o, e) =>
             {
                 ea = e;
             };
 
-            this.event3.TryFire();
+            evt.TryFire();
 
             Assert.NotNull(ea);
-            Assert.AreEqual(this.event3, ea.Event);
-            Assert.AreEqual(this.state1, ea.From);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.AreEqual(initial, ea.From);
+        }
+
+        [Test]
+        public void DoesNotNotifyOfTransitionInChildStateMachine()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var child = initial.CreateChildStateMachine("child");
+            var childInitial = child.CreateInitialState("childInitial");
+            var childState1 = child.CreateState("childState1");
+            var evt = child.CreateEvent("evt");
+            childInitial.TransitionOn(evt).To(childState1);
+
+            bool fired = false;
+            sm.Transition += (o, e) => fired = true;
+
+            evt.Fire();
+
+            Assert.False(fired);
+        }
+
+        [Test]
+        public void DoesNotNotifyOfTransitionNotFoundInChildStateMachine()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var child = initial.CreateChildStateMachine("child");
+            var childInitial = child.CreateInitialState("childInitial");
+            var evt = child.CreateEvent("evt");
+
+            bool fired = false;
+            sm.TransitionNotFound += (o, e) => fired = true;
+
+            evt.TryFire();
+
+            Assert.False(fired);
+        }
+
+        [Test]
+        public void GlobalTransitionRaisedWhenTransitionOnParent()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+            initial.TransitionOn(evt).To(state1);
+
+            TransitionEventArgs<State> ea = null;
+
+            sm.GlobalTransition += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.Fire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(state1, ea.To);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.False(ea.IsInnerTransition);
+        }
+
+        [Test]
+        public void GlobalTransitionRaisedWhenInnerSelfTransitionOnParent()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var evt = sm.CreateEvent("evt");
+            initial.InnerSelfTransitionOn(evt);
+
+            TransitionEventArgs<State> ea = null;
+            sm.GlobalTransition += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.Fire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(initial, ea.To);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.True(ea.IsInnerTransition);
+        }
+
+        [Test]
+        public void GlobalTransitionRaisedWhenTransitionOnChild()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var child = initial.CreateChildStateMachine("child");
+            var childInitial = child.CreateInitialState("childInitial");
+            var childState1 = child.CreateState("childState1");
+            var evt = sm.CreateEvent("evt");
+            childInitial.TransitionOn(evt).To(childState1);
+
+            TransitionEventArgs<State> ea = null;
+
+            sm.GlobalTransition += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.Fire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(childInitial, ea.From);
+            Assert.AreEqual(childState1, ea.To);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.False(ea.IsInnerTransition);
+        }
+
+        [Test]
+        public void GlobalTransitionRaisedWhenInnerSelfTransitionOnChild()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var child = initial.CreateChildStateMachine("child");
+            var childInitial = child.CreateInitialState("childInitial");
+            var evt = sm.CreateEvent("evt");
+            childInitial.InnerSelfTransitionOn(evt);
+
+            TransitionEventArgs<State> ea = null;
+
+            sm.GlobalTransition += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.Fire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(childInitial, ea.From);
+            Assert.AreEqual(childInitial, ea.To);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.True(ea.IsInnerTransition);
+        }
+
+        [Test]
+        public void GlobalTransitionNotFoundRaisedWhenTransitionNotFoundOnParent()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var evt = sm.CreateEvent("evt");
+
+            TransitionNotFoundEventArgs<State> ea = null;
+            sm.GlobalTransitionNotFound += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.TryFire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.AreEqual(initial, ea.From);
+        }
+
+        [Test]
+        public void GlobalTransitionNotFoundRaisedWhenTransitionNotFoundOnChild()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var child = initial.CreateChildStateMachine("child");
+            var childInitial = child.CreateInitialState("childInitial");
+            var evt = child.CreateEvent("evt");
+
+            TransitionNotFoundEventArgs<State> ea = null;
+            sm.GlobalTransitionNotFound += (o, e) =>
+            {
+                ea = e;
+            };
+
+            evt.TryFire();
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.AreEqual(childInitial, ea.From);
         }
     }
 }

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionTests.cs" />
+    <Compile Include="EventFireTests.cs" />
     <Compile Include="FaultTests.cs" />
     <Compile Include="HandlerTests.cs" />
     <Compile Include="IntrospectionTests.cs" />

@@ -130,7 +130,7 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void StateMachineRefusesToActOnceFaulted()
+        public void StateMachineRefusesToFireEventsOnceFaulted()
         {
             var exception = new Exception("foo");
             this.state1.ExitHandler = i => { throw exception; };
@@ -138,6 +138,23 @@ namespace StateMechanicUnitTests
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
 
             var e = Assert.Throws<StateMachineFaultedException>(() => this.event1.TryFire());
+            Assert.AreEqual(this.event1, e.FaultInfo.Event);
+            Assert.AreEqual(this.state1, e.FaultInfo.From);
+            Assert.AreEqual(this.state2, e.FaultInfo.To);
+            Assert.AreEqual(exception, e.FaultInfo.Exception);
+            Assert.AreEqual(FaultedComponent.ExitHandler, e.FaultInfo.FaultedComponent);
+            Assert.AreEqual(this.stateMachine, e.FaultInfo.StateMachine);
+        }
+
+        [Test]
+        public void StateMachineThrowsFaultExceptionWhenAccessingCurrentStateOnceFaulted()
+        {
+            var exception = new Exception("foo");
+            this.state1.ExitHandler = i => { throw exception; };
+
+            Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
+
+            var e = Assert.Throws<StateMachineFaultedException>(() => { var x = this.stateMachine.CurrentState; });
             Assert.AreEqual(this.event1, e.FaultInfo.Event);
             Assert.AreEqual(this.state1, e.FaultInfo.From);
             Assert.AreEqual(this.state2, e.FaultInfo.To);
@@ -159,18 +176,6 @@ namespace StateMechanicUnitTests
 
             Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
             Assert.True(this.stateMachine.IsFaulted);
-        }
-
-        [Test]
-        public void ResettingStateMachineRemovesFault()
-        {
-            var exception = new Exception("foo");
-            this.state1.ExitHandler = i => { throw exception; };
-
-            Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
-
-            this.stateMachine.Reset();
-            Assert.False(this.stateMachine.IsFaulted);
         }
     }
 }

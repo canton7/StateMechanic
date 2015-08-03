@@ -12,6 +12,38 @@ namespace StateMechanicUnitTests
     public class ResetTests
     {
         [Test]
+        public void ResettingStateMachineRemovesFault()
+        {
+            var exception = new Exception("foo");
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial").WithEntry(i => { throw exception; });
+            var evt = sm.CreateEvent("evt");
+            initial.TransitionOn(evt).To(initial);
+
+            Assert.Throws<TransitionFailedException>(() => evt.TryFire());
+
+            sm.Reset();
+            Assert.False(sm.IsFaulted);
+            Assert.Null(sm.Fault);
+        }
+
+        [Test]
+        public void ResetResetsCurrentStateOfStateMachine()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+            initial.TransitionOn(evt).To(state1);
+
+            evt.Fire();
+
+            sm.Reset();
+
+            Assert.AreEqual(initial, sm.CurrentState);
+        }
+
+        [Test]
         public void ResetResetsStateOfChildStateMachines()
         {
             var parent = new StateMachine("parent");

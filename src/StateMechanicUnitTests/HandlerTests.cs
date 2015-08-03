@@ -62,6 +62,20 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void InnerSelfTransitionOnEventTShouldNotFireExitAndEntry()
+        {
+            var events = new List<string>();
+            var sm = new StateMachine("State Machine");
+            var evt = sm.CreateEvent<int>("Event");
+            var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
+            state1.InnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
+
+            evt.Fire(3);
+
+            Assert.That(events, Is.EquivalentTo(new[] { "Transition 1 1 Inner" }));
+        }
+
+        [Test]
         public void CorrectInfoIsGivenInGuard()
         {
             TransitionInfo<State> guardInfo = null;
