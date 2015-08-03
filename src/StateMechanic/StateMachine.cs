@@ -58,7 +58,7 @@ namespace StateMechanic
         /// </summary>
         public void Reset()
         {
-            this.InnerStateMachine.Reset();
+            this.InnerStateMachine.InitiateReset();
         }
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)
@@ -139,7 +139,7 @@ namespace StateMechanic
         /// </summary>
         public void Reset()
         {
-            this.InnerStateMachine.Reset();
+            this.InnerStateMachine.InitiateReset();
         }
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)

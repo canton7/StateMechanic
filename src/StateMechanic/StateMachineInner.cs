@@ -182,22 +182,29 @@ namespace StateMechanic
             return success;
         }
 
-        public void Reset()
+        public void InitiateReset()
         {
             if (this.Kernel.Synchronizer != null)
             {
-                this.Kernel.Synchronizer.Reset(this.Reset);
+                this.Kernel.Synchronizer.Reset(this.InitiateReset);
                 return;
             }
 
             this.Kernel.Reset();
+            this.Reset();
+        }
+
+        public void Reset()
+        {
+            // We need to reset our current state before resetting any child state machines, as the
+            // child state machine's current state depends on whether or not we're active
+
+            this.ResetCurrentState();
 
             foreach (var state in this.states)
             {
                 state.Reset();
             }
-
-            this.ResetCurrentState();
         }
 
         private void HandleTransitionNotFound(IEvent @event, bool throwException)
