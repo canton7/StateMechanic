@@ -178,6 +178,15 @@ namespace StateMechanic
             var transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition);
             return this.innerTransition.TryInvoke(transitionInfo);
         }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object</returns>
+        public override string ToString()
+        {
+            return String.Format("<Transition From={0} To={1} Event={2}{3}>", this.From.Name, this.To.Name, this.Event.Name, this.IsInnerTransition ? " IsInnerTransition" : "");
+        }
     }
 
     /// <summary>
@@ -259,6 +268,15 @@ namespace StateMechanic
         {
             var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, this.To, this.Event, eventData, this.IsInnerTransition);
             return this.innerTransition.TryInvoke(transitionInfo);
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object</returns>
+        public override string ToString()
+        {
+            return String.Format("<Transition From={0} To={1} Event={2}{3}>", this.From.Name, this.To.Name, this.Event.Name, this.IsInnerTransition ? " IsInnerTransition" : "");
         }
     }
 
