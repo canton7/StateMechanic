@@ -189,6 +189,48 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void EventsFiredFromHandlersCallsSynchronizer()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = sm.CreateEvent("evt");
+            initial.TransitionOn(evt).To(state1).WithHandler(i => evt.Fire());
+            state1.TransitionOn(evt).To(state2);
+
+            var synchornizer = new Mock<IStateMachineSynchronizer>();
+            sm.Synchronizer = synchornizer.Object;
+
+            // Fire the first, capture the second
+            bool calledOnce = false;
+            Func<bool> fireFunc = null;
+            synchornizer.Setup(x => x.FireEvent(It.IsAny<Func<bool>>(), EventFireMethod.Fire))
+                .Callback<Func<bool>, EventFireMethod>((func, _) =>
+                {
+                    if (!calledOnce)
+                    {
+                        // Need to set this before invoking func(), as we'll recurse
+                        calledOnce = true;
+                        func();
+                    }
+                    else
+                    {
+                        fireFunc = func;
+                    }
+                });
+
+            evt.Fire();
+
+            Assert.AreEqual(state1, sm.CurrentState);
+            Assert.NotNull(fireFunc);
+
+            fireFunc();
+
+            Assert.AreEqual(state2, sm.CurrentState);
+        }
+
+        [Test]
         public void ForceTransitionCallsSynchronizerForceTransition()
         {
             var sm = new StateMachine("sm");
