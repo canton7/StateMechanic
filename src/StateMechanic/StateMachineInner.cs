@@ -182,11 +182,13 @@ namespace StateMechanic
         public void InitiateReset()
         {
             if (this.Kernel.Synchronizer != null)
-            {
-                this.Kernel.Synchronizer.Reset(this.InitiateReset);
-                return;
-            }
+                this.Kernel.Synchronizer.Reset(this.ResetInternal);
+            else
+                this.ResetInternal();
+        }
 
+        private void ResetInternal()
+        {
             this.Kernel.Reset();
             this.Reset();
         }
