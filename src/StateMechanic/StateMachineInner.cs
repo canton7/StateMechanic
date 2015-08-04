@@ -35,6 +35,16 @@ namespace StateMechanic
             }
         }
 
+        public TState CurrentStateRecursive
+        {
+            get
+            {
+                if (this.CurrentState != null && this.CurrentState.ChildStateMachine != null)
+                    return this.CurrentState.ChildStateMachine.CurrentStateRecursive;
+                else
+                    return this.CurrentState;
+            }
+        }
         public string Name { get; private set; }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
         public IReadOnlyList<TState> States { get { return new ReadOnlyCollection<TState>(this.states); } }
@@ -45,28 +55,6 @@ namespace StateMechanic
             this.Kernel = kernel;
             this.outerStateMachine = outerStateMachine;
             this.parentState = parentState;
-        }
-
-        public IEnumerable<TState> GetCurrentChildStates()
-        {
-            if (this.CurrentState == null)
-                yield break;
-
-            yield return this.CurrentState;
-
-            var stateMachine = this.CurrentState.ChildStateMachine;
-            while (stateMachine != null)
-            {
-                if (stateMachine.CurrentState != null)
-                {
-                    yield return stateMachine.CurrentState;
-                    stateMachine = stateMachine.CurrentState.ChildStateMachine;
-                }
-                else
-                {
-                    stateMachine = null; // Break the loop
-                }
-            }
         }
 
         public void SetInitialState(TState state)
@@ -159,7 +147,6 @@ namespace StateMechanic
             bool success;
 
             // Try and fire it on the child state machine - see if that works
-            // We do this instead of using of using GetCurrentChildStates as it invokes the CurrentState / InitialState checks
             // If we got to here, this.CurrentState != null
             var childStateMachine = this.CurrentState.ChildStateMachine;
             if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire))
