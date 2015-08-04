@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace StateMechanic
 {
@@ -36,7 +37,7 @@ namespace StateMechanic
 
         public string Name { get; private set; }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
-        public IReadOnlyList<TState> States { get { return this.states; } }
+        public IReadOnlyList<TState> States { get { return new ReadOnlyCollection<TState>(this.states); } }
 
         public StateMachineInner(string name, StateMachineKernel<TState> kernel, IStateMachine<TState> outerStateMachine, TState parentState)
         {

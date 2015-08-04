@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace StateMechanic
 {
@@ -10,7 +11,7 @@ namespace StateMechanic
         private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
 
         public string Name { get; private set; }
-        public IReadOnlyList<ITransition<TState>> Transitions { get { return this.transitions; } }
+        public IReadOnlyList<ITransition<TState>> Transitions { get { return new ReadOnlyCollection<ITransition<TState>>(this.transitions); } }
 
         public Action<StateHandlerInfo<TState>> EntryHandler { get; set; }
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
