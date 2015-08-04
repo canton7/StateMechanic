@@ -41,21 +41,9 @@ namespace StateMechanic
 
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
-        /// <summary>
-        /// Event raised whenever a transition occurs on this state machine
-        /// </summary>
-        public event EventHandler<TransitionEventArgs<State>> Transition;
-
-        /// <summary>
-        /// Event raised whenever an event is fired but no corresponding transition is found on this state machine
-        /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State>> TransitionNotFound;
-
         internal ChildStateMachine(string name, StateMachineKernel<State> kernel, State parentState)
         {
             this.InnerStateMachine = new StateMachineInner<State>(name, kernel, this, parentState);
-            this.InnerStateMachine.Transition += this.OnTransition;
-            this.InnerStateMachine.TransitionNotFound += this.OnTransitionNotFound;
         }
 
         /// <summary>
@@ -173,20 +161,6 @@ namespace StateMechanic
         {
             return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
         }
-
-        private void OnTransition(object sender, TransitionEventArgs<State> eventArgs)
-        {
-            var handler = this.Transition;
-            if (handler != null)
-                handler(this, eventArgs);
-        }
-
-        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State> eventArgs)
-        {
-            var handler = this.TransitionNotFound;
-            if (handler != null)
-                handler(this, eventArgs);
-        }
     }
 
     /// <summary>
@@ -227,21 +201,9 @@ namespace StateMechanic
 
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
-        /// <summary>
-        /// Event raised whenever a transition occurs on this state machine
-        /// </summary>
-        public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition;
-
-        /// <summary>
-        /// Event raised whenever an event is fired but no corresponding transition is found on this state machine
-        /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> TransitionNotFound;
-
         internal ChildStateMachine(string name, StateMachineKernel<State<TStateData>> kernel, State<TStateData> parentState)
         {
             this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, kernel, this, parentState);
-            this.InnerStateMachine.Transition += this.OnTransition;
-            this.InnerStateMachine.TransitionNotFound += this.OnTransitionNotFound;
         }
 
         /// <summary>
@@ -360,20 +322,6 @@ namespace StateMechanic
         bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
             return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
-        }
-
-        private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
-        {
-            var handler = this.Transition;
-            if (handler != null)
-                handler(this, eventArgs);
-        }
-
-        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
-        {
-            var handler = this.TransitionNotFound;
-            if (handler != null)
-                handler(this, eventArgs);
         }
     }
 }

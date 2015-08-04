@@ -10,8 +10,8 @@ namespace StateMechanic
         public StateMachineFaultInfo Fault { get; private set; }
         public bool ExecutingTransition { get; set; }
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
-        public event EventHandler<TransitionEventArgs<TState>> GlobalTransition;
-        public event EventHandler<TransitionNotFoundEventArgs<TState>> GlobalTransitionNotFound;
+        public event EventHandler<TransitionEventArgs<TState>> Transition;
+        public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
 
         public void EnqueueEventFire(Func<bool> invoker)
         {
@@ -27,16 +27,16 @@ namespace StateMechanic
             }
         }
 
-        public void OnGlobalTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
+        public void OnTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
-            var handler = this.GlobalTransition;
+            var handler = this.Transition;
             if (handler != null)
                 handler(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
-        public void OnGlobalTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
+        public void OnTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
         {
-            var handler = this.GlobalTransitionNotFound;
+            var handler = this.TransitionNotFound;
             if (handler != null)
                 handler(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
         }

@@ -34,12 +34,12 @@ namespace StateMechanic
         /// <summary>
         /// Event raised when a transition occurs in this state machine, or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionEventArgs<State>> GlobalTransition;
+        public event EventHandler<TransitionEventArgs<State>> Transition;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State>> GlobalTransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<State>> TransitionNotFound;
 
         /// <summary>
         /// Instantiates a new instance of the <see cref="StateMachine"/> class, with the given name
@@ -49,8 +49,8 @@ namespace StateMechanic
             : base(name, new StateMachineKernel<State>(), null)
         {
             this.InnerStateMachine.Kernel.Faulted += this.OnFaulted;
-            this.InnerStateMachine.Kernel.GlobalTransition += this.OnGlobalTransition;
-            this.InnerStateMachine.Kernel.GlobalTransitionNotFound += this.OnGlobalTransitionNotFound;
+            this.InnerStateMachine.Kernel.Transition += this.OnTransition;
+            this.InnerStateMachine.Kernel.TransitionNotFound += this.OnTransitionNotFound;
         }
 
         /// <summary>
@@ -68,16 +68,16 @@ namespace StateMechanic
                 handler(this, eventArgs);
         }
 
-        private void OnGlobalTransition(object sender, TransitionEventArgs<State> eventArgs)
+        private void OnTransition(object sender, TransitionEventArgs<State> eventArgs)
         {
-            var handler = this.GlobalTransition;
+            var handler = this.Transition;
             if (handler != null)
                 handler(this, eventArgs);
         }
 
-        private void OnGlobalTransitionNotFound(object sender, TransitionNotFoundEventArgs<State> eventArgs)
+        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State> eventArgs)
         {
-            var handler = this.GlobalTransitionNotFound;
+            var handler = this.TransitionNotFound;
             if (handler != null)
                 handler(this, eventArgs);
         }
@@ -115,12 +115,12 @@ namespace StateMechanic
         /// <summary>
         /// Event raised when a transition occurs in this state machine, or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionEventArgs<State<TStateData>>> GlobalTransition;
+        public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> GlobalTransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> TransitionNotFound;
 
         /// <summary>
         /// Instantiates a new instance of the <see cref="StateMachine{TStateData}"/> class, with the given name
@@ -130,8 +130,8 @@ namespace StateMechanic
             : base(name, new StateMachineKernel<State<TStateData>>(), null)
         {
             this.InnerStateMachine.Kernel.Faulted += this.OnFaulted;
-            this.InnerStateMachine.Kernel.GlobalTransition += this.OnGlobalTransition;
-            this.InnerStateMachine.Kernel.GlobalTransitionNotFound += this.OnGlobalTransitionNotFound;
+            this.InnerStateMachine.Kernel.Transition += this.OnTransition;
+            this.InnerStateMachine.Kernel.TransitionNotFound += this.OnTransitionNotFound;
         }
 
         /// <summary>
@@ -149,16 +149,16 @@ namespace StateMechanic
                 handler(this, eventArgs);
         }
 
-        private void OnGlobalTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
+        private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
         {
-            var handler = this.GlobalTransition;
+            var handler = this.Transition;
             if (handler != null)
                 handler(this, eventArgs);
         }
 
-        private void OnGlobalTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
+        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
         {
-            var handler = this.GlobalTransitionNotFound;
+            var handler = this.TransitionNotFound;
             if (handler != null)
                 handler(this, eventArgs);
         }
