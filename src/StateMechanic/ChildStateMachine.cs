@@ -16,11 +16,6 @@ namespace StateMechanic
         public State CurrentState { get { return this.InnerStateMachine.CurrentState; } }
 
         /// <summary>
-        /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
-        /// </summary>
-        public State CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
-
-        /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
         public State InitialState { get { return this.InnerStateMachine.InitialState; } }
@@ -31,7 +26,6 @@ namespace StateMechanic
         public string Name { get { return this.InnerStateMachine.Name; } }
 
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
@@ -112,6 +106,20 @@ namespace StateMechanic
         }
 
         /// <summary>
+        /// Fetch this state machine's current state, then that state's child state machine's current state (if it exists), and so on
+        /// </summary>
+        /// <returns>A collection of all of the current states of all child state machines</returns>
+        public IEnumerable<State> GetCurrentChildStates()
+        {
+            return this.InnerStateMachine.GetCurrentChildStates();
+        }
+
+        IEnumerable<IState> IStateMachine.GetCurrentChildStates()
+        {
+            return this.InnerStateMachine.GetCurrentChildStates();
+        }
+
+        /// <summary>
         /// Determines whether this state machine is a child of another state machine
         /// </summary>
         /// <param name="parentStateMachine">State machine which may be a parent of this state machine</param>
@@ -176,11 +184,6 @@ namespace StateMechanic
         public State<TStateData> CurrentState { get { return this.InnerStateMachine.CurrentState; } }
 
         /// <summary>
-        /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
-        /// </summary>
-        public State<TStateData> CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
-
-        /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
         public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
@@ -191,7 +194,6 @@ namespace StateMechanic
         public string Name { get { return this.InnerStateMachine.Name; } }
 
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
@@ -271,6 +273,20 @@ namespace StateMechanic
                 throw new InvalidEventTransitionException(this.CurrentState, @event);
 
             this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, @event);
+        }
+
+        /// <summary>
+        /// Fetch this state machine's current state, then that state's child state machine's current state (if it exists), and so on
+        /// </summary>
+        /// <returns>A collection of all of the current states of all child state machines</returns>
+        public IEnumerable<State<TStateData>> GetCurrentChildStates()
+        {
+            return this.InnerStateMachine.GetCurrentChildStates();
+        }
+
+        IEnumerable<IState> IStateMachine.GetCurrentChildStates()
+        {
+            return this.InnerStateMachine.GetCurrentChildStates();
         }
 
         /// <summary>

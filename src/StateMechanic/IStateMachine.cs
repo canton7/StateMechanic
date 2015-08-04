@@ -19,11 +19,6 @@ namespace StateMechanic
         IState CurrentState { get; }
 
         /// <summary>
-        /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
-        /// </summary>
-        IState CurrentStateRecursive { get; }
-
-        /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
         IState InitialState { get; }
@@ -32,6 +27,12 @@ namespace StateMechanic
         /// Gets a list of all states which are part of this state machine
         /// </summary>
         IReadOnlyList<IState> States { get; }
+
+        /// <summary>
+        /// Fetch this state machine's current state, then that state's child state machine's current state (if it exists), and so on
+        /// </summary>
+        /// <returns>A collection of all of the current states of all child state machines</returns>
+        IEnumerable<IState> GetCurrentChildStates();
 
         /// <summary>
         /// Determines whether this state machine is a child of another state machine
@@ -50,7 +51,7 @@ namespace StateMechanic
 
     internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : class, IState<TState>
     {
-        new TState CurrentStateRecursive { get; }
+        new TState CurrentState { get; }
         bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod);
     }
 }

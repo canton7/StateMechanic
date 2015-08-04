@@ -34,16 +34,6 @@ namespace StateMechanic
             }
         }
 
-        public TState CurrentStateRecursive
-        {
-            get
-            {
-                if (this.CurrentState != null && this.CurrentState.ChildStateMachine != null)
-                    return this.CurrentState.ChildStateMachine.CurrentStateRecursive;
-                else
-                    return this.CurrentState;
-            }
-        }
         public string Name { get; private set; }
         public IStateMachine StateMachine { get { return this.outerStateMachine; } }
         public IReadOnlyList<TState> States { get { return this.states; } }
@@ -54,6 +44,16 @@ namespace StateMechanic
             this.Kernel = kernel;
             this.outerStateMachine = outerStateMachine;
             this.parentState = parentState;
+        }
+
+        public IEnumerable<TState> GetCurrentChildStates()
+        {
+            yield return this.CurrentState;
+
+            for (var stateMachine = this.CurrentState?.ChildStateMachine; stateMachine != null; stateMachine = stateMachine.CurrentState?.ChildStateMachine)
+            {
+                yield return stateMachine.CurrentState;
+            }
         }
 
         public void SetInitialState(TState state)
@@ -146,8 +146,8 @@ namespace StateMechanic
             bool success;
 
             // Try and fire it on the child state machine - see if that works
-            var childStateMachine = this.CurrentState == null ? null : this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire))
+            // We do this instead of using of using GetCurrentChildStates as it invokes the CurrentState / InitialState checks
+            if (this.CurrentState?.ChildStateMachine?.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire) ?? false)
             {
                 success = true;
             }
