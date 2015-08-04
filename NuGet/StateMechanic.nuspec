@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>StateMechanic</id>
+    <version>0.1.0</version>
+    <title>StateMechanic</title>
+    <authors>Antony Male</authors>
+    <owners>Antony Male</owners>
+    <licenseUrl>http://github.com/canton7/StateMechanic/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>http://github.com/canton7/StateMechanic</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Simple but powerful hierarchical state machine library</description>
+    <copyright>Copyright 2015 Antony Male</copyright>
+    <tags>StateMachine State Machine</tags>
+  </metadata>
+
+  <files>
+    <file src="..\bin\Release\StateMechanic.dll" target="lib\net45"/>
+    <file src="..\bin\Release\StateMechanic.pdb" target="lib\net45"/>
+    <file src="..\bin\Release\StateMechanic.xml" target="lib\net45"/>
+    <file src="..\bin\Release\StateMechanic.pdb.srcsrv" target="lib\net45"/>
+  </files>
+</package>
