@@ -50,5 +50,22 @@ namespace StateMechanicUnitTests
 
             Assert.AreEqual(state3, sm.CurrentState);
         }
+
+        [Test]
+        public void TransitionIsAbortedIfAnyGuardThrowsAnException()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+
+            var exception = new Exception("foo");
+            initial.TransitionOn(evt).To(initial).WithGuard(i => { throw exception; });
+            initial.TransitionOn(evt).To(state1);
+
+            var e = Assert.Throws<Exception>(() => evt.Fire());
+            Assert.AreEqual(exception, e);
+            Assert.AreEqual(initial, sm.CurrentState);
+        }
     }
 }

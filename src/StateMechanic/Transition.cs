@@ -44,15 +44,8 @@ namespace StateMechanic
         {
             if (this.Guard != null)
             {
-                try
-                {
-                    if (!this.Guard(transitionInfo))
-                        return false;
-                }
-                catch (Exception e)
-                {
-                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.Guard, e);
-                }
+                if (!this.Guard(transitionInfo))
+                    return false;
             }
 
             var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);

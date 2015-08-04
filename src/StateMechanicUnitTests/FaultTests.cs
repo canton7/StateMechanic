@@ -62,18 +62,14 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ExceptionInGuardPropagatedCorrectly()
+        public void ExceptionInGuardDoesNotCauseFault()
         {
             var exception = new Exception("Foo");
             this.transition12.Guard = i => { throw exception; };
 
-            var e = Assert.Throws<TransitionFailedException>(() => this.event1.TryFire());
-            Assert.AreEqual(this.event1, e.FaultInfo.Event);
-            Assert.AreEqual(this.state1, e.FaultInfo.From);
-            Assert.AreEqual(this.state2, e.FaultInfo.To);
-            Assert.AreEqual(exception, e.FaultInfo.Exception);
-            Assert.AreEqual(FaultedComponent.Guard, e.FaultInfo.FaultedComponent);
-            Assert.AreEqual(this.stateMachine, e.FaultInfo.StateMachine);
+            var e = Assert.Throws<Exception>(() => this.event1.TryFire());
+            Assert.AreEqual(exception, e);
+            Assert.False(this.stateMachine.IsFaulted);
         }
 
         [Test]
