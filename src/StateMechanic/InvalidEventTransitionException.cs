@@ -18,7 +18,7 @@ namespace StateMechanic
         public IEvent Event { get; private set; }
 
         internal InvalidEventTransitionException(IState from, IEvent @event)
-            : base(String.Format("Unable to create from state {0} on event {1}, as state {0} does not belong to the same state machine as event {1}, or to a child state machine of event {1}", from.Name, @event.Name))
+            : base(String.Format("Unable to create transition from state {0} on event {1}, as state {0} does not belong to the same state machine as event {1}, or to a child state machine of event {1}", from.Name, @event.Name))
         {
             this.From = from;
             this.Event = @event;
