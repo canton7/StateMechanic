@@ -48,11 +48,23 @@ namespace StateMechanic
 
         public IEnumerable<TState> GetCurrentChildStates()
         {
+            if (this.CurrentState == null)
+                yield break;
+
             yield return this.CurrentState;
 
-            for (var stateMachine = this.CurrentState?.ChildStateMachine; stateMachine != null; stateMachine = stateMachine.CurrentState?.ChildStateMachine)
+            var stateMachine = this.CurrentState.ChildStateMachine;
+            while (stateMachine != null)
             {
-                yield return stateMachine.CurrentState;
+                if (stateMachine.CurrentState != null)
+                {
+                    yield return stateMachine.CurrentState;
+                    stateMachine = stateMachine.CurrentState.ChildStateMachine;
+                }
+                else
+                {
+                    stateMachine = null; // Break the loop
+                }
             }
         }
 
@@ -147,7 +159,9 @@ namespace StateMechanic
 
             // Try and fire it on the child state machine - see if that works
             // We do this instead of using of using GetCurrentChildStates as it invokes the CurrentState / InitialState checks
-            if (this.CurrentState?.ChildStateMachine?.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire) ?? false)
+            // If we got to here, this.CurrentState != null
+            var childStateMachine = this.CurrentState.ChildStateMachine;
+            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire))
             {
                 success = true;
             }
