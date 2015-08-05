@@ -153,5 +153,25 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(childInitial, ea.From);
         }
+
+        [Test]
+        public void TransitionRaisedWhenForcedTransition()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var evt = sm.CreateEvent("evt");
+
+            TransitionEventArgs<State> ea = null;
+            sm.Transition += (o, e) => ea = e;
+
+            sm.ForceTransition(state1, evt);
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(state1, ea.To);
+            Assert.AreEqual(evt, ea.Event);
+            Assert.False(ea.IsInnerTransition);
+        }
     }
 }

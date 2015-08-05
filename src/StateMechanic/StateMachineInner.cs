@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace StateMechanic
 {
@@ -104,11 +105,11 @@ namespace StateMechanic
 
         private bool ForceTransitionFromUserImpl(TState toState, IEvent @event)
         {
-            this.ForceTransition(this.CurrentState, toState, toState, @event);
+            this.ForceTransition(this.CurrentState, toState, toState, @event, raiseEvent: true);
             return true;
         }
 
-        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
+        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event, bool raiseEvent = false)
         {
             var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, @event);
 
@@ -123,6 +124,10 @@ namespace StateMechanic
             }
 
             this.CurrentState = newState;
+
+            // TODO: Raise event after the transition has completed?
+            if (raiseEvent)
+                this.Kernel.OnTransition(pretendOldState, pretendNewState, @event, this.parentStateMachine, false);
 
             try
             {
@@ -255,6 +260,8 @@ namespace StateMechanic
         public void UpdateCurrentState(TState from, TState to, IEvent @event, bool isInnerTransition)
         {
             this.CurrentState = to;
+
+            // TODO: Raise event after transition has completed?
             this.Kernel.OnTransition(from, to, @event, this.outerStateMachine, isInnerTransition);
         }
 
