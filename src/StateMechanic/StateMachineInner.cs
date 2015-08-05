@@ -94,55 +94,61 @@ namespace StateMechanic
             return new Event<TEventData>(name, this.outerStateMachine);
         }
 
-        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
+        public void ForceTransitionFromUser(TState toState, IEvent @event)
         {
             if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.ForceTransition(() => this.ForceTransitionImpl(pretendNewState, pretendNewState, newState, @event));
+                this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(() => this.ForceTransitionFromUserImpl(toState, @event)));
             else
-                this.ForceTransitionImpl(pretendOldState, pretendNewState, newState, @event);
+                this.InvokeTransition(() => this.ForceTransitionFromUserImpl(toState, @event));
         }
 
-        private void ForceTransitionImpl(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
+        private bool ForceTransitionFromUserImpl(TState toState, IEvent @event)
+        {
+            this.ForceTransition(this.CurrentState, toState, toState, @event);
+            return true;
+        }
+
+        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event)
         {
             var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, @event);
 
-            if (this.CurrentState != null)
-                this.CurrentState.FireExitHandler(handlerInfo);
+            try
+            {
+                if (this.CurrentState != null)
+                    this.CurrentState.FireExitHandler(handlerInfo);
+            }
+            catch (Exception e)
+            {
+                throw new InternalTransitionFaultException(pretendOldState, pretendNewState, @event, FaultedComponent.ExitHandler, e);
+            }
 
             this.CurrentState = newState;
 
-            if (this.CurrentState != null)
-                this.CurrentState.FireEntryHandler(handlerInfo);
+            try
+            {
+                if (this.CurrentState != null)
+                    this.CurrentState.FireEntryHandler(handlerInfo);
+            }
+            catch (Exception e)
+            {
+                throw new InternalTransitionFaultException(pretendOldState, pretendNewState, @event, FaultedComponent.EntryHandler, e);
+            }
         }
 
-        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found</param>
+        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
         public bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
         {
+            // TODO: I don't like how many delegates are created here
+
             if (this.Kernel.Synchronizer != null)
-                return this.Kernel.Synchronizer.FireEvent(() => this.RequestEventFire(sourceEvent, invoker, fireMethod), fireMethod);
+                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(() => this.RequestEventFire(sourceEvent, invoker, fireMethod)), fireMethod);
             else
-                return this.RequestEventFire(sourceEvent, invoker, fireMethod);
+                return this.InvokeTransition(() => this.RequestEventFire(sourceEvent, invoker, fireMethod));
         }
 
         public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
         {
-            if (this.Kernel.Fault != null)
-                throw new StateMachineFaultedException(this.Kernel.Fault);
-
-            if (this.Kernel.ExecutingTransition)
-            {
-                // This may end up being fired from a parent state machine. We reference 'this' here so that it's actually executed on us
-                this.Kernel.EnqueueEventFire(() => this.RequestEventFire(sourceEvent, invoker, fireMethod));
-                return true; // We don't know whether it succeeded or failed, so pretend it succeeded
-            }
-
-            if (this.CurrentState == null)
-            {
-                if (this.InitialState == null)
-                    throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
-                else
-                    throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
-            }
+            this.EnsureCurrentStateSuitableForTransition();
 
             bool success;
 
@@ -156,27 +162,57 @@ namespace StateMechanic
             else
             {
                 // No? Invoke it on ourselves
-                try
-                {
-                    this.Kernel.ExecutingTransition = true;
-                    success = invoker(this.CurrentState);
+                success = invoker(this.CurrentState);
 
-                    if (!success)
-                        this.HandleTransitionNotFound(sourceEvent, throwException: fireMethod == EventFireMethod.Fire);
-                }
-                catch (InternalTransitionFaultException e)
-                {
-                    var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event);
-                    this.Kernel.SetFault(faultInfo);
-                    throw new TransitionFailedException(faultInfo);
-                }
-                finally
-                {
-                    this.Kernel.ExecutingTransition = false;
-                }
+                if (!success)
+                    this.HandleTransitionNotFound(sourceEvent, throwException: fireMethod == EventFireMethod.Fire);
             }
 
-            this.Kernel.FireQueuedEvents();
+            return success;
+        }
+
+        private void EnsureCurrentStateSuitableForTransition()
+        {
+            if (this.CurrentState == null)
+            {
+                if (this.InitialState == null)
+                    throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
+                else
+                    throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
+            }
+        }
+
+
+        private bool InvokeTransition(Func<bool> transition)
+        {
+            if (this.Kernel.Fault != null)
+                throw new StateMachineFaultedException(this.Kernel.Fault);
+
+            if (this.Kernel.ExecutingTransition)
+            {
+                this.Kernel.EnqueueTransition(transition);
+                return true;
+            }
+
+            bool success;
+
+            try
+            {
+                this.Kernel.ExecutingTransition = true;
+                success = transition();
+            }
+            catch (InternalTransitionFaultException e)
+            {
+                var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event);
+                this.Kernel.SetFault(faultInfo);
+                throw new TransitionFailedException(faultInfo);
+            }
+            finally
+            {
+                this.Kernel.ExecutingTransition = false;
+            }
+
+            this.Kernel.FireQueuedTransitions();
 
             return success;
         }

@@ -5,7 +5,7 @@ namespace StateMechanic
 {
     internal class StateMachineKernel<TState>
     {
-        private readonly Queue<Func<bool>> eventQueue = new Queue<Func<bool>>();
+        private readonly Queue<Func<bool>> transitionQueue = new Queue<Func<bool>>();
         public IStateMachineSynchronizer Synchronizer { get; set; }
         public StateMachineFaultInfo Fault { get; private set; }
         public bool ExecutingTransition { get; set; }
@@ -13,17 +13,17 @@ namespace StateMechanic
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
 
-        public void EnqueueEventFire(Func<bool> invoker)
+        public void EnqueueTransition(Func<bool> invoker)
         {
-            this.eventQueue.Enqueue(invoker);
+            this.transitionQueue.Enqueue(invoker);
         }
 
-        public void FireQueuedEvents()
+        public void FireQueuedTransitions()
         {
-            while (this.eventQueue.Count > 0)
+            while (this.transitionQueue.Count > 0)
             {
                 // TODO: Not sure whether these failing should affect the status of the outer parent transition...
-                this.eventQueue.Dequeue()();
+                this.transitionQueue.Dequeue()();
             }
         }
 
@@ -44,7 +44,7 @@ namespace StateMechanic
         public void SetFault(StateMachineFaultInfo faultInfo)
         {
             this.Fault = faultInfo;
-            this.eventQueue.Clear();
+            this.transitionQueue.Clear();
 
             var handler = this.Faulted;
             if (handler != null)

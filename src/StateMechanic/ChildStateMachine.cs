@@ -108,7 +108,7 @@ namespace StateMechanic
             if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
                 throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, @event);
+            this.InnerStateMachine.ForceTransitionFromUser(toState, @event);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace StateMechanic
             if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
                 throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransition(this.CurrentState, toState, toState, @event);
+            this.InnerStateMachine.ForceTransitionFromUser(toState, @event);
         }
 
         /// <summary>
