@@ -48,45 +48,7 @@ namespace StateMechanic
                     return false;
             }
 
-            var stateHandlerInfo = new StateHandlerInfo<TState>(this.From, this.To, this.Event);
-
-            if (!this.IsInnerTransition)
-            {
-                try
-                {
-                    this.From.FireExitHandler(stateHandlerInfo);
-                }
-                catch (Exception e)
-                {
-                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.ExitHandler, e);
-                }
-            }
-
-            if (this.Handler != null)
-            {
-                try
-                {
-                    this.Handler(transitionInfo);
-                }
-                catch (Exception e)
-                {
-                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.TransitionHandler, e);
-                }
-            }
-                
-            this.transitionDelegate.UpdateCurrentState(this.From, this.To, this.Event, this.IsInnerTransition);
-
-            if (!this.IsInnerTransition)
-            {
-                try
-                {
-                    this.To.FireEntryHandler(stateHandlerInfo);
-                }
-                catch (Exception e)
-                {
-                    throw new InternalTransitionFaultException(this.From, this.To, this.Event, FaultedComponent.EntryHandler, e);
-                }
-            }
+            this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler == null ? (Action)null : () => this.Handler(transitionInfo));
 
             return true;
         }

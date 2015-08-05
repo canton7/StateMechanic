@@ -1,7 +1,9 @@
-﻿namespace StateMechanic
+﻿using System;
+
+namespace StateMechanic
 {
     internal interface ITransitionDelegate<TState> where TState : IState
     {
-        void UpdateCurrentState(TState from, TState state, IEvent @event, bool isInnerTransition);
+        void CoordinateTransition(TState from, TState to, IEvent @event, bool isInnerTransition, Action handlerInvoker);
     }
 }

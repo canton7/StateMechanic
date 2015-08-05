@@ -6,7 +6,7 @@ namespace StateMechanic
     /// <summary>
     /// A state machine, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine : IStateMachine<State>, ITransitionDelegate<State>, IEventDelegate, IStateDelegate<State>
+    public class ChildStateMachine : IStateMachine<State>, IEventDelegate, IStateDelegate<State>
     {
         internal StateMachineInner<State> InnerStateMachine { get; private set; }
 
@@ -142,19 +142,14 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        void IStateDelegate<State>.ForceTransition(State pretendFromState, State pretendToState, State toState, IEvent @event)
-        {
-            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, @event);
-        }
-
-        void ITransitionDelegate<State>.UpdateCurrentState(State from, State state, IEvent @event, bool isInnerTransition)
-        {
-            this.InnerStateMachine.UpdateCurrentState(from, state, @event, isInnerTransition);
-        }
-
         bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
             return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
+        }
+
+        void IStateMachine<State>.SetCurrentState(State state)
+        {
+            this.InnerStateMachine.SetCurrentState(state);
         }
 
         bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
@@ -166,7 +161,7 @@ namespace StateMechanic
     /// <summary>
     /// A state machine with per-state data, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, ITransitionDelegate<State<TStateData>>, IEventDelegate, IStateDelegate<State<TStateData>>
+    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, IEventDelegate, IStateDelegate<State<TStateData>>
     {
         internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
@@ -304,19 +299,14 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        void IStateDelegate<State<TStateData>>.ForceTransition(State<TStateData> pretendFromState, State<TStateData> pretendToState, State<TStateData> toState, IEvent @event)
-        {
-            this.InnerStateMachine.ForceTransition(pretendFromState, pretendToState, toState, @event);
-        }
-
-        void ITransitionDelegate<State<TStateData>>.UpdateCurrentState(State<TStateData> from, State<TStateData> state, IEvent @event, bool isInnerTransition)
-        {
-            this.InnerStateMachine.UpdateCurrentState(from, state, @event, isInnerTransition);
-        }
-
         bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
             return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
+        }
+
+        void IStateMachine<State<TStateData>>.SetCurrentState(State<TStateData> state)
+        {
+            this.InnerStateMachine.SetCurrentState(state);
         }
 
         bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)

@@ -58,16 +58,10 @@ namespace StateMechanic
             var entryHandler = this.EntryHandler;
             if (entryHandler != null)
                 entryHandler(info);
-
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(info.From, this.ChildStateMachine.InitialState, this.ChildStateMachine.InitialState, info.Event);
         }
 
         public void FireExitHandler(StateHandlerInfo<TState> info)
         {
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ForceTransition(this.ChildStateMachine.CurrentState, info.To, null, info.Event);
-
             var exitHandler = this.ExitHandler;
             if (exitHandler != null)
                 exitHandler(info);
@@ -128,7 +122,7 @@ namespace StateMechanic
         internal State(string name, ChildStateMachine parentStateMachine)
         {
             this.ParentStateMachine = parentStateMachine;
-            this.innerState = new StateInner<State>(name, parentStateMachine);
+            this.innerState = new StateInner<State>(name, parentStateMachine.InnerStateMachine.Kernel);
         }
 
         /// <summary>
@@ -305,7 +299,7 @@ namespace StateMechanic
         {
             this.Data = data;
             this.ParentStateMachine = parentStateMachine;
-            this.innerState = new StateInner<State<TStateData>>(name, parentStateMachine);
+            this.innerState = new StateInner<State<TStateData>>(name, parentStateMachine.InnerStateMachine.Kernel);
         }
 
         /// <summary>

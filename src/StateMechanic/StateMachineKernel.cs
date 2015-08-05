@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace StateMechanic
 {
-    internal class StateMachineKernel<TState>
+    internal class StateMachineKernel<TState> : ITransitionDelegate<TState> where TState : class, IState<TState>
     {
         private readonly Queue<Func<bool>> transitionQueue = new Queue<Func<bool>>();
         public IStateMachineSynchronizer Synchronizer { get; set; }
@@ -12,6 +12,79 @@ namespace StateMechanic
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
+
+        public void CoordinateTransition(TState from, TState to, IEvent @event, bool isInnerTransition, Action handlerInvoker)
+        {
+            // We require that from.ParentStateMachine.Kernel == to.ParentStateMachine.Kernel == this
+
+            var stateHandlerInfo = new StateHandlerInfo<TState>(from, to, @event);
+
+            if (!isInnerTransition)
+            {
+                if (from.ChildStateMachine != null && !isInnerTransition)
+                {
+                    try
+                    {
+                        from.ChildStateMachine.CurrentState.FireExitHandler(new StateHandlerInfo<TState>(from.ChildStateMachine.CurrentState, to, @event));
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InternalTransitionFaultException(from.ChildStateMachine.CurrentState, to, @event, FaultedComponent.ExitHandler, e);
+                    }
+                    from.ChildStateMachine.SetCurrentState(null);
+                }
+
+                try
+                {
+                    from.FireExitHandler(stateHandlerInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(from, to, @event, FaultedComponent.ExitHandler, e);
+                }
+            }
+
+            if (handlerInvoker != null)
+            {
+                try
+                {
+                    handlerInvoker();
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(from, to, @event, FaultedComponent.TransitionHandler, e);
+                }
+            }
+
+            from.ParentStateMachine.SetCurrentState(to);
+            this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
+
+            if (!isInnerTransition)
+            {
+                try
+                {
+                    to.FireEntryHandler(stateHandlerInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new InternalTransitionFaultException(from, to, @event, FaultedComponent.EntryHandler, e);
+                }
+
+                if (to.ChildStateMachine != null && !isInnerTransition)
+                {
+                    to.ChildStateMachine.SetCurrentState(to.ChildStateMachine.InitialState);
+
+                    try
+                    {
+                        to.ChildStateMachine.InitialState.FireEntryHandler(new StateHandlerInfo<TState>(from, to.ChildStateMachine.InitialState, @event));
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InternalTransitionFaultException(from, to.ChildStateMachine.InitialState, @event, FaultedComponent.EntryHandler, e);
+                    }
+                }
+            }
+        }
 
         public void EnqueueTransition(Func<bool> invoker)
         {

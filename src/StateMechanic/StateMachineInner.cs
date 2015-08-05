@@ -105,39 +105,8 @@ namespace StateMechanic
 
         private bool ForceTransitionFromUserImpl(TState toState, IEvent @event)
         {
-            this.ForceTransition(this.CurrentState, toState, toState, @event, raiseEvent: true);
+            this.Kernel.CoordinateTransition(this.CurrentState, toState, @event, false, null);
             return true;
-        }
-
-        public void ForceTransition(TState pretendOldState, TState pretendNewState, TState newState, IEvent @event, bool raiseEvent = false)
-        {
-            var handlerInfo = new StateHandlerInfo<TState>(pretendOldState, pretendNewState, @event);
-
-            try
-            {
-                if (this.CurrentState != null)
-                    this.CurrentState.FireExitHandler(handlerInfo);
-            }
-            catch (Exception e)
-            {
-                throw new InternalTransitionFaultException(pretendOldState, pretendNewState, @event, FaultedComponent.ExitHandler, e);
-            }
-
-            this.CurrentState = newState;
-
-            // TODO: Raise event after the transition has completed?
-            if (raiseEvent)
-                this.Kernel.OnTransition(pretendOldState, pretendNewState, @event, this.parentStateMachine, false);
-
-            try
-            {
-                if (this.CurrentState != null)
-                    this.CurrentState.FireEntryHandler(handlerInfo);
-            }
-            catch (Exception e)
-            {
-                throw new InternalTransitionFaultException(pretendOldState, pretendNewState, @event, FaultedComponent.EntryHandler, e);
-            }
         }
 
         // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
@@ -263,6 +232,11 @@ namespace StateMechanic
 
             // TODO: Raise event after transition has completed?
             this.Kernel.OnTransition(from, to, @event, this.outerStateMachine, isInnerTransition);
+        }
+
+        public void SetCurrentState(TState state)
+        {
+            this.CurrentState = state;
         }
 
         public bool IsChildOf(IStateMachine parentStateMachine)

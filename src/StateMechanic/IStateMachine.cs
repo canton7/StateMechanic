@@ -48,9 +48,12 @@ namespace StateMechanic
         bool IsInStateRecursive(IState state);
     }
 
-    internal interface IStateMachine<TState> : IStateMachine, ITransitionDelegate<TState>, IEventDelegate where TState : class, IState<TState>
+    internal interface IStateMachine<TState> : IStateMachine, IEventDelegate where TState : class, IState<TState>
     {
         new TState CurrentStateRecursive { get; }
+        new TState InitialState { get; }
+        new TState CurrentState { get; }
         bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod);
+        void SetCurrentState(TState state);
     }
 }
