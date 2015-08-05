@@ -44,6 +44,8 @@ namespace StateMechanic
         public void SetFault(StateMachineFaultInfo faultInfo)
         {
             this.Fault = faultInfo;
+            this.eventQueue.Clear();
+
             var handler = this.Faulted;
             if (handler != null)
                 handler(this, new StateMachineFaultedEventArgs(faultInfo));
