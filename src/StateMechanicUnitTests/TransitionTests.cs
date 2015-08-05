@@ -67,5 +67,45 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(exception, e);
             Assert.AreEqual(initial, sm.CurrentState);
         }
+
+        [Test]
+        public void EventFireInTransitionHandlerIsQueued()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var state2 = sm.CreateState("state2");
+            var state3 = sm.CreateState("state3");
+
+            var evt = sm.CreateEvent("evt");
+            var evt2 = sm.CreateEvent("evt2");
+
+            initial.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
+            initial.TransitionOn(evt2).To(state2);
+            state1.TransitionOn(evt2).To(state3);
+
+            evt.Fire();
+
+            Assert.AreEqual(state3, sm.CurrentState);
+        }
+
+        [Test]
+        public void ForceTransitionIsQueued()
+        {
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = sm.CreateEvent("evt");
+
+            State entryFrom = null;
+            state2.EntryHandler = i => entryFrom = i.From;
+
+            initial.TransitionOn(evt).To(state1).WithHandler(i => sm.ForceTransition(state2, evt));
+
+            evt.Fire();
+
+            Assert.AreEqual(state1, entryFrom);
+        }
     }
 }
