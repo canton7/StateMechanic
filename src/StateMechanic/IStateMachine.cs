@@ -45,7 +45,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="state">The state to test</param>
         /// <returns>True if this state machine is in the given state, or the current state's child state machine is in the given state, recursively</returns>
-        bool IsInStateRecursive(IState state);
+        bool IsInState(IState state);
     }
 
     internal interface IStateMachine<TState> : IStateMachine, IEventDelegate where TState : class, IState<TState>

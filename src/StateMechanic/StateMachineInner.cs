@@ -239,12 +239,12 @@ namespace StateMechanic
             return false;
         }
 
-        public bool IsInStateRecursive(IState state)
+        public bool IsInState(IState state)
         {
             if (this.CurrentState == null)
                 return false;
 
-            return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInStateRecursive(state));
+            return this.CurrentState == state || (this.CurrentState.ChildStateMachine != null && this.CurrentState.ChildStateMachine.IsInState(state));
         }
     }
 }
