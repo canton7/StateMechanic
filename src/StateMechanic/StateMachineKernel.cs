@@ -47,7 +47,6 @@ namespace StateMechanic
             }
 
             from.ParentStateMachine.SetCurrentState(to);
-            this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
 
             if (!isInnerTransition)
             {
@@ -63,6 +62,8 @@ namespace StateMechanic
                 if (to.ChildStateMachine != null)
                     this.EnterChildStateMachine(to.ChildStateMachine, from, @event);
             }
+
+            this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
         }
 
         private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event)
