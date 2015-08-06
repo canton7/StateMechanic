@@ -36,12 +36,12 @@ namespace StateMechanic
             }
         }
 
-        public TState CurrentStateRecursive
+        public TState CurrentChildState
         {
             get
             {
                 if (this.CurrentState != null && this.CurrentState.ChildStateMachine != null)
-                    return this.CurrentState.ChildStateMachine.CurrentStateRecursive;
+                    return this.CurrentState.ChildStateMachine.CurrentChildState;
                 else
                     return this.CurrentState;
             }

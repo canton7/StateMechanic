@@ -178,15 +178,15 @@ namespace StateMechanicUnitTests
             state1.TransitionOn(evt).To(state2);
             state21.TransitionOn(evt).To(state22);
 
-            Assert.AreEqual(state1, stateMachine.CurrentStateRecursive);
+            Assert.AreEqual(state1, stateMachine.CurrentChildState);
 
             evt.Fire();
 
-            Assert.AreEqual(state21, stateMachine.CurrentStateRecursive);
+            Assert.AreEqual(state21, stateMachine.CurrentChildState);
 
             evt.Fire();
 
-            Assert.AreEqual(state22, stateMachine.CurrentStateRecursive);
+            Assert.AreEqual(state22, stateMachine.CurrentChildState);
         }
 
         [Test]

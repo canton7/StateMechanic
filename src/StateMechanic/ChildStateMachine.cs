@@ -18,7 +18,7 @@ namespace StateMechanic
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        public State CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        public State CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
 
         /// <summary>
         /// Gets the initial state of this state machine
@@ -31,7 +31,7 @@ namespace StateMechanic
         public string Name { get { return this.InnerStateMachine.Name; } }
 
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        IState IStateMachine.CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace StateMechanic
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        public State<TStateData> CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        public State<TStateData> CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
 
         /// <summary>
         /// Gets the initial state of this state machine
@@ -186,7 +186,7 @@ namespace StateMechanic
         public string Name { get { return this.InnerStateMachine.Name; } }
 
         IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentStateRecursive { get { return this.InnerStateMachine.CurrentStateRecursive; } }
+        IState IStateMachine.CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
         IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>

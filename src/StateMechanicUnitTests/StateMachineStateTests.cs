@@ -39,7 +39,7 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void CurrentStateRecursiveReflectsCurrentStateOfChild()
+        public void CurrentChildStateReflectsCurrentStateOfChild()
         {
             var sm = new StateMachine("state machine");
             var initialState = sm.CreateInitialState("initial state");
@@ -55,19 +55,19 @@ namespace StateMechanicUnitTests
             childInitialState.TransitionOn(evt).To(childState1);
             state1.TransitionOn(evt2).To(initialState);
 
-            Assert.AreEqual(initialState, sm.CurrentStateRecursive);
+            Assert.AreEqual(initialState, sm.CurrentChildState);
 
             evt.Fire();
 
-            Assert.AreEqual(childInitialState, sm.CurrentStateRecursive);
+            Assert.AreEqual(childInitialState, sm.CurrentChildState);
 
             evt.Fire();
 
-            Assert.AreEqual(childState1, sm.CurrentStateRecursive);
+            Assert.AreEqual(childState1, sm.CurrentChildState);
 
             evt2.Fire();
 
-            Assert.AreEqual(initialState, sm.CurrentStateRecursive);
+            Assert.AreEqual(initialState, sm.CurrentChildState);
         }
 
         [Test]

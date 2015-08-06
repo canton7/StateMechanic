@@ -21,7 +21,7 @@ namespace StateMechanic
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        IState CurrentStateRecursive { get; }
+        IState CurrentChildState { get; }
 
         /// <summary>
         /// Gets the initial state of this state machine
@@ -50,7 +50,7 @@ namespace StateMechanic
 
     internal interface IStateMachine<TState> : IStateMachine, IEventDelegate where TState : class, IState<TState>
     {
-        new TState CurrentStateRecursive { get; }
+        new TState CurrentChildState { get; }
         new TState InitialState { get; }
         new TState CurrentState { get; }
         bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod);
