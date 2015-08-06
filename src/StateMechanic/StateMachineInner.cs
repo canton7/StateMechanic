@@ -226,14 +226,6 @@ namespace StateMechanic
                 throw new TransitionNotFoundException(this.CurrentState, @event, this.outerStateMachine);
         }
 
-        public void UpdateCurrentState(TState from, TState to, IEvent @event, bool isInnerTransition)
-        {
-            this.CurrentState = to;
-
-            // TODO: Raise event after transition has completed?
-            this.Kernel.OnTransition(from, to, @event, this.outerStateMachine, isInnerTransition);
-        }
-
         public void SetCurrentState(TState state)
         {
             this.CurrentState = state;
