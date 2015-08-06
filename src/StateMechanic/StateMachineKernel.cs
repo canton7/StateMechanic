@@ -21,18 +21,8 @@ namespace StateMechanic
 
             if (!isInnerTransition)
             {
-                if (from.ChildStateMachine != null && !isInnerTransition)
-                {
-                    try
-                    {
-                        from.ChildStateMachine.CurrentState.FireExitHandler(new StateHandlerInfo<TState>(from.ChildStateMachine.CurrentState, to, @event));
-                    }
-                    catch (Exception e)
-                    {
-                        throw new InternalTransitionFaultException(from.ChildStateMachine.CurrentState, to, @event, FaultedComponent.ExitHandler, e);
-                    }
-                    from.ChildStateMachine.SetCurrentState(null);
-                }
+                if (from.ChildStateMachine != null)
+                    this.ExitChildStateMachine(from.ChildStateMachine, to, @event);
 
                 try
                 {
@@ -70,19 +60,46 @@ namespace StateMechanic
                     throw new InternalTransitionFaultException(from, to, @event, FaultedComponent.EntryHandler, e);
                 }
 
-                if (to.ChildStateMachine != null && !isInnerTransition)
-                {
-                    to.ChildStateMachine.SetCurrentState(to.ChildStateMachine.InitialState);
+                if (to.ChildStateMachine != null)
+                    this.EnterChildStateMachine(to.ChildStateMachine, from, @event);
+            }
+        }
 
-                    try
-                    {
-                        to.ChildStateMachine.InitialState.FireEntryHandler(new StateHandlerInfo<TState>(from, to.ChildStateMachine.InitialState, @event));
-                    }
-                    catch (Exception e)
-                    {
-                        throw new InternalTransitionFaultException(from, to.ChildStateMachine.InitialState, @event, FaultedComponent.EntryHandler, e);
-                    }
-                }
+        private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event)
+        {
+            if (childStateMachine.CurrentState != null && childStateMachine.CurrentState.ChildStateMachine != null)
+            {
+                this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event);
+            }
+
+            try
+            {
+                childStateMachine.CurrentState.FireExitHandler(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event));
+            }
+            catch (Exception e)
+            {
+                throw new InternalTransitionFaultException(childStateMachine.CurrentState, to, @event, FaultedComponent.ExitHandler, e);
+            }
+
+            childStateMachine.SetCurrentState(null);
+        }
+
+        private void EnterChildStateMachine(IStateMachine<TState> childStateMachine, TState from, IEvent @event)
+        {
+            childStateMachine.SetCurrentState(childStateMachine.InitialState);
+
+            try
+            {
+                childStateMachine.InitialState.FireEntryHandler(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event));
+            }
+            catch (Exception e)
+            {
+                throw new InternalTransitionFaultException(from, childStateMachine.InitialState, @event, FaultedComponent.EntryHandler, e);
+            }
+
+            if (childStateMachine.InitialState.ChildStateMachine != null)
+            {
+                this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event);
             }
         }
 
