@@ -10,17 +10,15 @@ namespace StateMechanic
     /// </summary>
     public class StateMachineDotPrinter
     {
-        private static readonly string[] colors = new[] 
-        {
-            "#0075dc", "#993f00", "#4c005c", "#191919", "#005c31", "#2bce48", "#808080", "#8f7c00", "#c20088", "#ffa405", "#ffa8bb",
-            "#426600", "#ff0010", "#00998f", "#740aff", "#990000", "#ff5005", "#4d4d4d", "#5da5da", "#faa43a", "#60bd68", "#f17cb0",
-            "#b2912f", "#b276b2", "#f15854"
-        };
-
         private readonly IStateMachine stateMachine;
 
         private Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
         private int colorUseCount = 0;
+
+        /// <summary>
+        /// Gets the list of colors that will be used if <see cref="Colorize"/> is true
+        /// </summary>
+        public List<string> Colors { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether colors should be used
@@ -34,6 +32,12 @@ namespace StateMechanic
         public StateMachineDotPrinter(IStateMachine stateMachine)
         {
             this.stateMachine = stateMachine;
+            this.Colors = new List<string>()
+            {
+                "#0075dc", "#993f00", "#4c005c", "#191919", "#005c31", "#2bce48", "#808080", "#8f7c00", "#c20088", "#ffa405", "#ffa8bb",
+                "#426600", "#ff0010", "#00998f", "#740aff", "#990000", "#ff5005", "#4d4d4d", "#5da5da", "#faa43a", "#60bd68", "#f17cb0",
+                "#b2912f", "#b276b2", "#f15854"
+            };
         }
 
         /// <summary>
@@ -61,8 +65,8 @@ namespace StateMechanic
             if (this.stateToColorMapping.TryGetValue(state, out color))
                 return color;
 
-            color = colors[this.colorUseCount];
-            this.colorUseCount = (this.colorUseCount + 1) % colors.Length;
+            color = this.Colors[this.colorUseCount];
+            this.colorUseCount = (this.colorUseCount + 1) % this.Colors.Count;
             this.stateToColorMapping[state] = color;
 
             return color;
@@ -100,11 +104,12 @@ namespace StateMechanic
                 {
                     // If the source has a child state machine, then lhead is the name of that
                     // Likewise dest and ltail
-                    sb.AppendFormat("{0}\"{1}\" -> \"{2}\" [label=\"{3}\"{4}{5}{6}];\n",
+                    sb.AppendFormat("{0}\"{1}\" -> \"{2}\" [label=\"{3}{4}\"{5}{6}{7}];\n",
                         indent,
                         transition.From.ChildStateMachine == null ? transition.From.Name : transition.From.ChildStateMachine.InitialState.Name,
                         transition.To.ChildStateMachine == null ? transition.To.Name : transition.To.ChildStateMachine.InitialState.Name,
                         transition.Event.Name,
+                        transition.HasGuard ? "*" : "",
                         this.Colorize && transition.To != stateMachine.InitialState ? String.Format(" color=\"{0}\" fontcolor=\"{0}\"", this.ColorForState(transition.To)) : "",
                         transition.From.ChildStateMachine == null ? "" : String.Format(" ltail=\"cluster_{0}\"", transition.From.Name),
                         transition.To.ChildStateMachine == null ? "" : String.Format(" lhead=\"cluster_{0}\"", transition.To.Name));

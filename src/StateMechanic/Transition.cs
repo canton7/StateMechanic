@@ -101,6 +101,11 @@ namespace StateMechanic
             set { this.innerTransition.Guard = value; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this transition has a guard
+        /// </summary>
+        public bool HasGuard { get { return this.Guard != null; } }
+
         internal Transition(ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition)
         {
             this.innerTransition = innerTransition;
@@ -191,6 +196,11 @@ namespace StateMechanic
             get { return this.innerTransition.Guard; }
             set { this.innerTransition.Guard = value; }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether this transition has a guard
+        /// </summary>
+        public bool HasGuard { get { return this.Guard != null; } }
 
         internal Transition(ITransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>> innerTransition) 
         {
