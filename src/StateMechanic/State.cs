@@ -112,6 +112,9 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
 
+        /// <summary>
+        /// Gets the list of groups which this state is a member of
+        /// </summary>
         public IReadOnlyList<IStateGroup> Groups { get { return this.innerState.Groups; } }
 
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
@@ -227,6 +230,10 @@ namespace StateMechanic
             return this.ChildStateMachine;
         }
 
+        /// <summary>
+        /// Add this state to the given group
+        /// </summary>
+        /// <param name="group">Group to add this state to</param>
         public void AddToGroup(StateGroup group)
         {
             this.innerState.AddGroup(group);
@@ -302,6 +309,9 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
 
+        /// <summary>
+        /// Gets the list of groups which this state is a member of
+        /// </summary>
         public IReadOnlyList<IStateGroup> Groups { get { return this.innerState.Groups; } }
 
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
@@ -418,6 +428,10 @@ namespace StateMechanic
             return this.ChildStateMachine;
         }
 
+        /// <summary>
+        /// Add this state to the given group
+        /// </summary>
+        /// <param name="group">Group to add this state to</param>
         public void AddToGroup(StateGroup<TStateData> group)
         {
             this.innerState.AddGroup(group);

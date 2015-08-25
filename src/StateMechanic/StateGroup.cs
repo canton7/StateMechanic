@@ -48,25 +48,41 @@ namespace StateMechanic
         }
     }
 
+    /// <summary>
+    /// A group, which contains many states, and can have its own entry and exit ahndlers
+    /// </summary>
     public class StateGroup : IStateGroup<State>
     {
         private readonly StateGroupInner<State> innerStateGroup;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="StateGroup"/> class
+        /// </summary>
+        /// <param name="name">Name of this state group</param>
         public StateGroup(string name)
         {
             this.innerStateGroup = new StateGroupInner<State>(name);
         }
 
+        /// <summary>
+        /// Gets the name given to this group
+        /// </summary>
         public string Name
         {
             get { return this.innerStateGroup.Name; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether any member of this group is its state machine's current state
+        /// </summary>
         public bool IsCurrent
         {
             get { return this.innerStateGroup.IsCurrent; }
         }
 
+        /// <summary>
+        /// Gets a list of all states which are a member of this group
+        /// </summary>
         public IReadOnlyList<State> States
         {
             get { return this.innerStateGroup.States; }
@@ -133,25 +149,41 @@ namespace StateMechanic
         }
     }
 
+    /// <summary>
+    /// A group, which contains many states, and can have its own entry and exit ahndlers
+    /// </summary>
     public class StateGroup<TStateData> : IStateGroup<State<TStateData>>
     {
         private readonly StateGroupInner<State<TStateData>> innerStateGroup;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="StateGroup{TStateData}"/> class
+        /// </summary>
+        /// <param name="name">Name of this state group</param>
         public StateGroup(string name)
         {
             this.innerStateGroup = new StateGroupInner<State<TStateData>>(name);
         }
 
+        /// <summary>
+        /// Gets the name given to this group
+        /// </summary>
         public string Name
         {
             get { return this.innerStateGroup.Name; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether any member of this group is its state machine's current state
+        /// </summary>
         public bool IsCurrent
         {
             get { return this.innerStateGroup.IsCurrent; }
         }
 
+        /// <summary>
+        /// Gets a list of all states which are a member of this group
+        /// </summary>
         public IReadOnlyList<State<TStateData>> States
         {
             get { return this.innerStateGroup.States; }

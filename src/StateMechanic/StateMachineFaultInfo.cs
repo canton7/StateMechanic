@@ -12,6 +12,9 @@ namespace StateMechanic
         /// </summary>
         ExitHandler,
 
+        /// <summary>
+        /// A StateGroup exit handler threw an exception
+        /// </summary>
         GroupExitHandler,
 
         /// <summary>
@@ -19,6 +22,9 @@ namespace StateMechanic
         /// </summary>
         TransitionHandler,
 
+        /// <summary>
+        /// A StateGroup entry handler threw an exception
+        /// </summary>
         GroupEntryHandler,
 
         /// <summary>
@@ -62,6 +68,9 @@ namespace StateMechanic
         /// </summary>
         public IEvent Event { get; private set; }
 
+        /// <summary>
+        /// If this fault is due to an exception in a group entry/exit handler, the group at fault
+        /// </summary>
         public IStateGroup Group { get; private set; }
 
         internal StateMachineFaultInfo(IStateMachine stateMachine, FaultedComponent faultedComponent, Exception exception, IState from, IState to, IEvent @event, IStateGroup group = null)

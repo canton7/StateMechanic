@@ -32,6 +32,9 @@ namespace StateMechanic
         /// </summary>
         IReadOnlyList<ITransition<IState>> Transitions { get; }
 
+        /// <summary>
+        /// Gets the list of groups which this state is a member of
+        /// </summary>
         IReadOnlyList<IStateGroup> Groups { get; }
     }
 

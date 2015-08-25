@@ -12,6 +12,13 @@ namespace StateMechanicUnitTests
     public class StateGroupTests
     {
         [Test]
+        public void IndicatesNameCorrectly()
+        {
+            var group = new StateGroup("State Group");
+            Assert.AreEqual("State Group", group.Name);
+        }
+
+        [Test]
         public void IndicatesWhetherInState()
         {
             var sm = new StateMachine("State Machine");
