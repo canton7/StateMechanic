@@ -86,8 +86,11 @@
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionFailedException.cs" />
     <Compile Include="TransitionInfo.cs" />
+    <Compile Include="TransitionInner.cs" />
     <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
+    <Compile Include="Transition`1.cs" />
+    <Compile Include="Transition`2.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
