@@ -10,12 +10,12 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state from which the transition could not be created
         /// </summary>
-        public IState From { get; private set; }
+        public IState From { get; }
 
         /// <summary>
         /// Gets the event on which the transition could not be created
         /// </summary>
-        public IEvent Event { get; private set; }
+        public IEvent Event { get; }
 
         internal InvalidEventTransitionException(IState from, IEvent @event)
             : base(String.Format("Unable to create transition from state {0} on event {1}, as state {0} does not belong to the same state machine as event {1}, or to a child state machine of event {1}", from.Name, @event.Name))

@@ -13,12 +13,12 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name assigned to this event
         /// </summary>
-        public string Name { get { return this.innerEvent.Name; } }
+        public string Name => this.innerEvent.Name;
 
         /// <summary>
         /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
         /// </summary>
-        public IStateMachine ParentStateMachine { get { return this.innerEvent.parentStateMachine; } }
+        public IStateMachine ParentStateMachine => this.innerEvent.parentStateMachine;
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
@@ -78,7 +78,7 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return String.Format("<Event Name={0}>", this.Name);
+            return $"<Event Name={this.Name}>";
         }
     }
 }

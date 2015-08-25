@@ -10,7 +10,7 @@ namespace StateMechanic
         private readonly List<TState> states = new List<TState>();
         public IReadOnlyList<TState> States { get; private set; }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public StateGroupInner(string name)
         {
@@ -18,10 +18,7 @@ namespace StateMechanic
             this.States = new ReadOnlyCollection<TState>(this.states);
         }
 
-        public bool IsCurrent
-        {
-            get { return this.states.Any(x => x.IsCurrent); }
-        }
+        public bool IsCurrent => this.states.Any(x => x.IsCurrent);
 
         public Action<StateHandlerInfo<TState>> EntryHandler { get; set; }
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }

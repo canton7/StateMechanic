@@ -14,12 +14,12 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name assigned to this state
         /// </summary>
-        public string Name { get { return this.innerState.Name; } }
+        public string Name => this.innerState.Name;
 
         /// <summary>
         /// Gets a value indicating whether this state's parent state machine is in this state
         /// </summary>
-        public bool IsCurrent {  get { return this.ParentStateMachine.CurrentState == this; } }
+        public bool IsCurrent => this.ParentStateMachine.CurrentState == this;
 
         /// <summary>
         /// Gets the child state machine of this state, if any
@@ -29,24 +29,24 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state machine to which this state belongs
         /// </summary>
-        public ChildStateMachine ParentStateMachine { get; private set; }
+        public ChildStateMachine ParentStateMachine { get; }
 
         /// <summary>
         /// Gets a list of transitions available from the current state
         /// </summary>
-        public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
+        public IReadOnlyList<ITransition<State>> Transitions => this.innerState.Transitions;
 
         /// <summary>
         /// Gets the list of groups which this state is a member of
         /// </summary>
-        public IReadOnlyList<IStateGroup> Groups { get { return this.innerState.Groups; } }
+        public IReadOnlyList<IStateGroup> Groups => this.innerState.Groups;
 
-        IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
-        IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
-        IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
-        IStateMachine<State> IState<State>.ChildStateMachine { get { return this.ChildStateMachine; } }
-        IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
-        IReadOnlyList<IStateGroup<State>> IState<State>.Groups {  get { return this.innerState.Groups; } }
+        IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
+        IStateMachine IState.ParentStateMachine => this.ParentStateMachine;
+        IReadOnlyList<ITransition<IState>> IState.Transitions => this.innerState.Transitions;
+        IStateMachine<State> IState<State>.ChildStateMachine => this.ChildStateMachine;
+        IStateMachine<State> IState<State>.ParentStateMachine => this.ParentStateMachine;
+        IReadOnlyList<IStateGroup<State>> IState<State>.Groups => this.innerState.Groups;
 
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
@@ -176,8 +176,7 @@ namespace StateMechanic
 
         void IState<State>.Reset()
         {
-            if (this.ChildStateMachine != null)
-                this.ChildStateMachine.ResetChildStateMachine();
+            this.ChildStateMachine?.ResetChildStateMachine();
         }
 
         void IState<State>.AddTransition(ITransition<State> transition)
@@ -191,7 +190,7 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return String.Format("<State Name={0}>", this.Name);
+            return $"<State Name={this.Name}>";
         }
     }
 }

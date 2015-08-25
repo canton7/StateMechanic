@@ -10,7 +10,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets more information on what faulted, an how
         /// </summary>
-        public StateMachineFaultInfo FaultInfo { get; private set; }
+        public StateMachineFaultInfo FaultInfo { get; }
 
         internal TransitionFailedException(StateMachineFaultInfo faultInfo)
             : base(String.Format("The transition from {0} to {1} (on event {2}) failed at stage {3} with exception '{4}'",

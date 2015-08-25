@@ -8,38 +8,38 @@ namespace StateMechanic
     /// </summary>
     public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, IEventDelegate, IStateDelegate<State<TStateData>>
     {
-        internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
+        internal StateMachineInner<State<TStateData>> InnerStateMachine { get; }
 
         /// <summary>
         /// Gets the state which this state machine is currently in
         /// </summary>
-        public State<TStateData> CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        public State<TStateData> CurrentState => this.InnerStateMachine.CurrentState;
 
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        public State<TStateData> CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
+        public State<TStateData> CurrentChildState => this.InnerStateMachine.CurrentChildState;
 
         /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
-        public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public State<TStateData> InitialState => this.InnerStateMachine.InitialState;
 
         /// <summary>
         /// Gets the name given to this state machine when it was created
         /// </summary>
-        public string Name { get { return this.InnerStateMachine.Name; } }
+        public string Name => this.InnerStateMachine.Name;
 
-        IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
-        IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
+        IState IStateMachine.CurrentState => this.InnerStateMachine.CurrentState;
+        IState IStateMachine.CurrentChildState => this.InnerStateMachine.CurrentChildState;
+        IState IStateMachine.InitialState => this.InnerStateMachine.InitialState;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
         /// </summary>
-        public IReadOnlyList<State<TStateData>> States { get { return this.InnerStateMachine.States; } }
+        public IReadOnlyList<State<TStateData>> States => this.InnerStateMachine.States;
 
-        IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
+        IReadOnlyList<IState> IStateMachine.States => this.InnerStateMachine.States;
 
         internal ChildStateMachine(string name, StateMachineKernel<State<TStateData>> kernel, State<TStateData> parentState)
         {

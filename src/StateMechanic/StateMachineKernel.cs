@@ -10,6 +10,7 @@ namespace StateMechanic
         public IStateMachineSynchronizer Synchronizer { get; set; }
         public StateMachineFaultInfo Fault { get; private set; }
         public bool ExecutingTransition { get; set; }
+
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
@@ -141,16 +142,12 @@ namespace StateMechanic
 
         public void OnTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
-            var handler = this.Transition;
-            if (handler != null)
-                handler(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
+            this.Transition?.Invoke(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
         public void OnTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
         {
-            var handler = this.TransitionNotFound;
-            if (handler != null)
-                handler(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
+            this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
         }
 
         public void SetFault(StateMachineFaultInfo faultInfo)
@@ -158,9 +155,7 @@ namespace StateMechanic
             this.Fault = faultInfo;
             this.transitionQueue.Clear();
 
-            var handler = this.Faulted;
-            if (handler != null)
-                handler(this, new StateMachineFaultedEventArgs(faultInfo));
+            this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
         public void Reset()

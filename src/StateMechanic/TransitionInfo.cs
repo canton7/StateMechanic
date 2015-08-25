@@ -9,22 +9,22 @@
         /// <summary>
         /// Gets the state this transition is from
         /// </summary>
-        public TState From { get; private set; }
+        public TState From { get; }
 
         /// <summary>
         /// Gets the state this transition is to
         /// </summary>
-        public TState To { get; private set; }
+        public TState To { get; }
 
         /// <summary>
         /// Gets the event which triggered this transition
         /// </summary>
-        public Event Event { get; private set; }
+        public Event Event { get; }
 
         /// <summary>
         /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
         /// </summary>
-        public bool IsInnerTransition { get; private set; }
+        public bool IsInnerTransition { get; }
 
         internal TransitionInfo(TState from, TState to, Event @event, bool isInnerTransition)
         {
@@ -45,27 +45,27 @@
         /// <summary>
         /// Gets the state this transition is from
         /// </summary>
-        public TState From { get; private set; }
+        public TState From { get; }
 
         /// <summary>
         /// Gets the state this transition is to
         /// </summary>
-        public TState To { get; private set; }
+        public TState To { get; }
 
         /// <summary>
         /// Gets the event which triggered this transition
         /// </summary>
-        public Event<TEventData> Event { get; private set; }
+        public Event<TEventData> Event { get; }
 
         /// <summary>
         /// Gets the event data which was passed when the event was fired
         /// </summary>
-        public TEventData EventData { get; private set; }
+        public TEventData EventData { get; }
 
         /// <summary>
         /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
         /// </summary>
-        public bool IsInnerTransition { get; private set; }
+        public bool IsInnerTransition { get; }
 
         internal TransitionInfo(TState from, TState to, Event<TEventData> @event, TEventData eventData, bool isInnerTransition)
         {

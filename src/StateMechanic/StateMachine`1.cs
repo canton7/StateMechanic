@@ -10,12 +10,12 @@ namespace StateMechanic
         /// <summary>
         /// Gets the fault associated with this state machine. A state machine will fault if one of its handlers throws an exception
         /// </summary>
-        public StateMachineFaultInfo Fault { get { return this.InnerStateMachine.Kernel.Fault; } }
+        public StateMachineFaultInfo Fault => this.InnerStateMachine.Kernel.Fault;
 
         /// <summary>
         /// Gets a value indicating whether this state machine is faulted. A state machine will fault if one of its handlers throws an exception
         /// </summary>
-        public bool IsFaulted { get { return this.Fault != null; } }
+        public bool IsFaulted => this.Fault != null;
 
         /// <summary>
         /// Gets or sets the synchronizer used by this state machine to achieve thread safety. State machines are not thread safe by default
@@ -63,23 +63,17 @@ namespace StateMechanic
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)
         {
-            var handler = this.Faulted;
-            if (handler != null)
-                handler(this, eventArgs);
+            this.Faulted?.Invoke(this, eventArgs);
         }
 
         private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
         {
-            var handler = this.Transition;
-            if (handler != null)
-                handler(this, eventArgs);
+            this.Transition?.Invoke(this, eventArgs);
         }
 
         private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
         {
-            var handler = this.TransitionNotFound;
-            if (handler != null)
-                handler(this, eventArgs);
+            this.TransitionNotFound?.Invoke(this, eventArgs);
         }
     }
 }

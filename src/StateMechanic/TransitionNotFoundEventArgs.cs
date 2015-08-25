@@ -11,17 +11,17 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state being transitioned from
         /// </summary>
-        public TState From { get; private set; }
+        public TState From { get; }
 
         /// <summary>
         /// Gets the event which was fired
         /// </summary>
-        public IEvent Event { get; private set; }
+        public IEvent Event { get; }
 
         /// <summary>
         /// Gets the state machine associated with failed transition
         /// </summary>
-        public IStateMachine StateMachine { get; private set; }
+        public IStateMachine StateMachine { get; }
 
         internal TransitionNotFoundEventArgs(TState from, IEvent @event, IStateMachine stateMachine)
         {

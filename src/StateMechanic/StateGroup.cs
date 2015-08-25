@@ -24,31 +24,19 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name given to this group
         /// </summary>
-        public string Name
-        {
-            get { return this.innerStateGroup.Name; }
-        }
+        public string Name => this.innerStateGroup.Name;
 
         /// <summary>
         /// Gets a value indicating whether any member of this group is its state machine's current state
         /// </summary>
-        public bool IsCurrent
-        {
-            get { return this.innerStateGroup.IsCurrent; }
-        }
+        public bool IsCurrent => this.innerStateGroup.IsCurrent;
 
         /// <summary>
         /// Gets a list of all states which are a member of this group
         /// </summary>
-        public IReadOnlyList<State> States
-        {
-            get { return this.innerStateGroup.States; }
-        }
+        public IReadOnlyList<State> States => this.innerStateGroup.States;
 
-        IReadOnlyList<IState> IStateGroup.States
-        {
-            get { return this.innerStateGroup.States; }
-        }
+        IReadOnlyList<IState> IStateGroup.States => this.innerStateGroup.States;
 
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state

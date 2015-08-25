@@ -8,38 +8,38 @@ namespace StateMechanic
     /// </summary>
     public class ChildStateMachine : IStateMachine<State>, IEventDelegate, IStateDelegate<State>
     {
-        internal StateMachineInner<State> InnerStateMachine { get; private set; }
+        internal StateMachineInner<State> InnerStateMachine { get; }
 
         /// <summary>
         /// Gets the state which this state machine is currently in
         /// </summary>
-        public State CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        public State CurrentState => this.InnerStateMachine.CurrentState;
 
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        public State CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
+        public State CurrentChildState => this.InnerStateMachine.CurrentChildState;
 
         /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
-        public State InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public State InitialState => this.InnerStateMachine.InitialState;
 
         /// <summary>
         /// Gets the name given to this state machine when it was created
         /// </summary>
-        public string Name { get { return this.InnerStateMachine.Name; } }
+        public string Name => this.InnerStateMachine.Name;
 
-        IState IStateMachine.CurrentState { get { return this.InnerStateMachine.CurrentState; } }
-        IState IStateMachine.CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
-        IState IStateMachine.InitialState { get { return this.InnerStateMachine.InitialState; } }
+        IState IStateMachine.CurrentState => this.InnerStateMachine.CurrentState;
+        IState IStateMachine.CurrentChildState => this.InnerStateMachine.CurrentChildState;
+        IState IStateMachine.InitialState => this.InnerStateMachine.InitialState;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
         /// </summary>
-        public IReadOnlyList<State> States { get { return this.InnerStateMachine.States; } }
+        public IReadOnlyList<State> States => this.InnerStateMachine.States;
 
-        IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
+        IReadOnlyList<IState> IStateMachine.States => this.InnerStateMachine.States;
 
         internal ChildStateMachine(string name, StateMachineKernel<State> kernel, State parentState)
         {
@@ -75,20 +75,14 @@ namespace StateMechanic
         /// </summary>
         /// <param name="name">Name given to the event</param>
         /// <returns>The new event</returns>
-        public Event CreateEvent(string name)
-        {
-            return this.InnerStateMachine.CreateEvent(name);
-        }
+        public Event CreateEvent(string name) => this.InnerStateMachine.CreateEvent(name);
 
         /// <summary>
         /// Create an event which has associated data which can be used on this state machine, or its children
         /// </summary>
         /// <param name="name">Name given to the event</param>
         /// <returns>The new event</returns>
-        public Event<TEventData> CreateEvent<TEventData>(string name)
-        {
-            return this.InnerStateMachine.CreateEvent<TEventData>(name);
-        }
+        public Event<TEventData> CreateEvent<TEventData>(string name) => this.InnerStateMachine.CreateEvent<TEventData>(name);
 
         /// <summary>
         /// Force a transition to the given state, even though there may not be a valid configured transition to that state from the current state

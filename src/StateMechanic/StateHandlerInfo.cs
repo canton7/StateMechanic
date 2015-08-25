@@ -9,17 +9,17 @@
         /// <summary>
         /// Gets the state this transition is from
         /// </summary>
-        public TState From { get; private set; }
+        public TState From { get; }
 
         /// <summary>
         /// Gets the state this transition is to
         /// </summary>
-        public TState To { get; private set; }
+        public TState To { get; }
 
         /// <summary>
         /// Gets the event which triggered this transition
         /// </summary>
-        public IEvent Event { get; private set; }
+        public IEvent Event { get; }
 
         internal StateHandlerInfo(TState from, TState to, IEvent @event)
         {

@@ -10,13 +10,13 @@ namespace StateMechanic
 
         public IStateDelegate<TState> ChildStateMachine { get; set; }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
-        public IReadOnlyList<ITransition<TState>> Transitions { get; private set; }
+        public IReadOnlyList<ITransition<TState>> Transitions { get; }
 
         private readonly List<IStateGroup<TState>> groups = new List<IStateGroup<TState>>();
-        public IReadOnlyList<IStateGroup<TState>> Groups { get; private set; }
+        public IReadOnlyList<IStateGroup<TState>> Groups { get; }
 
         public Action<StateHandlerInfo<TState>> EntryHandler { get; set; }
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
@@ -62,16 +62,12 @@ namespace StateMechanic
 
         public void FireEntryHandler(StateHandlerInfo<TState> info)
         {
-            var entryHandler = this.EntryHandler;
-            if (entryHandler != null)
-                entryHandler(info);
+            this.EntryHandler?.Invoke(info);
         }
 
         public void FireExitHandler(StateHandlerInfo<TState> info)
         {
-            var exitHandler = this.ExitHandler;
-            if (exitHandler != null)
-                exitHandler(info);
+            this.ExitHandler?.Invoke(info);
         }
 
         public void AddGroup(IStateGroup<TState> group)

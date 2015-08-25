@@ -16,10 +16,10 @@ namespace StateMechanic
 
     internal class TransitionInner<TState, TEvent, TTransitionInfo> : ITransitionInner<TState, TEvent, TTransitionInfo> where TState : class, IState<TState> where TEvent : IEvent
     {
-        public TState From { get; private set; }
-        public TState To { get; private set; }
-        public TEvent Event { get; private set; }
-        public bool IsInnerTransition { get; private set; }
+        public TState From { get; }
+        public TState To { get; }
+        public TEvent Event { get; }
+        public bool IsInnerTransition { get; }
         private readonly ITransitionDelegate<TState> transitionDelegate;
 
         public Action<TTransitionInfo> Handler { get; set; }
@@ -42,11 +42,9 @@ namespace StateMechanic
 
         public bool TryInvoke(TTransitionInfo transitionInfo)
         {
-            if (this.Guard != null)
-            {
-                if (!this.Guard(transitionInfo))
-                    return false;
-            }
+            var guard = this.Guard;
+            if (guard != null && !guard(transitionInfo))
+                return false;
 
             this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler == null ? (Action)null : () => this.Handler(transitionInfo));
 
@@ -65,23 +63,23 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state this transition is from
         /// </summary>
-        public TState From { get { return this.innerTransition.From; } }
+        public TState From => this.innerTransition.From;
 
         /// <summary>
         /// Gets the state this transition to
         /// </summary>
-        public TState To { get { return this.innerTransition.To; } }
+        public TState To => this.innerTransition.To;
 
         /// <summary>
         /// Gets the event which triggers this transition
         /// </summary>
-        public Event Event { get { return this.innerTransition.Event; } }
-        IEvent ITransition<TState>.Event { get { return this.innerTransition.Event; } }
+        public Event Event => this.innerTransition.Event;
+        IEvent ITransition<TState>.Event => this.innerTransition.Event;
 
         /// <summary>
         /// Gets a value indicating whether this transition is an inner transition, i.e. whether the <see cref="From"/> and <see cref="To"/> states are the same, and no exit/entry handles are invoked
         /// </summary>
-        public bool IsInnerTransition { get { return this.innerTransition.IsInnerTransition; } }
+        public bool IsInnerTransition => this.innerTransition.IsInnerTransition;
 
         /// <summary>
         /// Gets or sets a method which is invoked whenever this transition occurs
@@ -104,7 +102,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets a value indicating whether this transition has a guard
         /// </summary>
-        public bool HasGuard { get { return this.Guard != null; } }
+        public bool HasGuard => this.Guard != null;
 
         internal Transition(ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition)
         {
@@ -161,23 +159,23 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state this transition is from
         /// </summary>
-        public TState From { get { return this.innerTransition.From; } }
+        public TState From => this.innerTransition.From;
 
         /// <summary>
         /// Gets the state this transition to
         /// </summary>
-        public TState To { get { return this.innerTransition.To; } }
+        public TState To => this.innerTransition.To;
 
         /// <summary>
         /// Gets the event which triggers this transition
         /// </summary>
-        public Event<TEventData> Event { get { return this.innerTransition.Event; } }
-        IEvent ITransition<TState>.Event { get { return this.innerTransition.Event; } }
+        public Event<TEventData> Event => this.innerTransition.Event;
+        IEvent ITransition<TState>.Event => this.innerTransition.Event;
 
         /// <summary>
         /// Gets a value indicating whether this transition is an inner transition, i.e. whether the <see cref="From"/> and <see cref="To"/> states are the same, and no exit/entry handles are invoked
         /// </summary>
-        public bool IsInnerTransition { get { return this.innerTransition.IsInnerTransition; } }
+        public bool IsInnerTransition => this.innerTransition.IsInnerTransition;
 
         /// <summary>
         /// Gets or sets a method which is invoked whenever this transition occurs

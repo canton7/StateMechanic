@@ -5,7 +5,7 @@ COVERAGE_DIR = 'Coverage'
 ASSEMBLY_INFO = 'src/StateMechanic/Properties/AssemblyInfo.cs'
 NUSPEC = 'NuGet/StateMechanic.nuspec'
 CSPROJ = 'src/StateMechanic/StateMechanic.csproj'
-MSBUILD = %q{C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe}
+MSBUILD = %q{C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe}
 
 GITLINK_REMOTE = 'https://github.com/canton7/StateMechanic'
 
