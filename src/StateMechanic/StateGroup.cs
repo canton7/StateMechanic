@@ -72,6 +72,11 @@ namespace StateMechanic
             get { return this.innerStateGroup.States; }
         }
 
+        IReadOnlyList<IState> IStateGroup.States
+        {
+            get { return this.innerStateGroup.States; }
+        }
+
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
         /// </summary>
@@ -148,6 +153,11 @@ namespace StateMechanic
         }
 
         public IReadOnlyList<State<TStateData>> States
+        {
+            get { return this.innerStateGroup.States; }
+        }
+
+        IReadOnlyList<IState> IStateGroup.States
         {
             get { return this.innerStateGroup.States; }
         }

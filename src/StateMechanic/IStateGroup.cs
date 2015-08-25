@@ -9,6 +9,7 @@ namespace StateMechanic
     public interface IStateGroup
     {
         string Name { get; }
+        IReadOnlyList<IState> States { get; }
     }
 
     internal interface IStateGroup<TState> : IStateGroup
