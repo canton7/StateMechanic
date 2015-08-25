@@ -70,6 +70,7 @@
     <Compile Include="IntrospectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResetTests.cs" />
+    <Compile Include="StateGroupTests.cs" />
     <Compile Include="StateMachineStateTests.cs" />
     <Compile Include="StateMachineSynchronizerTests.cs" />
     <Compile Include="TransitionNotificationTests.cs" />

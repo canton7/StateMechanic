@@ -52,7 +52,7 @@ namespace StateMechanic
     {
         private readonly StateGroupInner<State> innerStateGroup;
 
-        internal StateGroup(string name)
+        public StateGroup(string name)
         {
             this.innerStateGroup = new StateGroupInner<State>(name);
         }
@@ -137,7 +137,7 @@ namespace StateMechanic
     {
         private readonly StateGroupInner<State<TStateData>> innerStateGroup;
 
-        internal StateGroup(string name)
+        public StateGroup(string name)
         {
             this.innerStateGroup = new StateGroupInner<State<TStateData>>(name);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StateMechanic
 {
@@ -24,7 +25,7 @@ namespace StateMechanic
                 if (from.ChildStateMachine != null)
                     this.ExitChildStateMachine(from.ChildStateMachine, to, @event);
 
-                this.ExitState(from, stateHandlerInfo);
+                this.ExitState(stateHandlerInfo);
             }
 
             if (handlerInvoker != null)
@@ -43,7 +44,7 @@ namespace StateMechanic
 
             if (!isInnerTransition)
             {
-                this.EnterState(to, stateHandlerInfo);
+                this.EnterState(stateHandlerInfo);
 
                 if (to.ChildStateMachine != null)
                     this.EnterChildStateMachine(to.ChildStateMachine, from, @event);
@@ -59,7 +60,7 @@ namespace StateMechanic
                 this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event);
             }
 
-            this.ExitState(childStateMachine.CurrentState, new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event));
+            this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event));
 
             childStateMachine.SetCurrentState(null);
         }
@@ -68,7 +69,7 @@ namespace StateMechanic
         {
             childStateMachine.SetCurrentState(childStateMachine.InitialState);
 
-            this.EnterState(childStateMachine.InitialState, new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event));
+            this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event));
 
             if (childStateMachine.InitialState.ChildStateMachine != null)
             {
@@ -76,18 +77,18 @@ namespace StateMechanic
             }
         }
 
-        private void ExitState(TState state, StateHandlerInfo<TState> info)
+        private void ExitState(StateHandlerInfo<TState> info)
         {
             try
             {
-                state.FireExitHandler(info);
+                info.From.FireExitHandler(info);
             }
             catch (Exception e)
             {
                 throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.ExitHandler, e);
             }
 
-            foreach (var group in state.Groups)
+            foreach (var group in info.From.Groups.Reverse().Except(info.To.Groups))
             {
                 try
                 {
@@ -100,18 +101,18 @@ namespace StateMechanic
             }
         }
 
-        private void EnterState(TState state, StateHandlerInfo<TState> info)
+        private void EnterState(StateHandlerInfo<TState> info)
         {
             try
             {
-                state.FireEntryHandler(info);
+                info.To.FireEntryHandler(info);
             }
             catch (Exception e)
             {
                 throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.EntryHandler, e);
             }
 
-            foreach (var group in state.Groups)
+            foreach (var group in info.To.Groups.Except(info.From.Groups))
             {
                 try
                 {
