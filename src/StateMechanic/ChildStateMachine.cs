@@ -124,19 +124,6 @@ namespace StateMechanic
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
         }
 
-        /// <summary>
-        /// Determines whether this state machine is in the given state, or the current state's child state machine is in the given state, recursively
-        /// </summary>
-        /// <param name="state">The state to test</param>
-        /// <returns>True if this state machine is in the given state, or the current state's child state machine is in the given state, recursively</returns>
-        public bool IsInState(IState state)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-
-            return this.InnerStateMachine.IsInState(state);
-        }
-
         internal void ResetChildStateMachine()
         {
             this.InnerStateMachine.Reset();
@@ -279,19 +266,6 @@ namespace StateMechanic
                 throw new ArgumentNullException("parentStateMachine");
 
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
-        }
-
-        /// <summary>
-        /// Determines whether this state machine is in the given state, or the current state's child state machine is in the given state, recursively
-        /// </summary>
-        /// <param name="state">The state to test</param>
-        /// <returns>True if this state machine is in the given state, or the current state's child state machine is in the given state, recursively</returns>
-        public bool IsInState(IState state)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-
-            return this.InnerStateMachine.IsInState(state);
         }
 
         internal void ResetChildStateMachine()

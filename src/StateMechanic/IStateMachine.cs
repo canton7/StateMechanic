@@ -39,13 +39,6 @@ namespace StateMechanic
         /// <param name="parentStateMachine">State machine which may be a parent of this state machine</param>
         /// <returns>True if this state machine is a child of the given state machine</returns>
         bool IsChildOf(IStateMachine parentStateMachine);
-
-        /// <summary>
-        /// Determines whether this state machine is in the given state, or the current state's child state machine is in the given state, recursively
-        /// </summary>
-        /// <param name="state">The state to test</param>
-        /// <returns>True if this state machine is in the given state, or the current state's child state machine is in the given state, recursively</returns>
-        bool IsInState(IState state);
     }
 
     internal interface IStateMachine<TState> : IStateMachine, IEventDelegate where TState : class, IState<TState>

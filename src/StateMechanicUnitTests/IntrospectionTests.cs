@@ -190,36 +190,6 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void StateMachineReportsIsInStateCorrectly()
-        {
-            var stateMachine = new StateMachine("State Machine");
-            var state1 = stateMachine.CreateInitialState("State 1");
-            var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent("Event");
-            var subSm = state2.CreateChildStateMachine("Sub State Machine");
-            var state21 = subSm.CreateInitialState("State 2.1");
-            var state22 = subSm.CreateState("State 2.2");
-
-            state1.TransitionOn(evt).To(state2);
-            state21.TransitionOn(evt).To(state22);
-
-            Assert.True(stateMachine.IsInState(state1));
-            Assert.False(stateMachine.IsInState(state21));
-
-            evt.Fire();
-
-            Assert.True(stateMachine.IsInState(state2));
-            Assert.True(stateMachine.IsInState(state21));
-            Assert.False(stateMachine.IsInState(state22));
-
-            evt.Fire();
-
-            Assert.True(stateMachine.IsInState(state2));
-            Assert.False(stateMachine.IsInState(state21));
-            Assert.True(stateMachine.IsInState(state22));
-        }
-
-        [Test]
         public void StateReportsIsCurrentCorrectly()
         {
             var stateMachine = new StateMachine("State Machine");
