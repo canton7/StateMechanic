@@ -81,6 +81,11 @@ namespace StateMechanic
         public string Name { get { return this.innerState.Name; } }
 
         /// <summary>
+        /// Gets a value indicating whether this state's parent state machine is in this state
+        /// </summary>
+        public bool IsCurrent {  get { return this.ParentStateMachine.CurrentState == this; } }
+
+        /// <summary>
         /// Gets the child state machine of this state, if any
         /// </summary>
         public ChildStateMachine ChildStateMachine { get; private set; }
@@ -255,6 +260,11 @@ namespace StateMechanic
         /// Gets the name assigned to this state
         /// </summary>
         public string Name { get { return this.innerState.Name; } }
+
+        /// <summary>
+        /// Gets a value indicating whether this state's parent state machine is in this state
+        /// </summary>
+        public bool IsCurrent { get { return this.ParentStateMachine.CurrentState == this; } }
 
         /// <summary>
         /// Gets the child state machine of this state, if any

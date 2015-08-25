@@ -218,5 +218,39 @@ namespace StateMechanicUnitTests
             Assert.False(stateMachine.IsInState(state21));
             Assert.True(stateMachine.IsInState(state22));
         }
+
+        [Test]
+        public void StateReportsIsCurrentCorrectly()
+        {
+            var stateMachine = new StateMachine("State Machine");
+            var state1 = stateMachine.CreateInitialState("State 1");
+            var state2 = stateMachine.CreateState("State ");
+            var evt = stateMachine.CreateEvent("Event");
+            var subSm = state2.CreateChildStateMachine("Sub State Machine");
+            var state21 = subSm.CreateInitialState("State 2.1");
+            var state22 = subSm.CreateState("State 2.2");
+
+            state1.TransitionOn(evt).To(state2);
+            state21.TransitionOn(evt).To(state22);
+
+            Assert.True(state1.IsCurrent);
+            Assert.False(state2.IsCurrent);
+            Assert.False(state21.IsCurrent);
+            Assert.False(state22.IsCurrent);
+
+            evt.Fire();
+
+            Assert.False(state1.IsCurrent);
+            Assert.True(state2.IsCurrent);
+            Assert.True(state21.IsCurrent);
+            Assert.False(state22.IsCurrent);
+
+            evt.Fire();
+
+            Assert.False(state1.IsCurrent);
+            Assert.True(state2.IsCurrent);
+            Assert.False(state21.IsCurrent);
+            Assert.True(state22.IsCurrent);
+        }
     }
 }

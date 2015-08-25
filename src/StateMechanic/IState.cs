@@ -13,6 +13,11 @@ namespace StateMechanic
         string Name { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this state's parent state machine is in this state
+        /// </summary>
+        bool IsCurrent { get; }
+
+        /// <summary>
         /// Gets the child state machine of this state, if any
         /// </summary>
         IStateMachine ChildStateMachine { get; }
