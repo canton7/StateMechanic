@@ -4,26 +4,26 @@ using System.Collections.Generic;
 namespace StateMechanic
 {
     /// <summary>
-    /// A state machine, which may exist as a child state machine
+    /// A state machine with per-state data, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine : IStateMachine<State>, IEventDelegate, IStateDelegate<State>
+    public class ChildStateMachine<TStateData> : IStateMachine<State<TStateData>>, IEventDelegate, IStateDelegate<State<TStateData>>
     {
-        internal StateMachineInner<State> InnerStateMachine { get; private set; }
+        internal StateMachineInner<State<TStateData>> InnerStateMachine { get; private set; }
 
         /// <summary>
         /// Gets the state which this state machine is currently in
         /// </summary>
-        public State CurrentState { get { return this.InnerStateMachine.CurrentState; } }
+        public State<TStateData> CurrentState { get { return this.InnerStateMachine.CurrentState; } }
 
         /// <summary>
         /// If <see cref="CurrentState"/> has a child state machine, gets that child state machine's current state (recursively), otherwise gets <see cref="CurrentState"/>
         /// </summary>
-        public State CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
+        public State<TStateData> CurrentChildState { get { return this.InnerStateMachine.CurrentChildState; } }
 
         /// <summary>
         /// Gets the initial state of this state machine
         /// </summary>
-        public State InitialState { get { return this.InnerStateMachine.InitialState; } }
+        public State<TStateData> InitialState { get { return this.InnerStateMachine.InitialState; } }
 
         /// <summary>
         /// Gets the name given to this state machine when it was created
@@ -37,23 +37,24 @@ namespace StateMechanic
         /// <summary>
         /// Gets a list of all states which are part of this state machine
         /// </summary>
-        public IReadOnlyList<State> States { get { return this.InnerStateMachine.States; } }
+        public IReadOnlyList<State<TStateData>> States { get { return this.InnerStateMachine.States; } }
 
         IReadOnlyList<IState> IStateMachine.States { get { return this.InnerStateMachine.States; } }
 
-        internal ChildStateMachine(string name, StateMachineKernel<State> kernel, State parentState)
+        internal ChildStateMachine(string name, StateMachineKernel<State<TStateData>> kernel, State<TStateData> parentState)
         {
-            this.InnerStateMachine = new StateMachineInner<State>(name, kernel, this, parentState);
+            this.InnerStateMachine = new StateMachineInner<State<TStateData>>(name, kernel, this, parentState);
         }
 
         /// <summary>
         /// Create a new state and add it to this state machine
         /// </summary>
         /// <param name="name">Name given to the state</param>
+        /// <param name="data">Optional data associated with the new state</param>
         /// <returns>The new state</returns>
-        public State CreateState(string name)
+        public State<TStateData> CreateState(string name, TStateData data = default(TStateData))
         {
-            var state = new State(name, this);
+            var state = new State<TStateData>(name, data, this);
             this.InnerStateMachine.AddState(state);
             return state;
         }
@@ -62,10 +63,11 @@ namespace StateMechanic
         /// Create the state which this state machine will be in when it first starts. This must be called exactly once per state machine
         /// </summary>
         /// <param name="name">Name given to the state</param>
+        /// <param name="data">Optional data associated with the new state</param>
         /// <returns>The new state</returns>
-        public State CreateInitialState(string name)
+        public State<TStateData> CreateInitialState(string name, TStateData data = default(TStateData))
         {
-            var state = this.CreateState(name);
+            var state = this.CreateState(name, data);
             this.InnerStateMachine.SetInitialState(state);
             return state;
         }
@@ -96,7 +98,7 @@ namespace StateMechanic
         /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
         /// <param name="toState">State to transition to</param>
         /// <param name="event">Event pass to the exit/entry handlers</param>
-        public void ForceTransition(State toState, IEvent @event)
+        public void ForceTransition(State<TStateData> toState, IEvent @event)
         {
             if (toState == null)
                 throw new ArgumentNullException("toState");
@@ -129,12 +131,12 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        bool IStateMachine<State>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
         {
             return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
         }
 
-        void IStateMachine<State>.SetCurrentState(State state)
+        void IStateMachine<State<TStateData>>.SetCurrentState(State<TStateData> state)
         {
             this.InnerStateMachine.SetCurrentState(state);
         }

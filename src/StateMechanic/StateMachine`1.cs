@@ -3,9 +3,9 @@
 namespace StateMechanic
 {
     /// <summary>
-    /// A state machine
+    /// A state machine with per-state data
     /// </summary>
-    public class StateMachine : ChildStateMachine
+    public class StateMachine<TStateData> : ChildStateMachine<TStateData>
     {
         /// <summary>
         /// Gets the fault associated with this state machine. A state machine will fault if one of its handlers throws an exception
@@ -34,19 +34,19 @@ namespace StateMechanic
         /// <summary>
         /// Event raised when a transition occurs in this state machine, or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionEventArgs<State>> Transition;
+        public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State>> TransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> TransitionNotFound;
 
         /// <summary>
-        /// Instantiates a new instance of the <see cref="StateMachine"/> class, with the given name
+        /// Instantiates a new instance of the <see cref="StateMachine{TStateData}"/> class, with the given name
         /// </summary>
         /// <param name="name">Name of this state machine</param>
         public StateMachine(string name)
-            : base(name, new StateMachineKernel<State>(), null)
+            : base(name, new StateMachineKernel<State<TStateData>>(), null)
         {
             this.InnerStateMachine.Kernel.Faulted += this.OnFaulted;
             this.InnerStateMachine.Kernel.Transition += this.OnTransition;
@@ -68,14 +68,14 @@ namespace StateMechanic
                 handler(this, eventArgs);
         }
 
-        private void OnTransition(object sender, TransitionEventArgs<State> eventArgs)
+        private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
         {
             var handler = this.Transition;
             if (handler != null)
                 handler(this, eventArgs);
         }
 
-        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State> eventArgs)
+        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
         {
             var handler = this.TransitionNotFound;
             if (handler != null)

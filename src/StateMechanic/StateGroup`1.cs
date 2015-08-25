@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace StateMechanic
 {
     /// <summary>
     /// A group, which contains many states, and can have its own entry and exit ahndlers
     /// </summary>
-    public class StateGroup : IStateGroup<State>
+    public class StateGroup<TStateData> : IStateGroup<State<TStateData>>
     {
-        private readonly StateGroupInner<State> innerStateGroup;
+        private readonly StateGroupInner<State<TStateData>> innerStateGroup;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="StateGroup"/> class
+        /// Initialises a new instance of the <see cref="StateGroup{TStateData}"/> class
         /// </summary>
         /// <param name="name">Name of this state group</param>
         public StateGroup(string name)
         {
-            this.innerStateGroup = new StateGroupInner<State>(name);
+            this.innerStateGroup = new StateGroupInner<State<TStateData>>(name);
         }
 
         /// <summary>
@@ -40,7 +38,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets a list of all states which are a member of this group
         /// </summary>
-        public IReadOnlyList<State> States
+        public IReadOnlyList<State<TStateData>> States
         {
             get { return this.innerStateGroup.States; }
         }
@@ -53,7 +51,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
         /// </summary>
-        public Action<StateHandlerInfo<State>> EntryHandler
+        public Action<StateHandlerInfo<State<TStateData>>> EntryHandler
         {
             get { return this.innerStateGroup.EntryHandler; }
             set { this.innerStateGroup.EntryHandler = value; }
@@ -62,7 +60,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets or sets the method called when the StateMachine exits this state
         /// </summary>
-        public Action<StateHandlerInfo<State>> ExitHandler
+        public Action<StateHandlerInfo<State<TStateData>>> ExitHandler
         {
             get { return this.innerStateGroup.ExitHandler; }
             set { this.innerStateGroup.ExitHandler = value; }
@@ -73,7 +71,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="entryHandler">Method called when the StateMachine enters this state</param>
         /// <returns>This State, used for method chaining</returns>
-        public StateGroup WithEntry(Action<StateHandlerInfo<State>> entryHandler)
+        public StateGroup<TStateData> WithEntry(Action<StateHandlerInfo<State<TStateData>>> entryHandler)
         {
             this.EntryHandler = entryHandler;
             return this;
@@ -84,23 +82,23 @@ namespace StateMechanic
         /// </summary>
         /// <param name="exitHandler">Method called when the StateMachine exits this state</param>
         /// <returns>This State, used for method chaining</returns>
-        public StateGroup WithExit(Action<StateHandlerInfo<State>> exitHandler)
+        public StateGroup<TStateData> WithExit(Action<StateHandlerInfo<State<TStateData>>> exitHandler)
         {
             this.ExitHandler = exitHandler;
             return this;
         }
 
-        void IStateGroup<State>.FireEntryHandler(StateHandlerInfo<State> info)
+        void IStateGroup<State<TStateData>>.FireEntryHandler(StateHandlerInfo<State<TStateData>> info)
         {
             this.innerStateGroup.FireEntryHandler(info);
         }
 
-        void IStateGroup<State>.FireExitHandler(StateHandlerInfo<State> info)
+        void IStateGroup<State<TStateData>>.FireExitHandler(StateHandlerInfo<State<TStateData>> info)
         {
             this.innerStateGroup.FireExitHandler(info);
         }
 
-        internal void AddState(State state)
+        internal void AddState(State<TStateData> state)
         {
             this.innerStateGroup.AddState(state);
         }
