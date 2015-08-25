@@ -7,11 +7,16 @@ namespace StateMechanic
     internal class StateInner<TState> where TState : class, IState<TState>
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
+
         public IStateDelegate<TState> ChildStateMachine { get; set; }
-        private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
 
         public string Name { get; private set; }
-        public IReadOnlyList<ITransition<TState>> Transitions { get { return new ReadOnlyCollection<ITransition<TState>>(this.transitions); } }
+
+        private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
+        public IReadOnlyList<ITransition<TState>> Transitions { get; private set; }
+
+        private readonly List<IStateGroup<TState>> groups = new List<IStateGroup<TState>>();
+        public IReadOnlyList<IStateGroup<TState>> Groups { get; private set; }
 
         public Action<StateHandlerInfo<TState>> EntryHandler { get; set; }
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
@@ -20,6 +25,8 @@ namespace StateMechanic
         {
             this.Name = name;
             this.transitionDelegate = transitionDelegate;
+            this.Transitions = new ReadOnlyCollection<ITransition<TState>>(this.transitions);
+            this.Groups = new ReadOnlyCollection<IStateGroup<TState>>(this.groups);
         }
 
         public ITransitionBuilder<TState> TransitionOn(TState fromState, Event @event)
@@ -66,6 +73,11 @@ namespace StateMechanic
             if (exitHandler != null)
                 exitHandler(info);
         }
+
+        public void AddGroup(IStateGroup<TState> group)
+        {
+            this.groups.Add(group);
+        }
     }
 
     /// <summary>
@@ -100,11 +112,14 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<ITransition<State>> Transitions { get { return this.innerState.Transitions; } }
 
+        public IReadOnlyList<IStateGroup> Groups { get { return this.innerState.Groups; } }
+
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
         IStateMachine<State> IState<State>.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine<State> IState<State>.ParentStateMachine { get { return this.ParentStateMachine; } }
+        IReadOnlyList<IStateGroup<State>> IState<State>.Groups {  get { return this.innerState.Groups; } }
 
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
@@ -212,6 +227,12 @@ namespace StateMechanic
             return this.ChildStateMachine;
         }
 
+        public void AddToGroup(StateGroup group)
+        {
+            this.innerState.AddGroup(group);
+            group.AddState(this);
+        }
+
         void IState<State>.FireEntryHandler(StateHandlerInfo<State> info)
         {
             this.innerState.FireEntryHandler(info);
@@ -281,11 +302,14 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<ITransition<State<TStateData>>> Transitions { get { return this.innerState.Transitions; } }
 
+        public IReadOnlyList<IStateGroup> Groups { get { return this.innerState.Groups; } }
+
         IStateMachine IState.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine IState.ParentStateMachine { get { return this.ParentStateMachine; } }
         IReadOnlyList<ITransition<IState>> IState.Transitions { get { return this.innerState.Transitions; } }
         IStateMachine<State<TStateData>> IState<State<TStateData>>.ChildStateMachine { get { return this.ChildStateMachine; } }
         IStateMachine<State<TStateData>> IState<State<TStateData>>.ParentStateMachine { get { return this.ParentStateMachine; } }
+        IReadOnlyList<IStateGroup<State<TStateData>>> IState<State<TStateData>>.Groups { get { return this.innerState.Groups; } }
 
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
@@ -392,6 +416,12 @@ namespace StateMechanic
             this.ChildStateMachine = new ChildStateMachine<TStateData>(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             this.innerState.ChildStateMachine = this.ChildStateMachine;
             return this.ChildStateMachine;
+        }
+
+        public void AddToGroup(StateGroup<TStateData> group)
+        {
+            this.innerState.AddGroup(group);
+            group.AddState(this);
         }
 
         void IState<State<TStateData>>.FireEntryHandler(StateHandlerInfo<State<TStateData>> info)

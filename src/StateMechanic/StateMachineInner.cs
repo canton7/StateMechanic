@@ -177,7 +177,7 @@ namespace StateMechanic
             }
             catch (InternalTransitionFaultException e)
             {
-                var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event);
+                var faultInfo = new StateMachineFaultInfo(this.outerStateMachine, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
                 this.Kernel.SetFault(faultInfo);
                 throw new TransitionFailedException(faultInfo);
             }

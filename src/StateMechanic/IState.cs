@@ -31,6 +31,8 @@ namespace StateMechanic
         /// Gets a list of transitions available from the current state
         /// </summary>
         IReadOnlyList<ITransition<IState>> Transitions { get; }
+
+        IReadOnlyList<IStateGroup> Groups { get; }
     }
 
     internal interface IState<TState> : IState where TState: class, IState<TState>
@@ -38,6 +40,7 @@ namespace StateMechanic
         new IStateMachine<TState> ParentStateMachine { get; }
         new IStateMachine<TState> ChildStateMachine { get; }
         new IReadOnlyList<ITransition<TState>> Transitions { get; }
+        new IReadOnlyList<IStateGroup<TState>> Groups { get; }
         void AddTransition(ITransition<TState> transition);
         void FireEntryHandler(StateHandlerInfo<TState> info);
         void FireExitHandler(StateHandlerInfo<TState> info);

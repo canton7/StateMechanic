@@ -12,15 +12,19 @@ namespace StateMechanic
         /// </summary>
         ExitHandler,
 
+        GroupExitHandler,
+
         /// <summary>
         /// A transition handler threw an exception
         /// </summary>
         TransitionHandler,
 
+        GroupEntryHandler,
+
         /// <summary>
         /// A state entry handler threw an exception
         /// </summary>
-        EntryHandler
+        EntryHandler,
     }
 
     /// <summary>
@@ -58,7 +62,9 @@ namespace StateMechanic
         /// </summary>
         public IEvent Event { get; private set; }
 
-        internal StateMachineFaultInfo(IStateMachine stateMachine, FaultedComponent faultedComponent, Exception exception, IState from, IState to, IEvent @event)
+        public IStateGroup Group { get; private set; }
+
+        internal StateMachineFaultInfo(IStateMachine stateMachine, FaultedComponent faultedComponent, Exception exception, IState from, IState to, IEvent @event, IStateGroup group = null)
         {
             this.StateMachine = stateMachine;
             this.FaultedComponent = faultedComponent;
@@ -66,6 +72,7 @@ namespace StateMechanic
             this.From = from;
             this.To = to;
             this.Event = @event;
+            this.Group = group;
         }
     }
 }
