@@ -75,5 +75,14 @@ namespace StateMechanic
         {
             this.TransitionNotFound?.Invoke(this, eventArgs);
         }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object</returns>
+        public override string ToString()
+        {
+            return $"<StateMachine Name={this.Name} State={this.CurrentState.Name}>";
+        }
     }
 }

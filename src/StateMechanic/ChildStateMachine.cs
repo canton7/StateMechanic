@@ -137,5 +137,14 @@ namespace StateMechanic
         {
             return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
         }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object</returns>
+        public override string ToString()
+        {
+            return $"<ChildStateMachine Parent={this.Name} State={this.CurrentState?.Name ?? "None"}>";
+        }
     }
 }
