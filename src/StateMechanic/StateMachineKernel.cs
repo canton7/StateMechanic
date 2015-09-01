@@ -57,9 +57,7 @@ namespace StateMechanic
         private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event)
         {
             if (childStateMachine.CurrentState != null && childStateMachine.CurrentState.ChildStateMachine != null)
-            {
                 this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event);
-            }
 
             this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event));
 
@@ -73,9 +71,7 @@ namespace StateMechanic
             this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event));
 
             if (childStateMachine.InitialState.ChildStateMachine != null)
-            {
                 this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event);
-            }
         }
 
         private void ExitState(StateHandlerInfo<TState> info)
@@ -89,8 +85,12 @@ namespace StateMechanic
                 throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.ExitHandler, e);
             }
 
-            foreach (var group in info.From.Groups.Reverse().Except(info.To.Groups))
+            foreach (var group in info.From.Groups.Reverse())
             {
+                // We could use .Except, but that uses a HashSet which is complete overkill here
+                if (info.To.Groups.Contains(group))
+                    continue;
+
                 try
                 {
                     group.FireExitHandler(info);
@@ -113,8 +113,12 @@ namespace StateMechanic
                 throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.EntryHandler, e);
             }
 
-            foreach (var group in info.To.Groups.Except(info.From.Groups))
+            foreach (var group in info.To.Groups)
             {
+                // We could use .Except, but that uses a HashSet which is complete overkill here
+                if (info.From.Groups.Contains(group))
+                    continue;
+
                 try
                 {
                     group.FireEntryHandler(info);
