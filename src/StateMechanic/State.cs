@@ -160,7 +160,19 @@ namespace StateMechanic
         public void AddToGroup(StateGroup group)
         {
             this.innerState.AddGroup(group);
-            group.AddState(this);
+            group.AddStateInternal(this);
+        }
+
+        /// <summary>
+        /// Add this state to the given groups
+        /// </summary>
+        /// <param name="groups">Grousp to add this state to</param>
+        public void AddToGroups(params StateGroup[] groups)
+        {
+            foreach (var group in groups)
+            {
+                this.AddToGroup(group);
+            }
         }
 
         void IState<State>.FireEntryHandler(StateHandlerInfo<State> info)

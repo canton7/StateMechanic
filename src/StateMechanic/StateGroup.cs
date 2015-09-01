@@ -78,6 +78,27 @@ namespace StateMechanic
             return this;
         }
 
+        /// <summary>
+        /// Add the given state to this group
+        /// </summary>
+        /// <param name="state">State to add to this group</param>
+        public void AddState(State state)
+        {
+            state.AddToGroup(this);
+        }
+
+        /// <summary>
+        /// Add the given states to this group
+        /// </summary>
+        /// <param name="states">States to add to this group</param>
+        public void AddStates(params State[] states)
+        {
+            foreach (var state in States)
+            {
+                state.AddToGroup(this);
+            }
+        }
+
         void IStateGroup<State>.FireEntryHandler(StateHandlerInfo<State> info)
         {
             this.innerStateGroup.FireEntryHandler(info);
@@ -88,7 +109,7 @@ namespace StateMechanic
             this.innerStateGroup.FireExitHandler(info);
         }
 
-        internal void AddState(State state)
+        internal void AddStateInternal(State state)
         {
             this.innerStateGroup.AddState(state);
         }
