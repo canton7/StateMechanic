@@ -179,7 +179,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
             state1.TransitionOn(evt).To(state2);
 
@@ -201,7 +201,7 @@ namespace StateMechanicUnitTests
             var evt2 = sm.CreateEvent("Event 2");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
             var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
 
@@ -231,7 +231,7 @@ namespace StateMechanicUnitTests
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
 
             sm.ForceTransition(state2, evt);
@@ -251,7 +251,7 @@ namespace StateMechanicUnitTests
             var evt1 = sm.CreateEvent("Event 1");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var subSm = state2.CreateChildStateMachine("Child State Machine");
+            var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
             var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
 

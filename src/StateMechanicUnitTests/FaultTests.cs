@@ -162,7 +162,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FaultingChildStateMachineFaultsParent()
         {
-            var childStateMachine = this.state1.CreateChildStateMachine("Child State Machine");
+            var childStateMachine = this.state1.CreateChildStateMachine();
 
             var subState1 = childStateMachine.CreateInitialState("State 1.1");
             var subState2 = childStateMachine.CreateState("State 1.2");

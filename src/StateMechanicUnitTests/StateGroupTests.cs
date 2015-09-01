@@ -56,7 +56,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
-            var subSm = state1.CreateChildStateMachine("Child State Machine");
+            var subSm = state1.CreateChildStateMachine();
             var state11 = subSm.CreateInitialState("State 1.1");
             var state12 = subSm.CreateState("State 1.2");
 

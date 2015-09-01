@@ -64,7 +64,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var child = initial.CreateChildStateMachine("child");
+            var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
             var childState1 = child.CreateState("childState1");
             var evt = sm.CreateEvent("evt");
@@ -91,7 +91,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var child = initial.CreateChildStateMachine("child");
+            var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
             var evt = sm.CreateEvent("evt");
             childInitial.InnerSelfTransitionOn(evt);
@@ -137,7 +137,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var child = initial.CreateChildStateMachine("child");
+            var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
             var evt = child.CreateEvent("evt");
 

@@ -44,7 +44,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine("state machine");
             var initialState = sm.CreateInitialState("initial state");
             var state1 = sm.CreateState("state1");
-            var childSm = state1.CreateChildStateMachine("childsm");
+            var childSm = state1.CreateChildStateMachine();
             var childInitialState = childSm.CreateInitialState("childInitialState");
             var childState1 = childSm.CreateState("childState1");
 
@@ -75,7 +75,7 @@ namespace StateMechanicUnitTests
         {
             var parent = new StateMachine("parent");
             var initial = parent.CreateInitialState("initial");
-            var child = initial.CreateChildStateMachine("child");
+            var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
 
             Assert.AreEqual(childInitial, child.CurrentState);
@@ -88,7 +88,7 @@ namespace StateMechanicUnitTests
             var parent = new StateMachine("parent");
             var initial = parent.CreateInitialState("initial");
             var state1 = parent.CreateState("state1");
-            var child = state1.CreateChildStateMachine("child");
+            var child = state1.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
 
             Assert.AreEqual(null, child.CurrentState);

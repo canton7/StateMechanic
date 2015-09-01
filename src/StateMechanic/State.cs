@@ -145,11 +145,10 @@ namespace StateMechanic
         /// <summary>
         /// Create a StateMachine belonging to this state, which will be started when this State is entered
         /// </summary>
-        /// <param name="name">Name of the state machine</param>
         /// <returns>The created state machine</returns>
-        public ChildStateMachine CreateChildStateMachine(string name)
+        public ChildStateMachine CreateChildStateMachine()
         {
-            this.ChildStateMachine = new ChildStateMachine(name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
+            this.ChildStateMachine = new ChildStateMachine(this.Name, this.ParentStateMachine.InnerStateMachine.Kernel, this);
             this.innerState.ChildStateMachine = this.ChildStateMachine;
             return this.ChildStateMachine;
         }

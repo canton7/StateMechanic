@@ -115,7 +115,7 @@ namespace StateMechanicUnitTests
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
 
-            var child = initial.CreateChildStateMachine("child");
+            var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
             var childState1 = child.CreateState("childState1");
 
