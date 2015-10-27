@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
     /// <summary>
     /// An event, which can be fired with some event data to trigger a transition from one state to antoher

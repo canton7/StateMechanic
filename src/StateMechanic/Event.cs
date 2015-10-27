@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
     /// <summary>
     /// An event, which can be fired to trigger a transition from one state to antoher
