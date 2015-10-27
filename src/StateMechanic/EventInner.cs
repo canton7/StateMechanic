@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace StateMechanic
 {
-    internal class EventInner<TEvent, TTransition>
+    internal class EventInner<TEvent, TTransitionData>
     {
-        private readonly Dictionary<IState, List<TTransition>> transitions = new Dictionary<IState, List<TTransition>>();
+        private readonly Dictionary<IState, List<IInvokableTransition<TTransitionData>>> transitions = new Dictionary<IState, List<IInvokableTransition<TTransitionData>>>();
 
         public readonly string Name;
         public readonly IEventDelegate parentStateMachine;
@@ -16,23 +16,23 @@ namespace StateMechanic
             this.parentStateMachine = parentStateMachine;
         }
 
-        public void AddTransition(IState state, TTransition transitionInvocation)
+        public void AddTransition(IState state, IInvokableTransition<TTransitionData> transition)
         {
-            List<TTransition> transitions;
+            List<IInvokableTransition<TTransitionData>> transitions;
             if (!this.transitions.TryGetValue(state, out transitions))
             {
-                transitions = new List<TTransition>();
+                transitions = new List<IInvokableTransition<TTransitionData>>();
                 this.transitions.Add(state, transitions);
             }
 
-            transitions.Add(transitionInvocation);
+            transitions.Add(transition);
         }
 
-        public bool Fire(Func<TTransition, bool> transitionInvoker, IEvent parentEvent, EventFireMethod eventFireMethod)
+        public bool Fire(TTransitionData transitionData, IEvent parentEvent, EventFireMethod eventFireMethod)
         {
             return this.parentStateMachine.RequestEventFireFromEvent(parentEvent, state =>
             {
-                List<TTransition> transitions;
+                List<IInvokableTransition<TTransitionData>> transitions;
                 if (!this.transitions.TryGetValue(state, out transitions))
                     return false;
 
@@ -40,7 +40,7 @@ namespace StateMechanic
                 bool anyFound = false;
                 foreach (var transition in transitions)
                 {
-                    if (transitionInvoker(transition))
+                    if (transition.TryInvoke(transitionData))
                     {
                         anyFound = true;
                         break;

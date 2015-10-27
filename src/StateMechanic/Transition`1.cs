@@ -81,7 +81,7 @@ namespace StateMechanic
             return this;
         }
 
-        bool IInvokableTransition.TryInvoke()
+        bool IInvokableTransition<object>.TryInvoke(object unused)
         {
             var transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition);
             return this.innerTransition.TryInvoke(transitionInfo);

@@ -6,7 +6,7 @@
     /// <typeparam name="TEventData">Type of event data which will be provided when the event is fired</typeparam>
     public class Event<TEventData> : IEvent
     {
-        private readonly EventInner<Event<TEventData>, IInvokableTransition<TEventData>> innerEvent;
+        private readonly EventInner<Event<TEventData>, TEventData> innerEvent;
 
         /// <summary>
         /// Gets the name assigned to this event
@@ -20,7 +20,7 @@
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event<TEventData>, IInvokableTransition<TEventData>>(name, parentStateMachine);
+            this.innerEvent = new EventInner<Event<TEventData>, TEventData>(name, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition<TEventData> transition)
@@ -41,7 +41,7 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire(TEventData eventData)
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.TryFire);
+            return this.innerEvent.Fire(eventData, this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@
         /// <param name="eventData">Event data to associate with this event</param>
         public void Fire(TEventData eventData)
         {
-            this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.Fire);
+            this.innerEvent.Fire(eventData, this, EventFireMethod.Fire);
         }
 
         void IEvent.Fire()

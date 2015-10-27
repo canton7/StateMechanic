@@ -5,7 +5,7 @@
     /// </summary>
     public class Event : IEvent
     {
-        private readonly EventInner<Event, IInvokableTransition> innerEvent;
+        private readonly EventInner<Event, object> innerEvent;
 
         /// <summary>
         /// Gets the name assigned to this event
@@ -19,7 +19,7 @@
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event, IInvokableTransition>(name, parentStateMachine);
+            this.innerEvent = new EventInner<Event, object>(name, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition transition)
@@ -39,7 +39,7 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
-            return this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.TryFire);
+            return this.innerEvent.Fire(null, this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         /// </remarks>
         public void Fire()
         {
-            this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.Fire);
+            this.innerEvent.Fire(null, this, EventFireMethod.Fire);
         }
 
         /// <summary>
