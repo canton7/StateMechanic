@@ -96,10 +96,14 @@ namespace StateMechanic
 
         public void ForceTransitionFromUser(TState toState, IEvent @event)
         {
+            // TODO: We currently create an EventFireData which is not used here.
+            // We also create a delegate, when we ideally would not.
+            // Rework this at some point....
+
             if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(() => this.ForceTransitionFromUserImpl(toState, @event)));
+                this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(unused => this.ForceTransitionFromUserImpl(toState, @event), new EventFireData()));
             else
-                this.InvokeTransition(() => this.ForceTransitionFromUserImpl(toState, @event));
+                this.InvokeTransition(unused => this.ForceTransitionFromUserImpl(toState, @event), new EventFireData());
         }
 
         private bool ForceTransitionFromUserImpl(TState toState, IEvent @event)
@@ -108,18 +112,17 @@ namespace StateMechanic
             return true;
         }
 
-        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
-        public bool RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
+        public bool RequestEventFireFromEvent(EventFireData eventFireData)
         {
-            // TODO: I don't like how many delegates are created here
+            // The delegate instances created here for this.RequestEventFire will be cached
 
             if (this.Kernel.Synchronizer != null)
-                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(() => this.RequestEventFire(sourceEvent, invoker, fireMethod)), fireMethod);
+                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, eventFireData), eventFireData.EventFireMethod);
             else
-                return this.InvokeTransition(() => this.RequestEventFire(sourceEvent, invoker, fireMethod));
+                return this.InvokeTransition(this.RequestEventFire, eventFireData);
         }
 
-        public bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod fireMethod)
+        public bool RequestEventFire(EventFireData eventFireData)
         {
             this.EnsureCurrentStateSuitableForTransition();
 
@@ -128,17 +131,18 @@ namespace StateMechanic
             // Try and fire it on the child state machine - see if that works
             // If we got to here, this.CurrentState != null
             var childStateMachine = this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(sourceEvent, invoker, EventFireMethod.TryFire))
+            if (childStateMachine != null &&
+                childStateMachine.RequestEventFire(new EventFireData(eventFireData.SourceEvent, EventFireMethod.TryFire, eventFireData.TransitionData)))
             {
                 success = true;
             }
             else
             {
                 // No? Invoke it on ourselves
-                success = invoker(this.CurrentState);
+                success = eventFireData.SourceEvent.FireEventFromStateMachine(this.CurrentState, eventFireData.TransitionData);
 
                 if (!success)
-                    this.HandleTransitionNotFound(sourceEvent, throwException: fireMethod == EventFireMethod.Fire);
+                    this.HandleTransitionNotFound(eventFireData.SourceEvent, throwException: eventFireData.EventFireMethod == EventFireMethod.Fire);
             }
 
             return success;
@@ -156,14 +160,14 @@ namespace StateMechanic
         }
 
 
-        private bool InvokeTransition(Func<bool> transition)
+        private bool InvokeTransition(Func<EventFireData, bool> method, EventFireData eventFireData)
         {
             if (this.Kernel.Fault != null)
                 throw new StateMachineFaultedException(this.Kernel.Fault);
 
             if (this.Kernel.ExecutingTransition)
             {
-                this.Kernel.EnqueueTransition(transition);
+                this.Kernel.EnqueueTransition(method, eventFireData);
                 return true;
             }
 
@@ -172,7 +176,7 @@ namespace StateMechanic
             try
             {
                 this.Kernel.ExecutingTransition = true;
-                success = transition();
+                success = method(eventFireData);
             }
             catch (InternalTransitionFaultException e)
             {

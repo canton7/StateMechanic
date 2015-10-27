@@ -3,7 +3,7 @@
     /// <summary>
     /// An event, which can be fired to trigger a transition from one state to antoher
     /// </summary>
-    public class Event : IEvent
+    public class Event : IEventInternal
     {
         private readonly EventInner<Event, object> innerEvent;
 
@@ -19,12 +19,17 @@
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event, object>(name, parentStateMachine);
+            this.innerEvent = new EventInner<Event, object>(name, this, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition transition)
         {
             this.innerEvent.AddTransition(state, transition);
+        }
+
+        bool IEventInternal.FireEventFromStateMachine(IState currentState, object eventData)
+        {
+            return this.innerEvent.FireEventFromStateMachine(currentState, eventData);
         }
 
         /// <summary>
@@ -39,7 +44,7 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
-            return this.innerEvent.Fire(null, this, EventFireMethod.TryFire);
+            return this.innerEvent.Fire(null, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -54,7 +59,7 @@
         /// </remarks>
         public void Fire()
         {
-            this.innerEvent.Fire(null, this, EventFireMethod.Fire);
+            this.innerEvent.Fire(null, EventFireMethod.Fire);
         }
 
         /// <summary>

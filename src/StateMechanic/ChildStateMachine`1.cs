@@ -131,9 +131,9 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        bool IStateMachine<State<TStateData>>.RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(EventFireData eventFireData)
         {
-            return this.InnerStateMachine.RequestEventFire(sourceEvent, invoker, eventFireMethod);
+            return this.InnerStateMachine.RequestEventFire(eventFireData);
         }
 
         void IStateMachine<State<TStateData>>.SetCurrentState(State<TStateData> state)
@@ -141,9 +141,9 @@ namespace StateMechanic
             this.InnerStateMachine.SetCurrentState(state);
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod)
+        bool IEventDelegate.RequestEventFireFromEvent(EventFireData eventFireData)
         {
-            return this.InnerStateMachine.RequestEventFireFromEvent(sourceEvent, invoker, eventFireMethod);
+            return this.InnerStateMachine.RequestEventFireFromEvent(eventFireData);
         }
 
         /// <summary>

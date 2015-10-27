@@ -4,7 +4,7 @@
     /// An event, which can be fired with some event data to trigger a transition from one state to antoher
     /// </summary>
     /// <typeparam name="TEventData">Type of event data which will be provided when the event is fired</typeparam>
-    public class Event<TEventData> : IEvent
+    public class Event<TEventData> : IEventInternal
     {
         private readonly EventInner<Event<TEventData>, TEventData> innerEvent;
 
@@ -20,12 +20,17 @@
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event<TEventData>, TEventData>(name, parentStateMachine);
+            this.innerEvent = new EventInner<Event<TEventData>, TEventData>(name, this, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition<TEventData> transition)
         {
             this.innerEvent.AddTransition(state, transition);
+        }
+
+        bool IEventInternal.FireEventFromStateMachine(IState currentState, object eventData)
+        {
+            return this.innerEvent.FireEventFromStateMachine(currentState, eventData);
         }
 
         /// <summary>
@@ -41,7 +46,7 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire(TEventData eventData)
         {
-            return this.innerEvent.Fire(eventData, this, EventFireMethod.TryFire);
+            return this.innerEvent.Fire(eventData, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -57,7 +62,7 @@
         /// <param name="eventData">Event data to associate with this event</param>
         public void Fire(TEventData eventData)
         {
-            this.innerEvent.Fire(eventData, this, EventFireMethod.Fire);
+            this.innerEvent.Fire(eventData, EventFireMethod.Fire);
         }
 
         void IEvent.Fire()

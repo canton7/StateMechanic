@@ -46,7 +46,7 @@ namespace StateMechanic
         new TState CurrentChildState { get; }
         new TState InitialState { get; }
         new TState CurrentState { get; }
-        bool RequestEventFire(IEvent sourceEvent, Func<IState, bool> invoker, EventFireMethod eventFireMethod);
+        bool RequestEventFire(EventFireData eventFireData);
         void SetCurrentState(TState state);
     }
 }

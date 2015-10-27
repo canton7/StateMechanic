@@ -6,7 +6,7 @@ namespace StateMechanic
 {
     internal class StateMachineKernel<TState> : ITransitionDelegate<TState> where TState : class, IState<TState>
     {
-        private readonly Queue<Func<bool>> transitionQueue = new Queue<Func<bool>>();
+        private readonly Queue<TransitionQueueItem> transitionQueue = new Queue<TransitionQueueItem>();
         public IStateMachineSynchronizer Synchronizer { get; set; }
         public StateMachineFaultInfo Fault { get; private set; }
         public bool ExecutingTransition { get; set; }
@@ -130,9 +130,9 @@ namespace StateMechanic
             }
         }
 
-        public void EnqueueTransition(Func<bool> invoker)
+        public void EnqueueTransition(Func<EventFireData, bool> method, EventFireData eventFireData)
         {
-            this.transitionQueue.Enqueue(invoker);
+            this.transitionQueue.Enqueue(new TransitionQueueItem(method, eventFireData));
         }
 
         public void FireQueuedTransitions()
@@ -140,7 +140,8 @@ namespace StateMechanic
             while (this.transitionQueue.Count > 0)
             {
                 // TODO: Not sure whether these failing should affect the status of the outer parent transition...
-                this.transitionQueue.Dequeue()();
+                var item = this.transitionQueue.Dequeue();
+                item.Method(item.EventFireData);
             }
         }
 
@@ -165,6 +166,18 @@ namespace StateMechanic
         public void Reset()
         {
             this.Fault = null;
+        }
+
+        private struct TransitionQueueItem
+        {
+            public readonly Func<EventFireData, bool> Method;
+            public readonly EventFireData EventFireData;
+
+            public TransitionQueueItem(Func<EventFireData, bool> method, EventFireData eventFireData)
+            {
+                this.Method = method;
+                this.EventFireData = eventFireData;
+            }
         }
     }
 }
