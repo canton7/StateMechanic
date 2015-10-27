@@ -36,7 +36,7 @@
         /// NOTE! If fired from within a transition handler or entry/exit handler, this method will always return true.
         /// If the parent state machine has a <see cref="IStateMachineSynchronizer"/>, then the return value of this method may not correctly indicate whether the event was successfully fired
         /// </remarks>
-        /// <returns>True if the event could not be fired.</returns>
+        /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
             return this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.TryFire);

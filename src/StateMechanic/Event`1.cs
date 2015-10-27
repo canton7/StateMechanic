@@ -38,7 +38,7 @@
         /// If the parent state machine has a <see cref="IStateMachineSynchronizer"/>, then the return value of this method may not correctly indicate whether the event was successfully fired
         /// </remarks>
         /// <param name="eventData">Event data to associate with this event</param>
-        /// <returns>True if the event could not be fired.</returns>
+        /// <returns>True if the event could be fired.</returns>
         public bool TryFire(TEventData eventData)
         {
             return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.TryFire);
