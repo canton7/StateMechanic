@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace StateMechanic
 {
@@ -46,7 +45,7 @@ namespace StateMechanic
         new TState CurrentChildState { get; }
         new TState InitialState { get; }
         new TState CurrentState { get; }
-        bool RequestEventFire(EventFireData eventFireData);
+        bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker, bool overrideNoThrow = false);
         void SetCurrentState(TState state);
     }
 }

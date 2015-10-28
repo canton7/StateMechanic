@@ -110,7 +110,8 @@ namespace StateMechanic
             if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
                 throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransitionFromUser(toState, @event);
+            var transitionInvoker = new ForcedTransitionInvoker<State<TStateData>>(toState, @event, this.InnerStateMachine.Kernel);
+            this.InnerStateMachine.ForceTransitionFromUser(transitionInvoker);
         }
 
         /// <summary>
@@ -131,9 +132,9 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        bool IStateMachine<State<TStateData>>.RequestEventFire(EventFireData eventFireData)
+        bool IStateMachine<State<TStateData>>.RequestEventFire(ITransitionInvoker<State<TStateData>> transitionInvoker, bool overrideNoThrow)
         {
-            return this.InnerStateMachine.RequestEventFire(eventFireData);
+            return this.InnerStateMachine.RequestEventFire(transitionInvoker, overrideNoThrow);
         }
 
         void IStateMachine<State<TStateData>>.SetCurrentState(State<TStateData> state)
@@ -141,9 +142,16 @@ namespace StateMechanic
             this.InnerStateMachine.SetCurrentState(state);
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(EventFireData eventFireData)
+        bool IEventDelegate.RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFireFromEvent(eventFireData);
+            var transitionInvoker = new EventTransitionInvoker<State<TStateData>>(@event, eventFireMethod);
+            return this.InnerStateMachine.RequestEventFireFromEvent(transitionInvoker);
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
+        {
+            var transitionInvoker = new EventTransitionInvokerWithData<State<TStateData>, TEventData>(@event, eventFireMethod, eventData);
+            return this.InnerStateMachine.RequestEventFireFromEvent(transitionInvoker);
         }
 
         /// <summary>

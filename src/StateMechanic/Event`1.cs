@@ -1,12 +1,15 @@
-﻿namespace StateMechanic
+﻿using System.Collections.Generic;
+
+namespace StateMechanic
 {
     /// <summary>
     /// An event, which can be fired with some event data to trigger a transition from one state to antoher
     /// </summary>
     /// <typeparam name="TEventData">Type of event data which will be provided when the event is fired</typeparam>
-    public class Event<TEventData> : IEventInternal
+    public class Event<TEventData> : IEvent
     {
-        private readonly EventInner<Event<TEventData>, TEventData> innerEvent;
+        private readonly EventInner<Event<TEventData>, IInvokableTransition<TEventData>> innerEvent;
+        private readonly IEventDelegate parentStateMachine;
 
         /// <summary>
         /// Gets the name assigned to this event
@@ -16,11 +19,12 @@
         /// <summary>
         /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
         /// </summary>
-        public IStateMachine ParentStateMachine => this.innerEvent.parentStateMachine;
+        public IStateMachine ParentStateMachine => this.parentStateMachine;
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event<TEventData>, TEventData>(name, this, parentStateMachine);
+            this.parentStateMachine = parentStateMachine;
+            this.innerEvent = new EventInner<Event<TEventData>, IInvokableTransition<TEventData>>(name, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition<TEventData> transition)
@@ -28,9 +32,9 @@
             this.innerEvent.AddTransition(state, transition);
         }
 
-        bool IEventInternal.FireEventFromStateMachine(IState currentState, object eventData)
+        internal List<IInvokableTransition<TEventData>> GetTransitionsForState(IState state)
         {
-            return this.innerEvent.FireEventFromStateMachine(currentState, eventData);
+            return this.innerEvent.GetTransitionsForState(state);
         }
 
         /// <summary>
@@ -46,7 +50,8 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire(TEventData eventData)
         {
-            return this.innerEvent.Fire(eventData, EventFireMethod.TryFire);
+            return this.parentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.TryFire);
+            // return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -62,7 +67,8 @@
         /// <param name="eventData">Event data to associate with this event</param>
         public void Fire(TEventData eventData)
         {
-            this.innerEvent.Fire(eventData, EventFireMethod.Fire);
+            this.parentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.Fire);
+            // this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.Fire);
         }
 
         void IEvent.Fire()

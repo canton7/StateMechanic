@@ -46,7 +46,7 @@ namespace StateMechanic
             if (guard != null && !guard(transitionInfo))
                 return false;
 
-            this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler == null ? (Action)null : () => this.Handler(transitionInfo));
+            this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler, transitionInfo);
 
             return true;
         }

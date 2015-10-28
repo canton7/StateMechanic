@@ -44,7 +44,6 @@
   <ItemGroup>
     <Compile Include="ChildStateMachine`1.cs" />
     <Compile Include="Event.cs" />
-    <Compile Include="EventFireData.cs" />
     <Compile Include="EventFireMethod.cs" />
     <Compile Include="EventInner.cs" />
     <Compile Include="Event`1.cs" />
@@ -89,6 +88,7 @@
     <Compile Include="TransitionFailedException.cs" />
     <Compile Include="TransitionInfo.cs" />
     <Compile Include="TransitionInner.cs" />
+    <Compile Include="TransitionInvoker.cs" />
     <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
     <Compile Include="Transition`1.cs" />

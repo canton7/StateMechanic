@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
-    internal interface IEventInternal : IEvent
+    internal interface IEventInternal<TTransition> : IEvent
     {
-        bool FireEventFromStateMachine(IState currentState, object eventData);
     }
 }

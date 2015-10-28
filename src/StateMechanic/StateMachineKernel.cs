@@ -15,7 +15,7 @@ namespace StateMechanic
         public event EventHandler<TransitionEventArgs<TState>> Transition;
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
 
-        public void CoordinateTransition(TState from, TState to, IEvent @event, bool isInnerTransition, Action handlerInvoker)
+        public void CoordinateTransition<TTransitionInfo>(TState from, TState to, IEvent @event, bool isInnerTransition, Action<TTransitionInfo> handler, TTransitionInfo transitionInfo)
         {
             // We require that from.ParentStateMachine.Kernel == to.ParentStateMachine.Kernel == this
 
@@ -29,11 +29,11 @@ namespace StateMechanic
                 this.ExitState(stateHandlerInfo);
             }
 
-            if (handlerInvoker != null)
+            if (handler != null)
             {
                 try
                 {
-                    handlerInvoker();
+                    handler(transitionInfo);
                 }
                 catch (Exception e)
                 {
@@ -130,9 +130,9 @@ namespace StateMechanic
             }
         }
 
-        public void EnqueueTransition(Func<EventFireData, bool> method, EventFireData eventFireData)
+        public void EnqueueTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> invoker)
         {
-            this.transitionQueue.Enqueue(new TransitionQueueItem(method, eventFireData));
+            this.transitionQueue.Enqueue(new TransitionQueueItem(method, invoker));
         }
 
         public void FireQueuedTransitions()
@@ -141,7 +141,7 @@ namespace StateMechanic
             {
                 // TODO: Not sure whether these failing should affect the status of the outer parent transition...
                 var item = this.transitionQueue.Dequeue();
-                item.Method(item.EventFireData);
+                item.method(item.transitionInvoker);
             }
         }
 
@@ -170,13 +170,13 @@ namespace StateMechanic
 
         private struct TransitionQueueItem
         {
-            public readonly Func<EventFireData, bool> Method;
-            public readonly EventFireData EventFireData;
+            public readonly Func<ITransitionInvoker<TState>, bool> method;
+            public readonly ITransitionInvoker<TState> transitionInvoker;
 
-            public TransitionQueueItem(Func<EventFireData, bool> method, EventFireData eventFireData)
+            public TransitionQueueItem(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
             {
-                this.Method = method;
-                this.EventFireData = eventFireData;
+                this.method = method;
+                this.transitionInvoker = transitionInvoker;
             }
         }
     }

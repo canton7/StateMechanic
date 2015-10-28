@@ -1,9 +1,8 @@
-﻿using System;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
     internal interface IEventDelegate : IStateMachine
     {
-        bool RequestEventFireFromEvent(EventFireData eventFireData);
+        bool RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod);
+        bool RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod);
     }
 }

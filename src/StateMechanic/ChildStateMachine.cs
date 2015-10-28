@@ -102,7 +102,8 @@ namespace StateMechanic
             if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
                 throw new InvalidEventTransitionException(this.CurrentState, @event);
 
-            this.InnerStateMachine.ForceTransitionFromUser(toState, @event);
+            var transitionInvoker = new ForcedTransitionInvoker<State>(toState, @event, this.InnerStateMachine.Kernel);
+            this.InnerStateMachine.ForceTransitionFromUser(transitionInvoker);
         }
 
         /// <summary>
@@ -123,9 +124,9 @@ namespace StateMechanic
             this.InnerStateMachine.Reset();
         }
 
-        bool IStateMachine<State>.RequestEventFire(EventFireData eventFireData)
+        bool IStateMachine<State>.RequestEventFire(ITransitionInvoker<State> transitionInvoker, bool overrideNoThrow)
         {
-            return this.InnerStateMachine.RequestEventFire(eventFireData);
+            return this.InnerStateMachine.RequestEventFire(transitionInvoker, overrideNoThrow);
         }
 
         void IStateMachine<State>.SetCurrentState(State state)
@@ -133,9 +134,16 @@ namespace StateMechanic
             this.InnerStateMachine.SetCurrentState(state);
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(EventFireData eventFireData)
+        bool IEventDelegate.RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
         {
-            return this.InnerStateMachine.RequestEventFireFromEvent(eventFireData);
+            var transitionInvoker = new EventTransitionInvoker<State>(@event, eventFireMethod);
+            return this.InnerStateMachine.RequestEventFireFromEvent(transitionInvoker);
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
+        {
+            var transitionInvoker = new EventTransitionInvokerWithData<State, TEventData>(@event, eventFireMethod, eventData);
+            return this.InnerStateMachine.RequestEventFireFromEvent(transitionInvoker);
         }
 
         /// <summary>

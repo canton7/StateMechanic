@@ -84,6 +84,7 @@ namespace StateMechanic
 
         bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData)
         {
+            // TODO: only generate this if there's a guard or a transition handler
             var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, this.To, this.Event, eventData, this.IsInnerTransition);
             return this.innerTransition.TryInvoke(transitionInfo);
         }

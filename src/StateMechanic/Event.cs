@@ -1,11 +1,14 @@
-﻿namespace StateMechanic
+﻿using System.Collections.Generic;
+
+namespace StateMechanic
 {
     /// <summary>
     /// An event, which can be fired to trigger a transition from one state to antoher
     /// </summary>
-    public class Event : IEventInternal
+    public class Event : IEvent, IEventInternal<IInvokableTransition>
     {
-        private readonly EventInner<Event, object> innerEvent;
+        private readonly EventInner<Event, IInvokableTransition> innerEvent;
+        private readonly IEventDelegate parentStateMachine;
 
         /// <summary>
         /// Gets the name assigned to this event
@@ -15,11 +18,12 @@
         /// <summary>
         /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
         /// </summary>
-        public IStateMachine ParentStateMachine => this.innerEvent.parentStateMachine;
+        public IStateMachine ParentStateMachine => this.parentStateMachine;
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
-            this.innerEvent = new EventInner<Event, object>(name, this, parentStateMachine);
+            this.parentStateMachine = parentStateMachine;
+            this.innerEvent = new EventInner<Event, IInvokableTransition>(name, parentStateMachine);
         }
 
         internal void AddTransition(IState state, IInvokableTransition transition)
@@ -27,9 +31,9 @@
             this.innerEvent.AddTransition(state, transition);
         }
 
-        bool IEventInternal.FireEventFromStateMachine(IState currentState, object eventData)
+        internal List<IInvokableTransition> GetTransitionsForState(IState state)
         {
-            return this.innerEvent.FireEventFromStateMachine(currentState, eventData);
+            return this.innerEvent.GetTransitionsForState(state);
         }
 
         /// <summary>
@@ -44,7 +48,8 @@
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
-            return this.innerEvent.Fire(null, EventFireMethod.TryFire);
+            return this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
+            // return this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -59,7 +64,8 @@
         /// </remarks>
         public void Fire()
         {
-            this.innerEvent.Fire(null, EventFireMethod.Fire);
+            this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.Fire);
+            // this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.Fire);
         }
 
         /// <summary>
