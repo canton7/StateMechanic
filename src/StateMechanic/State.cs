@@ -78,8 +78,6 @@ namespace StateMechanic
         /// <returns>An <see cref="ITransitionBuilder{State}"/> which can be used to finish setting up the transition</returns>
         public ITransitionBuilder<State> TransitionOn(Event @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.TransitionOn(this, @event);
         }
 
@@ -90,8 +88,6 @@ namespace StateMechanic
         /// <returns>An <see cref="ITransitionBuilder{State, TEventData}"/> which can be used to finish setting up the transition</returns>
         public ITransitionBuilder<State, TEventData> TransitionOn<TEventData>(Event<TEventData> @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
@@ -102,8 +98,6 @@ namespace StateMechanic
         /// <returns>The created transition, to which handlers can be addeds</returns>
         public Transition<State> InnerSelfTransitionOn(Event @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.InnerSelfTransitionOn(this, @event);
         }
 
@@ -114,8 +108,6 @@ namespace StateMechanic
         /// <returns>The created transition, to which handlers can be addeds</returns>
         public Transition<State, TEventData> InnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.InnerSelfTransitionOn<TEventData>(this, @event);
         }
 
@@ -168,6 +160,9 @@ namespace StateMechanic
         /// <param name="groups">Grousp to add this state to</param>
         public void AddToGroups(params StateGroup[] groups)
         {
+            if (groups == null)
+                throw new ArgumentNullException("groups");
+
             foreach (var group in groups)
             {
                 this.AddToGroup(group);

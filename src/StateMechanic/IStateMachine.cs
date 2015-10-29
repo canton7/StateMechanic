@@ -39,13 +39,4 @@ namespace StateMechanic
         /// <returns>True if this state machine is a child of the given state machine</returns>
         bool IsChildOf(IStateMachine parentStateMachine);
     }
-
-    internal interface IStateMachine<TState> : IStateMachine, IEventDelegate where TState : class, IState<TState>
-    {
-        new TState CurrentChildState { get; }
-        new TState InitialState { get; }
-        new TState CurrentState { get; }
-        bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker, bool overrideNoThrow = false);
-        void SetCurrentState(TState state);
-    }
 }

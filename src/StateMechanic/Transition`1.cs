@@ -9,6 +9,7 @@ namespace StateMechanic
     public class Transition<TState> : ITransition<TState>, IInvokableTransition where TState : class, IState
     {
         private readonly ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
+        private readonly TransitionInfo<TState> transitionInfo;
 
         /// <summary>
         /// Gets the state this transition is from
@@ -57,6 +58,8 @@ namespace StateMechanic
         internal Transition(ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition)
         {
             this.innerTransition = innerTransition;
+            // Might as well cache this - it's never going to change
+            this.transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition);
         }
 
         /// <summary>
@@ -83,8 +86,7 @@ namespace StateMechanic
 
         bool IInvokableTransition.TryInvoke()
         {
-            var transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition);
-            return this.innerTransition.TryInvoke(transitionInfo);
+            return this.innerTransition.TryInvoke(this.transitionInfo);
         }
 
         /// <summary>

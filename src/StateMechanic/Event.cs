@@ -5,7 +5,7 @@ namespace StateMechanic
     /// <summary>
     /// An event, which can be fired to trigger a transition from one state to antoher
     /// </summary>
-    public class Event : IEvent, IEventInternal<IInvokableTransition>
+    public class Event : IEvent
     {
         private readonly EventInner<Event, IInvokableTransition> innerEvent;
         private readonly IEventDelegate parentStateMachine;
@@ -32,7 +32,7 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        internal IEnumerable<IInvokableTransition> GetTransitionsForState(IState state)
+        internal IEnumerable<IInvokableTransition> GetTransitionsFromState(IState state)
         {
             return this.innerEvent.GetTransitionsForState(state);
         }

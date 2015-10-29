@@ -142,7 +142,7 @@ namespace StateMechanic
 
         bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
         {
-            var transitionInvoker = new EventTransitionInvokerWithData<State, TEventData>(@event, eventFireMethod, eventData);
+            var transitionInvoker = new EventTransitionInvoker<State, TEventData>(@event, eventFireMethod, eventData);
             return this.InnerStateMachine.RequestEventFireFromEvent(transitionInvoker);
         }
 
@@ -152,7 +152,7 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return $"<ChildStateMachine Parent={this.Name} State={this.CurrentState?.Name ?? "None"}>";
+            return $"<StateMachine Parent={this.Name} State={this.CurrentState?.Name ?? "None"}>";
         }
     }
 }

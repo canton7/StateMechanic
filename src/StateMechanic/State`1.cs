@@ -85,8 +85,6 @@ namespace StateMechanic
         /// <returns>An <see cref="ITransitionBuilder{TState}"/> which can be used to finish setting up the transition</returns>
         public ITransitionBuilder<State<TStateData>> TransitionOn(Event @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.TransitionOn(this, @event);
         }
 
@@ -97,8 +95,6 @@ namespace StateMechanic
         /// <returns>An <see cref="ITransitionBuilder{TState, TEventData}"/> which can be used to finish setting up the transition</returns>
         public ITransitionBuilder<State<TStateData>, TEventData> TransitionOn<TEventData>(Event<TEventData> @event)
         {
-            if (@event == null)
-                throw new ArgumentNullException("event");
             return this.innerState.TransitionOn<TEventData>(this, @event);
         }
 
@@ -175,6 +171,9 @@ namespace StateMechanic
         /// <param name="groups">Grousp to add this state to</param>
         public void AddToGroups(params StateGroup<TStateData>[] groups)
         {
+            if (groups == null)
+                throw new ArgumentNullException("groups");
+
             foreach (var group in groups)
             {
                 this.AddToGroup(group);
