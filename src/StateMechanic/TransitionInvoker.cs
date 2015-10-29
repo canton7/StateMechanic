@@ -22,11 +22,7 @@
 
         public bool TryInvoke(TState sourceState)
         {
-            var transitions = this.@event.GetTransitionsForState(sourceState);
-            if (transitions == null)
-                return false;
-
-            foreach (var transition in transitions)
+            foreach (var transition in this.@event.GetTransitionsForState(sourceState))
             {
                 if (transition.TryInvoke())
                     return true;
@@ -53,11 +49,7 @@
 
         public bool TryInvoke(TState sourceState)
         {
-            var transitions = this.@event.GetTransitionsForState(sourceState);
-            if (transitions == null)
-                return false;
-
-            foreach (var transition in transitions)
+            foreach (var transition in this.@event.GetTransitionsForState(sourceState))
             {
                 if (transition.TryInvoke(this.eventData))
                     return true;

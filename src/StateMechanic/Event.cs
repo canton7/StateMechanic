@@ -13,7 +13,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name assigned to this event
         /// </summary>
-        public string Name => this.innerEvent.Name;
+        public string Name { get; }
 
         /// <summary>
         /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
@@ -22,8 +22,9 @@ namespace StateMechanic
 
         internal Event(string name, IEventDelegate parentStateMachine)
         {
+            this.Name = name;
             this.parentStateMachine = parentStateMachine;
-            this.innerEvent = new EventInner<Event, IInvokableTransition>(name, parentStateMachine);
+            this.innerEvent = new EventInner<Event, IInvokableTransition>();
         }
 
         internal void AddTransition(IState state, IInvokableTransition transition)
@@ -31,7 +32,7 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        internal List<IInvokableTransition> GetTransitionsForState(IState state)
+        internal IEnumerable<IInvokableTransition> GetTransitionsForState(IState state)
         {
             return this.innerEvent.GetTransitionsForState(state);
         }
@@ -49,7 +50,6 @@ namespace StateMechanic
         public bool TryFire()
         {
             return this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
-            // return this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -65,7 +65,6 @@ namespace StateMechanic
         public void Fire()
         {
             this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.Fire);
-            // this.innerEvent.Fire(transition => transition.TryInvoke(), this, EventFireMethod.Fire);
         }
 
         /// <summary>

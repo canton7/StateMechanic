@@ -14,7 +14,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name assigned to this event
         /// </summary>
-        public string Name => this.innerEvent.Name;
+        public string Name { get; }
 
         /// <summary>
         /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
@@ -24,7 +24,8 @@ namespace StateMechanic
         internal Event(string name, IEventDelegate parentStateMachine)
         {
             this.parentStateMachine = parentStateMachine;
-            this.innerEvent = new EventInner<Event<TEventData>, IInvokableTransition<TEventData>>(name, parentStateMachine);
+            this.Name = name;
+            this.innerEvent = new EventInner<Event<TEventData>, IInvokableTransition<TEventData>>();
         }
 
         internal void AddTransition(IState state, IInvokableTransition<TEventData> transition)
@@ -32,7 +33,7 @@ namespace StateMechanic
             this.innerEvent.AddTransition(state, transition);
         }
 
-        internal List<IInvokableTransition<TEventData>> GetTransitionsForState(IState state)
+        internal IEnumerable<IInvokableTransition<TEventData>> GetTransitionsForState(IState state)
         {
             return this.innerEvent.GetTransitionsForState(state);
         }
@@ -51,7 +52,6 @@ namespace StateMechanic
         public bool TryFire(TEventData eventData)
         {
             return this.parentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.TryFire);
-            // return this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -68,7 +68,6 @@ namespace StateMechanic
         public void Fire(TEventData eventData)
         {
             this.parentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.Fire);
-            // this.innerEvent.Fire(transition => transition.TryInvoke(eventData), this, EventFireMethod.Fire);
         }
 
         void IEvent.Fire()
