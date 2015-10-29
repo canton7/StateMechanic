@@ -32,7 +32,7 @@ namespace StateMechanic
         public ITransitionBuilder<TState> TransitionOn(TState fromState, Event @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
 
             return new TransitionBuilder<TState>(fromState, @event, this.transitionDelegate);
         }
@@ -40,7 +40,7 @@ namespace StateMechanic
         public ITransitionBuilder<TState, TEventData> TransitionOn<TEventData>(TState fromState, Event<TEventData> @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
 
             return new TransitionBuilder<TState, TEventData>(fromState, @event, this.transitionDelegate);
         }
@@ -48,7 +48,7 @@ namespace StateMechanic
         public Transition<TState> InnerSelfTransitionOn(TState fromAndToState, Event @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
 
             var transition = Transition.CreateInner<TState>(fromAndToState, @event, this.transitionDelegate);
             @event.AddTransition(fromAndToState, transition);
@@ -59,7 +59,7 @@ namespace StateMechanic
         public Transition<TState, TEventData> InnerSelfTransitionOn<TEventData>(TState fromAndToState, Event<TEventData> @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
 
             var transition = Transition.CreateInner<TState, TEventData>(fromAndToState, @event, this.transitionDelegate);
             @event.AddTransition(fromAndToState, transition);
@@ -85,7 +85,7 @@ namespace StateMechanic
         public void AddGroup(IStateGroup<TState> group)
         {
             if (group == null)
-                throw new ArgumentNullException("group");
+                throw new ArgumentNullException(nameof(group));
 
             this.groups.Add(group);
         }

@@ -93,9 +93,9 @@ namespace StateMechanic
         public void ForceTransition(State toState, IEvent @event)
         {
             if (toState == null)
-                throw new ArgumentNullException("toState");
+                throw new ArgumentNullException(nameof(toState));
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
 
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
@@ -114,7 +114,7 @@ namespace StateMechanic
         public bool IsChildOf(IStateMachine parentStateMachine)
         {
             if (parentStateMachine == null)
-                throw new ArgumentNullException("parentStateMachine");
+                throw new ArgumentNullException(nameof(parentStateMachine));
 
             return this.InnerStateMachine.IsChildOf(parentStateMachine);
         }

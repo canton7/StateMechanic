@@ -106,7 +106,7 @@ namespace StateMechanic
         public Transition<State<TStateData>> InnerSelfTransitionOn(Event @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
             return this.innerState.InnerSelfTransitionOn(this, @event);
         }
 
@@ -118,7 +118,7 @@ namespace StateMechanic
         public Transition<State<TStateData>, TEventData> InnerSelfTransitionOn<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
-                throw new ArgumentNullException("event");
+                throw new ArgumentNullException(nameof(@event));
             return this.innerState.InnerSelfTransitionOn<TEventData>(this, @event);
         }
 
@@ -172,7 +172,7 @@ namespace StateMechanic
         public void AddToGroups(params StateGroup<TStateData>[] groups)
         {
             if (groups == null)
-                throw new ArgumentNullException("groups");
+                throw new ArgumentNullException(nameof(groups));
 
             foreach (var group in groups)
             {

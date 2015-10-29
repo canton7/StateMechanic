@@ -161,7 +161,7 @@ namespace StateMechanic
         public void AddToGroups(params StateGroup[] groups)
         {
             if (groups == null)
-                throw new ArgumentNullException("groups");
+                throw new ArgumentNullException(nameof(groups));
 
             foreach (var group in groups)
             {

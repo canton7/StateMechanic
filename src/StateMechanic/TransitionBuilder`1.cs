@@ -18,7 +18,7 @@ namespace StateMechanic
         public Transition<TState> To(TState state)
         {
             if (state == null)
-                throw new ArgumentNullException("state");
+                throw new ArgumentNullException(nameof(state));
             var transition = Transition.Create<TState>(this.fromState, state, this.evt, this.transitionDelegate);
             this.evt.AddTransition(this.fromState, transition);
             this.fromState.AddTransition(transition);
