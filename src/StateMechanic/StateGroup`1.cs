@@ -82,6 +82,9 @@ namespace StateMechanic
         /// <param name="state">State to add to this group</param>
         public void AddState(State<TStateData> state)
         {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+
             state.AddToGroup(this);
         }
 
@@ -91,6 +94,9 @@ namespace StateMechanic
         /// <param name="states">States to add to this group</param>
         public void AddStates(params State<TStateData>[] states)
         {
+            if (states == null)
+                throw new ArgumentNullException(nameof(states));
+
             foreach (var state in States)
             {
                 state.AddToGroup(this);
