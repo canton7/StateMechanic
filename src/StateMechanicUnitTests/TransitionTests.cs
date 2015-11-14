@@ -128,5 +128,61 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(childState1, child.CurrentState);
             Assert.AreEqual(initial, sm.CurrentState);
         }
+
+        [Test]
+        public void TransitionFromGuardIsCorrectlyQueuedIfGuardReturnsFalse()
+        {
+            var log = new List<string>();
+
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
+            var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
+
+            var event1 = sm.CreateEvent("event1");
+            var event2 = sm.CreateEvent("event2");
+
+            initial.TransitionOn(event1).To(state1).WithGuard(_ =>
+            {
+                event2.Fire();
+                log.Add("event2 fired");
+                return false;
+            });
+
+            initial.TransitionOn(event2).To(state2);
+
+            event1.TryFire();
+
+            Assert.That(log, Is.EquivalentTo(new[] { "event2 fired", "state2 entered" }));
+            Assert.AreEqual(state2, sm.CurrentState);
+        }
+
+        [Test]
+        public void TransitionFromGuardIsCorrectlyQueuedIfGuardReturnsTrue()
+        {
+            var log = new List<string>();
+
+            var sm = new StateMachine("sm");
+            var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
+            var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
+
+            var event1 = sm.CreateEvent("event1");
+            var event2 = sm.CreateEvent("event2");
+
+            initial.TransitionOn(event1).To(state1).WithGuard(_ =>
+            {
+                event2.Fire();
+                log.Add("event2 fired");
+                return true;
+            });
+
+            state1.TransitionOn(event2).To(state2);
+
+            event1.TryFire();
+
+            Assert.That(log, Is.EquivalentTo(new[] { "event2 fired", "state1 entered", "state2 entered" }));
+            Assert.AreEqual(state2, sm.CurrentState);
+        }
     }
 }
