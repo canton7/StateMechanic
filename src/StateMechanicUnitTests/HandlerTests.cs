@@ -22,7 +22,7 @@ namespace StateMechanicUnitTests
         public void CorrectHandlersAreInvokedInNormalTransition()
         {
             var events = new List<string>();
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithExit(i => events.Add("State 1 Exit"));
             var state2 = sm.CreateState("State 2").WithEntry(i => events.Add("State 2 Entry"));
@@ -37,7 +37,7 @@ namespace StateMechanicUnitTests
         public void NormalSelfTransitionShouldFireExitAndEntry()
         {
             var events = new List<string>();
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
             state1.TransitionOn(evt).To(state1).WithHandler(i => events.Add("Transition 1 1"));
@@ -51,7 +51,7 @@ namespace StateMechanicUnitTests
         public void InnerSelfTransitionShouldNotFireExitAndEntry()
         {
             var events = new List<string>();
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
             state1.InnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
@@ -65,7 +65,7 @@ namespace StateMechanicUnitTests
         public void InnerSelfTransitionOnEventTShouldNotFireExitAndEntry()
         {
             var events = new List<string>();
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent<int>("Event");
             var state1 = sm.CreateInitialState("State 1").WithEntry(i => events.Add("State 1 Entry")).WithExit(i => events.Add("State 1 Exit"));
             state1.InnerSelfTransitionOn(evt).WithHandler(i => events.Add("Transition 1 1 Inner"));
@@ -80,7 +80,7 @@ namespace StateMechanicUnitTests
         {
             TransitionInfo<State> guardInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
@@ -100,7 +100,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> handlerInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
             var state2 = sm.CreateState("State 2");
@@ -119,7 +119,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> handlerInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
@@ -138,7 +138,7 @@ namespace StateMechanicUnitTests
         {
             TransitionInfo<State> transitionInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
@@ -158,7 +158,7 @@ namespace StateMechanicUnitTests
         {
             EventData eventData = new EventData();
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent<EventData>("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
@@ -175,7 +175,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> state21EntryInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
@@ -196,7 +196,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> state22ExitInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt1 = sm.CreateEvent("Event 1");
             var evt2 = sm.CreateEvent("Event 2");
             var state1 = sm.CreateInitialState("State 1");
@@ -227,7 +227,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> state21EntryInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt = sm.CreateEvent("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
@@ -247,7 +247,7 @@ namespace StateMechanicUnitTests
         {
             StateHandlerInfo<State> state22ExitInfo = null;
 
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var evt1 = sm.CreateEvent("Event 1");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");

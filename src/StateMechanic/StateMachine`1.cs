@@ -3,14 +3,14 @@
 namespace StateMechanic
 {
     /// <summary>
-    /// A state machine with per-state data
+    /// A state machine
     /// </summary>
-    public class StateMachine<TStateData> : ChildStateMachine<TStateData>
+    public class StateMachine<TState> : ChildStateMachine<TState> where TState : StateBase<TState>, new()
     {
         /// <summary>
         /// Gets the fault associated with this state machine. A state machine will fault if one of its handlers throws an exception
         /// </summary>
-        public StateMachineFaultInfo Fault => this.InnerStateMachine.Kernel.Fault;
+        public StateMachineFaultInfo Fault => this.Kernel.Fault;
 
         /// <summary>
         /// Gets a value indicating whether this state machine is faulted. A state machine will fault if one of its handlers throws an exception
@@ -22,8 +22,8 @@ namespace StateMechanic
         /// </summary>
         public IStateMachineSynchronizer Synchronizer
         {
-            get { return this.InnerStateMachine.Kernel.Synchronizer; }
-            set { this.InnerStateMachine.Kernel.Synchronizer = value; }
+            get { return this.Kernel.Synchronizer; }
+            set { this.Kernel.Synchronizer = value; }
         }
 
         /// <summary>
@@ -34,31 +34,23 @@ namespace StateMechanic
         /// <summary>
         /// Event raised when a transition occurs in this state machine, or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionEventArgs<State<TStateData>>> Transition;
+        public event EventHandler<TransitionEventArgs<TState>> Transition;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
         /// </summary>
-        public event EventHandler<TransitionNotFoundEventArgs<State<TStateData>>> TransitionNotFound;
+        public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
 
         /// <summary>
-        /// Instantiates a new instance of the <see cref="StateMachine{TStateData}"/> class, with the given name
+        /// Instantiates a new instance of the <see cref="StateMachine{TState}"/> class, with the given name
         /// </summary>
         /// <param name="name">Name of this state machine</param>
         public StateMachine(string name)
-            : base(name, new StateMachineKernel<State<TStateData>>(), null)
+            : base(name, new StateMachineKernel<TState>(), null)
         {
-            this.InnerStateMachine.Kernel.Faulted += this.OnFaulted;
-            this.InnerStateMachine.Kernel.Transition += this.OnTransition;
-            this.InnerStateMachine.Kernel.TransitionNotFound += this.OnTransitionNotFound;
-        }
-
-        /// <summary>
-        /// Resets the state machine, removing any fault and returning it and any child state machines to their initial state
-        /// </summary>
-        public void Reset()
-        {
-            this.InnerStateMachine.InitiateReset();
+            this.Kernel.Faulted += this.OnFaulted;
+            this.Kernel.Transition += this.OnTransition;
+            this.Kernel.TransitionNotFound += this.OnTransitionNotFound;
         }
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)
@@ -66,12 +58,12 @@ namespace StateMechanic
             this.Faulted?.Invoke(this, eventArgs);
         }
 
-        private void OnTransition(object sender, TransitionEventArgs<State<TStateData>> eventArgs)
+        private void OnTransition(object sender, TransitionEventArgs<TState> eventArgs)
         {
             this.Transition?.Invoke(this, eventArgs);
         }
 
-        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<State<TStateData>> eventArgs)
+        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<TState> eventArgs)
         {
             this.TransitionNotFound?.Invoke(this, eventArgs);
         }

@@ -14,21 +14,21 @@ namespace StateMechanicUnitTests
         [Test]
         public void IndicatesNameCorrectly()
         {
-            var group = new StateGroup("State Group");
+            var group = new StateGroup<State>("State Group");
             Assert.AreEqual("State Group", group.Name);
         }
 
         [Test]
         public void IndicatesWhetherInState()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var state3 = sm.CreateState("State 3");
 
             var evt = sm.CreateEvent("Event");
-            var group1 = new StateGroup("Group 1");
-            var group2 = new StateGroup("Group 2");
+            var group1 = new StateGroup<State>("Group 1");
+            var group2 = new StateGroup<State>("Group 2");
 
             state1.AddToGroup(group1);
             state2.AddToGroup(group2);
@@ -54,13 +54,13 @@ namespace StateMechanicUnitTests
         [Test]
         public void IsCurrentIncludesChildStateMachines()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var subSm = state1.CreateChildStateMachine();
             var state11 = subSm.CreateInitialState("State 1.1");
             var state12 = subSm.CreateState("State 1.2");
 
-            var group = new StateGroup("Group");
+            var group = new StateGroup<State>("Group");
             state1.AddToGroup(group);
 
             var evt = sm.CreateEvent("Event");
@@ -76,12 +76,12 @@ namespace StateMechanicUnitTests
         [Test]
         public void FiresEntryHandlerWithCorrectArgumentsWhenEntered()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = sm.CreateEvent("Event");
             StateHandlerInfo<State> info = null;
-            var group = new StateGroup("Group")
+            var group = new StateGroup<State>("Group")
                 .WithEntry(i => info = i);
             state2.AddToGroup(group);
             state1.TransitionOn(evt).To(state2);
@@ -97,12 +97,12 @@ namespace StateMechanicUnitTests
         [Test]
         public void FiresExitHandlerWithCorrectArgumentsWhenExited()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = sm.CreateEvent("Event");
             StateHandlerInfo<State> info = null;
-            var group = new StateGroup("Group")
+            var group = new StateGroup<State>("Group")
                 .WithExit(i => info = i);
             state1.AddToGroup(group);
             state1.TransitionOn(evt).To(state2);
@@ -118,12 +118,12 @@ namespace StateMechanicUnitTests
         [Test]
         public void DoesNotFireHandlersWhenTransitioningBetweenTwoStatesInGroup()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = sm.CreateEvent("Event");
             bool fired = false;
-            var group = new StateGroup("Group")
+            var group = new StateGroup<State>("Group")
                 .WithEntry(i => fired = true)
                 .WithExit(i => fired = true);
             state1.AddToGroup(group);
@@ -138,10 +138,10 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateGroupListsStatesCorerctly()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var group = new StateGroup("Group");
+            var group = new StateGroup<State>("Group");
             state1.AddToGroup(group);
             state2.AddToGroup(group);
 
@@ -151,10 +151,10 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateListsStateGroupsCorrectly()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
-            var group1 = new StateGroup("Group 1");
-            var group2 = new StateGroup("Group 2");
+            var group1 = new StateGroup<State>("Group 1");
+            var group2 = new StateGroup<State>("Group 2");
             state1.AddToGroup(group1);
             state1.AddToGroup(group2);
 
@@ -164,14 +164,14 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventInEntryHandlerPropagatedCorrectly()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = sm.CreateEvent("Event");
             state1.TransitionOn(evt).To(state2);
 
             var ex = new Exception("Foo");
-            var group = new StateGroup("Group")
+            var group = new StateGroup<State>("Group")
                 .WithEntry(i => { throw ex; });
             state2.AddToGroup(group);
 
@@ -188,14 +188,14 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventInExitHandlerPropagatedCorrectly()
         {
-            var sm = new StateMachine("State Machine");
+            var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = sm.CreateEvent("Event");
             state1.TransitionOn(evt).To(state2);
 
             var ex = new Exception("Foo");
-            var group = new StateGroup("Group")
+            var group = new StateGroup<State>("Group")
                 .WithExit(i => { throw ex; });
             state1.AddToGroup(group);
 

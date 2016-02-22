@@ -3,7 +3,7 @@
 namespace StateMechanic
 {
     /// <summary>
-    /// A state machine, which may exist as a child state machine, with or without per-state data
+    /// A state machine, which may exist as a child state machine
     /// </summary>
     public interface IStateMachine
     {

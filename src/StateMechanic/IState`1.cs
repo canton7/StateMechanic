@@ -11,6 +11,5 @@ namespace StateMechanic
         void AddTransition(ITransition<TState> transition);
         void FireEntryHandler(StateHandlerInfo<TState> info);
         void FireExitHandler(StateHandlerInfo<TState> info);
-        void Reset();
     }
 }

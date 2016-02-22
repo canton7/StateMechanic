@@ -14,7 +14,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateMachineStartsInInitialState()
         {
-            var sm = new StateMachine("state machine");
+            var sm = new StateMachine<State>("state machine");
             var initialState = sm.CreateInitialState("initial state");
             var state1 = sm.CreateState("state1");
 
@@ -25,7 +25,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void CurrentStateReflectsCurrentState()
         {
-            var sm = new StateMachine("state machine");
+            var sm = new StateMachine<State>("state machine");
             var initialState = sm.CreateInitialState("initial state");
             var state1 = sm.CreateState("state1");
             var evt = sm.CreateEvent("evt");
@@ -41,7 +41,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void CurrentChildStateReflectsCurrentStateOfChild()
         {
-            var sm = new StateMachine("state machine");
+            var sm = new StateMachine<State>("state machine");
             var initialState = sm.CreateInitialState("initial state");
             var state1 = sm.CreateState("state1");
             var childSm = state1.CreateChildStateMachine();
@@ -73,7 +73,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ChildStateMachineStartsInInitialStateIfParentStateIsInitialState()
         {
-            var parent = new StateMachine("parent");
+            var parent = new StateMachine<State>("parent");
             var initial = parent.CreateInitialState("initial");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
@@ -85,7 +85,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ChildStateMachineStartsInNoStateIfParentStateIsNotInitialState()
         {
-            var parent = new StateMachine("parent");
+            var parent = new StateMachine<State>("parent");
             var initial = parent.CreateInitialState("initial");
             var state1 = parent.CreateState("state1");
             var child = state1.CreateChildStateMachine();

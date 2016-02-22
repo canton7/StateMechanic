@@ -14,7 +14,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionRaisedWhenTransitionOnParent()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = sm.CreateEvent("evt");
@@ -39,7 +39,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionRaisedWhenInnerSelfTransitionOnParent()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = sm.CreateEvent("evt");
             initial.InnerSelfTransitionOn(evt);
@@ -62,7 +62,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionRaisedWhenTransitionOnChild()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
@@ -89,7 +89,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionRaisedWhenInnerSelfTransitionOnChild()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
@@ -115,7 +115,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionNotFoundRaisedWhenTransitionNotFoundOnParent()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = sm.CreateEvent("evt");
 
@@ -135,7 +135,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionNotFoundRaisedWhenTransitionNotFoundOnChild()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
@@ -157,7 +157,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionRaisedWhenForcedTransition()
         {
-            var sm = new StateMachine("sm");
+            var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = sm.CreateEvent("evt");

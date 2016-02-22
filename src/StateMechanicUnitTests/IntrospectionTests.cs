@@ -21,33 +21,16 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateAddedToParentStateMachine()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state = stateMachine.CreateState("State");
-            Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
-        }
-
-        [Test]
-        public void StateTAddedToParentStateMachine()
-        {
-            var stateMachine = new StateMachine<StateData>("State Machine");
-            var state = stateMachine.CreateState("StateT", new StateData());
             Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
         }
 
         [Test]
         public void InitialStateAddedToParentStateMachine()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state = stateMachine.CreateInitialState("State");
-            Assert.AreEqual(state, stateMachine.InitialState);
-            Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
-        }
-
-        [Test]
-        public void InitialStateTAddedToParentStateMachine()
-        {
-            var stateMachine = new StateMachine<StateData>("State Machine");
-            var state = stateMachine.CreateInitialState("State", new StateData());
             Assert.AreEqual(state, stateMachine.InitialState);
             Assert.That(stateMachine.States, Is.EquivalentTo(new[] { state }));
         }
@@ -55,41 +38,17 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateReferencesParentStateMachine()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state = stateMachine.CreateState("State");
-            Assert.AreEqual(stateMachine, state.ParentStateMachine);
-        }
-
-        [Test]
-        public void StateTReferencesParentStateMachine()
-        {
-            var stateMachine = new StateMachine<StateData>("State Machine");
-            var state = stateMachine.CreateState("State", new StateData());
             Assert.AreEqual(stateMachine, state.ParentStateMachine);
         }
 
         [Test]
         public void TransitionAddedToState()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent("Event");
-            state1.TransitionOn(evt).To(state2);
-
-            Assert.AreEqual(1, state1.Transitions.Count);
-            Assert.AreEqual(state1, state1.Transitions[0].From);
-            Assert.AreEqual(state2, state1.Transitions[0].To);
-            Assert.AreEqual(evt, state1.Transitions[0].Event);
-            Assert.False(state1.Transitions[0].IsInnerTransition);
-        }
-
-        [Test]
-        public void TransitionAddedToStateT()
-        {
-            var stateMachine = new StateMachine<StateData>("State Machine");
-            var state1 = stateMachine.CreateState("State 1", new StateData());
-            var state2 = stateMachine.CreateState("State 2", new StateData());
             var evt = stateMachine.CreateEvent("Event");
             state1.TransitionOn(evt).To(state2);
 
@@ -103,7 +62,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionTAddedToState()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var state2 = stateMachine.CreateState("State 2");
             var evt = stateMachine.CreateEvent<EventData>("Event");
@@ -117,25 +76,9 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void TransitionTAddedToStateT()
-        {
-            var stateMachine = new StateMachine<StateData>("State Machine");
-            var state1 = stateMachine.CreateState("State 1", new StateData());
-            var state2 = stateMachine.CreateState("State 2", new StateData());
-            var evt = stateMachine.CreateEvent<EventData>("Event");
-            state1.TransitionOn(evt).To(state2);
-
-            Assert.AreEqual(1, state1.Transitions.Count);
-            Assert.AreEqual(state1, state1.Transitions[0].From);
-            Assert.AreEqual(state2, state1.Transitions[0].To);
-            Assert.AreEqual(evt, state1.Transitions[0].Event);
-            Assert.False(state1.Transitions[0].IsInnerTransition);
-        }
-
-        [Test]
         public void InnerTransitionAddedToState()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var evt = stateMachine.CreateEvent("Event");
             state1.InnerSelfTransitionOn(evt);
@@ -150,7 +93,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateMachineReportsCurrentStateCorrectly()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State 2");
             var evt = stateMachine.CreateEvent("Event");
@@ -167,7 +110,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateMachineReportsRecursiveCurrentStateCorrectly()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State 2");
             var evt = stateMachine.CreateEvent("Event");
@@ -192,7 +135,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateReportsIsCurrentCorrectly()
         {
-            var stateMachine = new StateMachine("State Machine");
+            var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State ");
             var evt = stateMachine.CreateEvent("Event");
