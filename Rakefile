@@ -49,7 +49,7 @@ task :test_environment do
   OPENCOVER_CONSOLE = Dir['src/packages/OpenCover.*/tools/OpenCover.Console.exe'].first
   REPORT_GENERATOR = Dir['src/packages/ReportGenerator.*/tools/ReportGenerator.exe'].first
 
-  UNIT_TESTS_DLL = "src/StateMechanicUnitTests/bin/#{CONFIG}/StateMechanicUnitTests.dll"
+  UNIT_TESTS_DLL = "bin/#{CONFIG}/StateMechanicUnitTests.dll"
 
   raise "NUnit.Runners not found. Restore NuGet packages" unless NUNIT_CONSOLE && NUNIT_EXE
   raise "OpenCover not found. Restore NuGet packages" unless OPENCOVER_CONSOLE
