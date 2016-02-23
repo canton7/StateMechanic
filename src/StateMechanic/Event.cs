@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StateMechanic
 {
@@ -8,7 +9,6 @@ namespace StateMechanic
     public class Event : IEvent
     {
         private readonly EventInner<Event, IInvokableTransition> innerEvent;
-        private readonly IEventDelegate parentStateMachine;
 
         /// <summary>
         /// Gets the name assigned to this event
@@ -16,19 +16,18 @@ namespace StateMechanic
         public string Name { get; }
 
         /// <summary>
-        /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
+        /// Initialises a new instance of the <see cref="Event"/> class
         /// </summary>
-        public IStateMachine ParentStateMachine => this.parentStateMachine;
-
-        internal Event(string name, IEventDelegate parentStateMachine)
+        /// <param name="name">Name assigned to the evnet</param>
+        public Event(string name)
         {
             this.Name = name;
-            this.parentStateMachine = parentStateMachine;
             this.innerEvent = new EventInner<Event, IInvokableTransition>();
         }
 
-        internal void AddTransition(IState state, IInvokableTransition transition)
+        internal void AddTransition(IState state, IInvokableTransition transition, IEventDelegate parentStateMachine)
         {
+            this.innerEvent.SetParentStateMachine(parentStateMachine, state, this);
             this.innerEvent.AddTransition(state, transition);
         }
 
@@ -49,7 +48,10 @@ namespace StateMechanic
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
-            return this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
+            if (this.innerEvent.ParentStateMachine == null)
+                return false;
+
+            return this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -64,7 +66,10 @@ namespace StateMechanic
         /// </remarks>
         public void Fire()
         {
-            this.parentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.Fire);
+            if (this.innerEvent.ParentStateMachine == null)
+                throw new TransitionNotFoundException(this);
+
+            this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.Fire);
         }
 
         /// <summary>

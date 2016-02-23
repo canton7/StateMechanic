@@ -18,9 +18,6 @@ namespace StateMechanic
             if (from.ParentStateMachine != to.ParentStateMachine)
                 throw new InvalidStateTransitionException(from, to);
 
-            if (from.ParentStateMachine != @event.ParentStateMachine && !from.ParentStateMachine.IsChildOf(@event.ParentStateMachine))
-                throw new InvalidEventTransitionException(from, @event);
-
             this.From = from;
             this.To = to;
             this.Event = @event;

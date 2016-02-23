@@ -17,7 +17,7 @@ namespace StateMechanicUnitTests
             var exception = new Exception("foo");
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial").WithEntry(i => { throw exception; });
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
 
             Assert.Throws<TransitionFailedException>(() => evt.TryFire());
@@ -33,7 +33,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
 
             evt.Fire();
@@ -53,7 +53,7 @@ namespace StateMechanicUnitTests
             var substate1 = child.CreateInitialState("substate1");
             var substate2 = child.CreateState("substate2");
 
-            var evt = parent.CreateEvent("evt");
+            var evt = new Event("evt");
             initialState.TransitionOn(evt).To(state1);
             substate1.TransitionOn(evt).To(substate2);
 

@@ -20,7 +20,7 @@ namespace StateMechanic
             if (state == null)
                 throw new ArgumentNullException(nameof(state));
             var transition = Transition.Create<TState>(this.fromState, state, this.evt, this.transitionDelegate);
-            this.evt.AddTransition(this.fromState, transition);
+            this.evt.AddTransition(this.fromState, transition, this.fromState.ParentStateMachine);
             this.fromState.AddTransition(transition);
             return transition;
         }

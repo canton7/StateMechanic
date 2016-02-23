@@ -17,7 +17,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
@@ -33,7 +33,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
@@ -50,7 +50,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
@@ -74,7 +74,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("state 1");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             Func<bool> fireFunc = null;
@@ -92,7 +95,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state2 = sm.CreateState("State 2");
+            var evt = new Event("evt");
+
+            state2.TransitionOn(evt).To(state2);
 
             var exception = new Exception("foo");
 
@@ -111,7 +117,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
@@ -130,7 +136,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("state 1");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             Func<bool> fireFunc = null;
@@ -148,7 +157,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("state 1");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             synchronizer.Setup(x => x.FireEvent(It.IsAny<Func<bool>>(), EventFireMethod.TryFire))
@@ -163,7 +175,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             synchronizer.Setup(x => x.FireEvent(It.IsAny<Func<bool>>(), EventFireMethod.TryFire))
@@ -178,7 +190,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("State 1");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             synchronizer.Setup(x => x.FireEvent(It.IsAny<Func<bool>>(), EventFireMethod.TryFire))
@@ -195,7 +210,7 @@ namespace StateMechanicUnitTests
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1).WithHandler(i => evt.Fire());
             state1.TransitionOn(evt).To(state2);
 
@@ -235,7 +250,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             sm.Synchronizer = synchronizer.Object;
@@ -251,7 +266,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             sm.Synchronizer = synchronizer.Object;
@@ -289,7 +304,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
             evt.Fire();
 

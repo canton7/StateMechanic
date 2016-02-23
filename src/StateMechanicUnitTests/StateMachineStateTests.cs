@@ -28,7 +28,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("state machine");
             var initialState = sm.CreateInitialState("initial state");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initialState.TransitionOn(evt).To(state1);
 
             Assert.AreEqual(initialState, sm.CurrentState);
@@ -48,8 +48,8 @@ namespace StateMechanicUnitTests
             var childInitialState = childSm.CreateInitialState("childInitialState");
             var childState1 = childSm.CreateState("childState1");
 
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
             initialState.TransitionOn(evt).To(state1);
             childInitialState.TransitionOn(evt).To(childState1);

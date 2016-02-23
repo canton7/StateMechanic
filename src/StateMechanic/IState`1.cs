@@ -2,7 +2,7 @@
 
 namespace StateMechanic
 {
-    internal interface IState<TState> : IState where TState : class, IState<TState>
+    internal interface IState<TState> : IState where TState : IState<TState>
     {
         new IStateMachine<TState> ParentStateMachine { get; }
         new IStateMachine<TState> ChildStateMachine { get; }

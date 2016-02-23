@@ -49,7 +49,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent("Event");
+            var evt = new Event("Event");
             state1.TransitionOn(evt).To(state2);
 
             Assert.AreEqual(1, state1.Transitions.Count);
@@ -65,7 +65,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
             var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent<EventData>("Event");
+            var evt = new Event<EventData>("Event");
             state1.TransitionOn(evt).To(state2);
 
             Assert.AreEqual(1, state1.Transitions.Count);
@@ -80,7 +80,7 @@ namespace StateMechanicUnitTests
         {
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateState("State 1");
-            var evt = stateMachine.CreateEvent("Event");
+            var evt = new Event("Event");
             state1.InnerSelfTransitionOn(evt);
 
             Assert.AreEqual(1, state1.Transitions.Count);
@@ -96,7 +96,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent("Event");
+            var evt = new Event("Event");
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
 
@@ -113,7 +113,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State 2");
-            var evt = stateMachine.CreateEvent("Event");
+            var evt = new Event("Event");
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
             var state22 = subSm.CreateState("State 2.2");
@@ -138,7 +138,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine<State>("State Machine");
             var state1 = stateMachine.CreateInitialState("State 1");
             var state2 = stateMachine.CreateState("State ");
-            var evt = stateMachine.CreateEvent("Event");
+            var evt = new Event("Event");
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
             var state22 = subSm.CreateState("State 2.2");

@@ -4,7 +4,7 @@
     /// A transition from one state to another, triggered by an event
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
-    public interface ITransition<out TState> where TState : class, IState
+    public interface ITransition<out TState> where TState : IState
     {
         /// <summary>
         /// Gets the state this transition is from

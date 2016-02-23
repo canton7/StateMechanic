@@ -12,11 +12,25 @@ namespace StateMechanicUnitTests
     public class EventFireTests
     {
         [Test]
+        public void FireThrowsIfNotYetAssociatedWithAStateMachine()
+        {
+            var evt = new Event("evt");
+
+            var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
+            Assert.IsNull(e.StateMachine);
+            Assert.IsNull(e.From);
+            Assert.AreEqual(evt, e.Event);
+        }
+
+        [Test]
         public void FireThrowsIfTransitionNotFound()
         {
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("state1");
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).To(initialState);
 
             var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
             Assert.AreEqual(initialState, e.From);
@@ -29,7 +43,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             Assert.False(evt.TryFire());
         }
@@ -40,9 +54,10 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
+            initialState.TransitionOn(evt2).To(initialState);
             initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
 
             var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
@@ -57,8 +72,8 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
             initialState.TransitionOn(evt).To(state1).WithHandler(i => Assert.DoesNotThrow(() => evt2.Fire()));
             try { evt.TryFire(); } catch { }
@@ -70,8 +85,8 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
             initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.TryFire());
 
@@ -84,9 +99,10 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
+            initialState.TransitionOn(evt2).To(initialState);
             initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
 
             var e = Assert.Throws<TransitionNotFoundException>(() => evt.TryFire());
@@ -101,9 +117,10 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
+            initialState.TransitionOn(evt2).To(initialState);
             initialState.TransitionOn(evt).To(state1).WithHandler(i => Assert.True(evt2.TryFire()));
 
             evt.TryFire();

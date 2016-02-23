@@ -33,6 +33,16 @@ namespace StateMechanic
         IReadOnlyList<IState> States { get; }
 
         /// <summary>
+        /// Gets the parent of this state machine, or null if there is none
+        /// </summary>
+        IStateMachine ParentStateMachine { get; }
+
+        /// <summary>
+        /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
+        /// </summary>
+        IStateMachine TopmostStateMachine { get; }
+
+        /// <summary>
         /// Determines whether this state machine is a child of another state machine
         /// </summary>
         /// <param name="parentStateMachine">State machine which may be a parent of this state machine</param>

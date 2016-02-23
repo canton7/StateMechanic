@@ -17,7 +17,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
 
             TransitionEventArgs<State> ea = null;
@@ -41,7 +41,7 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.InnerSelfTransitionOn(evt);
 
             TransitionEventArgs<State> ea = null;
@@ -67,7 +67,7 @@ namespace StateMechanicUnitTests
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
             var childState1 = child.CreateState("childState1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             childInitial.TransitionOn(evt).To(childState1);
 
             TransitionEventArgs<State> ea = null;
@@ -93,7 +93,7 @@ namespace StateMechanicUnitTests
             var initial = sm.CreateInitialState("initial");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             childInitial.InnerSelfTransitionOn(evt);
 
             TransitionEventArgs<State> ea = null;
@@ -117,7 +117,10 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
-            var evt = sm.CreateEvent("evt");
+            var state1 = sm.CreateState("state 1");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             TransitionNotFoundEventArgs<State> ea = null;
             sm.TransitionNotFound += (o, e) =>
@@ -137,9 +140,12 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
+            var state1 = sm.CreateState("state 1");
             var child = initial.CreateChildStateMachine();
             var childInitial = child.CreateInitialState("childInitial");
-            var evt = child.CreateEvent("evt");
+            var evt = new Event("evt");
+
+            state1.InnerSelfTransitionOn(evt);
 
             TransitionNotFoundEventArgs<State> ea = null;
             sm.TransitionNotFound += (o, e) =>
@@ -151,7 +157,7 @@ namespace StateMechanicUnitTests
 
             Assert.NotNull(ea);
             Assert.AreEqual(evt, ea.Event);
-            Assert.AreEqual(childInitial, ea.From);
+            Assert.AreEqual(initial, ea.From);
         }
 
         [Test]
@@ -160,7 +166,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             TransitionEventArgs<State> ea = null;
             sm.Transition += (o, e) => ea = e;

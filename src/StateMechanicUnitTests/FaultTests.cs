@@ -26,7 +26,7 @@ namespace StateMechanicUnitTests
             this.state1 = this.stateMachine.CreateInitialState("State 1");
             this.state2 = this.stateMachine.CreateState("State 2");
 
-            this.event1 = this.stateMachine.CreateEvent("Event 1");
+            this.event1 = new Event("Event 1");
 
             this.transition12 = this.state1.TransitionOn(this.event1).To(this.state2);
         }

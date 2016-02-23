@@ -60,14 +60,32 @@ namespace StateMechanic
         /// </summary>
         public string Name { get; }
 
-        private IStateMachine<TState> parentStateMachine
+        /// <summary>
+        /// Gets the parent of this state machine, or null if there is none
+        /// </summary>
+        public ChildStateMachine<TState> ParentStateMachine
         {
             get { return this.parentState == null ? null : this.parentState.ParentStateMachine; }
+        }
+
+        /// <summary>
+        /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
+        /// </summary>
+        public ChildStateMachine<TState> TopmostStateMachine
+        {
+            get
+            {
+                var parent = this.ParentStateMachine;
+                return parent == null ? this : parent.TopmostStateMachine;
+            }
         }
 
         IState IStateMachine.CurrentState => this.CurrentState;
         IState IStateMachine.CurrentChildState => this.CurrentChildState;
         IState IStateMachine.InitialState => this.InitialState;
+        IStateMachine IStateMachine.ParentStateMachine => this.ParentStateMachine;
+        IStateMachine IStateMachine.TopmostStateMachine => this.TopmostStateMachine;
+        IEventDelegate IEventDelegate.TopmostStateMachine => this.TopmostStateMachine;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
@@ -153,26 +171,6 @@ namespace StateMechanic
         }
 
         /// <summary>
-        /// Create an event which can be used on this state machine, or its children
-        /// </summary>
-        /// <param name="name">Name given to the event</param>
-        /// <returns>The new event</returns>
-        public Event CreateEvent(string name)
-        {
-            return new Event(name, this);
-        }
-
-        /// <summary>
-        /// Create an event which has associated data which can be used on this state machine, or its children
-        /// </summary>
-        /// <param name="name">Name given to the event</param>
-        /// <returns>The new event</returns>
-        public Event<TEventData> CreateEvent<TEventData>(string name)
-        {
-            return new Event<TEventData>(name, this);
-        }
-
-        /// <summary>
         /// Force a transition to the given state, even though there may not be a valid configured transition to that state from the current state
         /// </summary>
         /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
@@ -187,8 +185,6 @@ namespace StateMechanic
 
             if (toState.ParentStateMachine != this)
                 throw new InvalidStateTransitionException(this.CurrentState, toState);
-            if (@event.ParentStateMachine != this && !this.IsChildOf(@event.ParentStateMachine))
-                throw new InvalidEventTransitionException(this.CurrentState, @event);
 
             var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, this.Kernel);
             this.ForceTransitionFromUser(transitionInvoker);
@@ -252,8 +248,8 @@ namespace StateMechanic
             if (parentStateMachine == null)
                 throw new ArgumentNullException(nameof(parentStateMachine));
 
-            if (this.parentStateMachine != null)
-                return this.parentStateMachine == parentStateMachine || this.parentStateMachine.IsChildOf(parentStateMachine);
+            if (this.ParentStateMachine != null)
+                return this.ParentStateMachine == parentStateMachine || this.ParentStateMachine.IsChildOf(parentStateMachine);
 
             return false;
         }

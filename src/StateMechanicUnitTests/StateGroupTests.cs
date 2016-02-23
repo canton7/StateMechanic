@@ -26,7 +26,7 @@ namespace StateMechanicUnitTests
             var state2 = sm.CreateState("State 2");
             var state3 = sm.CreateState("State 3");
 
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             var group1 = new StateGroup<State>("Group 1");
             var group2 = new StateGroup<State>("Group 2");
 
@@ -63,7 +63,7 @@ namespace StateMechanicUnitTests
             var group = new StateGroup<State>("Group");
             state1.AddToGroup(group);
 
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             state11.TransitionOn(evt).To(state12);
 
             Assert.True(group.IsCurrent);
@@ -79,7 +79,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             StateHandlerInfo<State> info = null;
             var group = new StateGroup<State>("Group")
                 .WithEntry(i => info = i);
@@ -100,7 +100,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             StateHandlerInfo<State> info = null;
             var group = new StateGroup<State>("Group")
                 .WithExit(i => info = i);
@@ -121,7 +121,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             bool fired = false;
             var group = new StateGroup<State>("Group")
                 .WithEntry(i => fired = true)
@@ -167,7 +167,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             state1.TransitionOn(evt).To(state2);
 
             var ex = new Exception("Foo");
@@ -191,7 +191,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
-            var evt = sm.CreateEvent("Event");
+            var evt = new Event("Event");
             state1.TransitionOn(evt).To(state2);
 
             var ex = new Exception("Foo");

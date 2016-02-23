@@ -11,11 +11,6 @@
         string Name { get; }
 
         /// <summary>
-        /// Gets the state machine associated with this event. This event can be used to trigger transitions on its parent state machine, or any of its child state machines
-        /// </summary>
-        IStateMachine ParentStateMachine { get; }
-
-        /// <summary>
         /// Attempt to fire this event, returning false if a transition on this event could not be found on the parent state machine's current state
         /// </summary>
         /// <remarks>

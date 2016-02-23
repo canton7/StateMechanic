@@ -19,7 +19,7 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
 
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             initial.TransitionOn(evt).To(state2);
             initial.TransitionOn(evt).To(state1);
@@ -39,7 +39,7 @@ namespace StateMechanicUnitTests
             var state3 = sm.CreateState("state3");
             var state4 = sm.CreateState("state4");
 
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             initial.TransitionOn(evt).To(state1).WithGuard(i => false);
             initial.TransitionOn(evt).To(state2).WithGuard(i => false);
@@ -57,7 +57,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine<State>("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             var exception = new Exception("foo");
             initial.TransitionOn(evt).To(initial).WithGuard(i => { throw exception; });
@@ -77,8 +77,8 @@ namespace StateMechanicUnitTests
             var state2 = sm.CreateState("state2");
             var state3 = sm.CreateState("state3");
 
-            var evt = sm.CreateEvent("evt");
-            var evt2 = sm.CreateEvent("evt2");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
 
             initial.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
             initial.TransitionOn(evt2).To(state2);
@@ -96,7 +96,7 @@ namespace StateMechanicUnitTests
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
 
             State entryFrom = null;
             state2.EntryHandler = i => entryFrom = i.From;
@@ -119,7 +119,7 @@ namespace StateMechanicUnitTests
             var childInitial = child.CreateInitialState("childInitial");
             var childState1 = child.CreateState("childState1");
 
-            var evt = sm.CreateEvent("evt");
+            var evt = new Event("evt");
             initial.TransitionOn(evt).To(state1);
             childInitial.TransitionOn(evt).To(childState1);
 
@@ -139,8 +139,8 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
             var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
 
-            var event1 = sm.CreateEvent("event1");
-            var event2 = sm.CreateEvent("event2");
+            var event1 = new Event("event1");
+            var event2 = new Event("event2");
 
             initial.TransitionOn(event1).To(state1).WithGuard(_ =>
             {
@@ -167,8 +167,8 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
             var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
 
-            var event1 = sm.CreateEvent("event1");
-            var event2 = sm.CreateEvent("event2");
+            var event1 = new Event("event1");
+            var event2 = new Event("event2");
 
             initial.TransitionOn(event1).To(state1).WithGuard(_ =>
             {
