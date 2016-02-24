@@ -25,7 +25,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FireThrowsIfTransitionNotFound()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -41,7 +41,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TryFireReturnsFalseIfTransitionNotFound()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var evt = new Event("evt");
 
@@ -51,7 +51,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void OuterEventFireThrowsIfRecursiveTransitionNotFound()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -69,7 +69,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void RecursiveFireDoesNotThrowIfTransitionNotFound()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -82,7 +82,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void OuterEventTryFireReturnsTrueIfRecursiveTransitionNotFoundAndFiredWithTryFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -96,7 +96,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void OuterEventTryFireThrowsIfRecursiveTransitionNotFoundAndFiredWithFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -114,7 +114,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void RecursiveTryFireReturnsTrueIfTransitionNotFound()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");

@@ -15,7 +15,7 @@ namespace StateMechanicUnitTests
         public void ResettingStateMachineRemovesFault()
         {
             var exception = new Exception("foo");
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial").WithEntry(i => { throw exception; });
             var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
@@ -30,7 +30,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ResetResetsCurrentStateOfStateMachine()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -46,7 +46,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ResetResetsStateOfChildStateMachines()
         {
-            var parent = new StateMachine<State>("parent");
+            var parent = new StateMachine("parent");
             var initialState = parent.CreateInitialState("initialState");
             var state1 = parent.CreateState("state1");
             var child = state1.CreateChildStateMachine();

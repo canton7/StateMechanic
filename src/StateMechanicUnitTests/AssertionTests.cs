@@ -14,7 +14,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfParentStateUsedInChildStateMachine()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state = sm.CreateInitialState("Initial State");
             var subSm = state.CreateChildStateMachine();
             var subState = subSm.CreateInitialState("Child Initial State");
@@ -28,7 +28,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfChildStateUsedInParentStateMachine()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state = sm.CreateInitialState("Initial State");
             var subSm = state.CreateChildStateMachine();
             var subState = subSm.CreateInitialState("Child Initial State");
@@ -42,10 +42,10 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfEventUsedOnTwoDifferentStateMachines()
         {
-            var sm1 = new StateMachine<State>("State Machine 1");
+            var sm1 = new StateMachine("State Machine 1");
             var state1 = sm1.CreateInitialState("Initial State");
 
-            var sm2 = new StateMachine<State>("State Machine 2");
+            var sm2 = new StateMachine("State Machine 2");
             var state2 = sm2.CreateInitialState("Initial State");
 
             var evt = new Event("Event");
@@ -60,7 +60,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void DoesNotThrowIfParentEventUsedInChildStateMachine()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state = sm.CreateInitialState("Initial State");
             var subSm = state.CreateChildStateMachine();
             var subState = subSm.CreateInitialState("Child Initial State");
@@ -72,7 +72,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfForcedTransitionToAStateBelongingToAChildStateMachine()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
             var state = sm.CreateInitialState("Initial State");
             var subSm = state.CreateChildStateMachine();
@@ -84,7 +84,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void DoesNotThrowIfForcedTransitionOnAParentEvent()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
             var state = sm.CreateInitialState("Initial State");
             var subSm = state.CreateChildStateMachine();
@@ -97,7 +97,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfEventFiredAndInitialStateNotSet()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateState("Initial State");
             var evt = new Event("Event");
 
@@ -109,7 +109,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ThrowsIfInitialStateSetTwice()
         {
-            var sm = new StateMachine<State>("State machine");
+            var sm = new StateMachine("State machine");
             var state1 = sm.CreateInitialState("State 1");
             Assert.Throws<InvalidOperationException>(() => sm.CreateInitialState("State 2"));
         }

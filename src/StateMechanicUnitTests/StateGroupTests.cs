@@ -21,7 +21,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void IndicatesWhetherInState()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var state3 = sm.CreateState("State 3");
@@ -54,7 +54,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void IsCurrentIncludesChildStateMachines()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var subSm = state1.CreateChildStateMachine();
             var state11 = subSm.CreateInitialState("State 1.1");
@@ -76,7 +76,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FiresEntryHandlerWithCorrectArgumentsWhenEntered()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
@@ -97,7 +97,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FiresExitHandlerWithCorrectArgumentsWhenExited()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
@@ -118,7 +118,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void DoesNotFireHandlersWhenTransitioningBetweenTwoStatesInGroup()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
@@ -138,7 +138,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateGroupListsStatesCorerctly()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var group = new StateGroup<State>("Group");
@@ -151,7 +151,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateListsStateGroupsCorrectly()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var group1 = new StateGroup<State>("Group 1");
             var group2 = new StateGroup<State>("Group 2");
@@ -164,7 +164,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventInEntryHandlerPropagatedCorrectly()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
@@ -188,7 +188,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventInExitHandlerPropagatedCorrectly()
         {
-            var sm = new StateMachine<State>("State Machine");
+            var sm = new StateMachine("State Machine");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");

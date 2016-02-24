@@ -21,7 +21,7 @@ namespace StateMechanicUnitTests
         [SetUp]
         public void SetUp()
         {
-            this.stateMachine = new StateMachine<State>("State Machine");
+            this.stateMachine = new StateMachine("State Machine");
 
             this.state1 = this.stateMachine.CreateInitialState("State 1");
             this.state2 = this.stateMachine.CreateState("State 2");

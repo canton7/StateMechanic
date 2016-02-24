@@ -14,7 +14,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FirstRegisteredTransitionWins()
         {
-            var sm = new StateMachine<State>("state machine");
+            var sm = new StateMachine("state machine");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
@@ -32,7 +32,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FirstRegisteredTransitionWithTrueGuardWins()
         {
-            var sm = new StateMachine<State>("state machine");
+            var sm = new StateMachine("state machine");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
@@ -54,7 +54,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitionIsAbortedIfAnyGuardThrowsAnException()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -71,7 +71,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventFireInTransitionHandlerIsQueued()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
@@ -92,7 +92,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ForceTransitionIsQueued()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
@@ -111,7 +111,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ParentDoesNotTransitionIfChildTransitions()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
 
@@ -134,7 +134,7 @@ namespace StateMechanicUnitTests
         {
             var log = new List<string>();
 
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
             var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
@@ -162,7 +162,7 @@ namespace StateMechanicUnitTests
         {
             var log = new List<string>();
 
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
             var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));

@@ -15,7 +15,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventFireCallsSynchronizerEventFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
@@ -31,7 +31,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventTryFireCallsSynchronizerEventFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
             initial.TransitionOn(evt).To(initial);
@@ -47,7 +47,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateMachineDoesNotFireEventUntilFuncIsInvoked()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -72,7 +72,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FuncThrowsExceptionIfEventFireFailed()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state 1");
             var evt = new Event("evt");
@@ -93,7 +93,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ExceptionFromFireEventIsPropagatedBackToEventFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("evt");
@@ -114,7 +114,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FuncReturnsTrueIfEventTryFireSucceeded()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -134,7 +134,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FuncReturnsTrueIfEventTryFireFailed()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state 1");
             var evt = new Event("evt");
@@ -155,7 +155,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TrueReturnValueFromFireEventPropagatedToTryFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state 1");
             var evt = new Event("evt");
@@ -173,7 +173,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FalseReturnValueFromFireEventPropagatedToTryFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
 
@@ -188,7 +188,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void FalseReturnValueDoesNotCauseExceptionToBeThrownByFire()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("State 1");
             var evt = new Event("evt");
@@ -206,7 +206,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void EventsFiredFromHandlersCallsSynchronizer()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var state2 = sm.CreateState("state2");
@@ -248,7 +248,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ForceTransitionCallsSynchronizerForceTransition()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
 
@@ -263,7 +263,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ForcedTransitionDoesNotOccurUntilActionInvoked()
         {
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
@@ -289,7 +289,7 @@ namespace StateMechanicUnitTests
         public void ResetCallsSynchronizerReset()
         {
             var synchronizer = new Mock<IStateMachineSynchronizer>();
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             sm.Synchronizer = synchronizer.Object;
 
             sm.Reset();
@@ -301,7 +301,7 @@ namespace StateMechanicUnitTests
         public void StateMachineDoesNotResetUntilActionIsInvoked()
         {
             // Need to transition, so we can tell when it's reset
-            var sm = new StateMachine<State>("sm");
+            var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
