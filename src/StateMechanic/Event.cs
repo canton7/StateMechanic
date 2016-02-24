@@ -48,10 +48,7 @@ namespace StateMechanic
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire()
         {
-            if (this.innerEvent.ParentStateMachine == null)
-                return false;
-
-            return this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
+            return this.innerEvent.RequestEventFireFromEvent(this, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -66,10 +63,7 @@ namespace StateMechanic
         /// </remarks>
         public void Fire()
         {
-            if (this.innerEvent.ParentStateMachine == null)
-                throw new TransitionNotFoundException(this);
-
-            this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, EventFireMethod.Fire);
+            this.innerEvent.RequestEventFireFromEvent(this, EventFireMethod.Fire);
         }
 
         /// <summary>

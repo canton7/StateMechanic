@@ -7,7 +7,7 @@ namespace StateMechanic
     {
         private readonly Dictionary<IState, List<TTransition>> transitions = new Dictionary<IState, List<TTransition>>();
 
-        public IEventDelegate ParentStateMachine { get; set; }
+        private IEventDelegate parentStateMachine;
 
         public void AddTransition(IState state, TTransition transitionInvocation)
         {
@@ -33,10 +33,36 @@ namespace StateMechanic
         public void SetParentStateMachine(IEventDelegate parentStateMachine, IState state, IEvent @event)
         {
             var topStateMachine = parentStateMachine.TopmostStateMachine;
-            if (this.ParentStateMachine != null && this.ParentStateMachine != topStateMachine)
+            if (this.parentStateMachine != null && this.parentStateMachine != topStateMachine)
                 throw new InvalidEventTransitionException(state, @event);
 
-            this.ParentStateMachine = topStateMachine;
+            this.parentStateMachine = topStateMachine;
+        }
+
+        public bool RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
+        {
+            if (this.parentStateMachine == null)
+            {
+                if (eventFireMethod == EventFireMethod.Fire)
+                    throw new TransitionNotFoundException(@event);
+                else
+                    return false;
+            }
+
+            return this.parentStateMachine.RequestEventFireFromEvent(@event, eventFireMethod);
+        }
+
+        public bool RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
+        {
+            if (this.parentStateMachine == null)
+            {
+                if (eventFireMethod == EventFireMethod.Fire)
+                    throw new TransitionNotFoundException(@event);
+                else
+                    return false;
+            }
+
+            return this.parentStateMachine.RequestEventFireFromEvent(@event, eventData, eventFireMethod);
         }
     }
 }

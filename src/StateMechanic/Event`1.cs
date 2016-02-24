@@ -50,10 +50,7 @@ namespace StateMechanic
         /// <returns>True if the event could be fired.</returns>
         public bool TryFire(TEventData eventData)
         {
-            if (this.innerEvent.ParentStateMachine == null)
-                return false;
-
-            return this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.TryFire);
+            return this.innerEvent.RequestEventFireFromEvent(this, eventData, EventFireMethod.TryFire);
         }
 
         /// <summary>
@@ -69,10 +66,7 @@ namespace StateMechanic
         /// <param name="eventData">Event data to associate with this event</param>
         public void Fire(TEventData eventData)
         {
-            if (this.innerEvent.ParentStateMachine == null)
-                throw new TransitionNotFoundException(this);
-
-            this.innerEvent.ParentStateMachine.RequestEventFireFromEvent(this, eventData, EventFireMethod.Fire);
+            this.innerEvent.RequestEventFireFromEvent(this, eventData, EventFireMethod.Fire);
         }
 
         void IEvent.Fire()
