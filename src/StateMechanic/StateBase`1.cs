@@ -181,6 +181,9 @@ namespace StateMechanic
         public ChildStateMachine<TState> CreateChildStateMachine()
         {
             this.CheckInitialized();
+            if (this.ChildStateMachine != null)
+                throw new InvalidOperationException("This state already has a child state machine");
+
             this.ChildStateMachine = new ChildStateMachine<TState>(this.Name, this.ParentStateMachine.Kernel, this.self);
             return this.ChildStateMachine;
         }
