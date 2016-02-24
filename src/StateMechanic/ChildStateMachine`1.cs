@@ -63,29 +63,21 @@ namespace StateMechanic
         /// <summary>
         /// Gets the parent of this state machine, or null if there is none
         /// </summary>
-        public ChildStateMachine<TState> ParentStateMachine
-        {
-            get { return this.parentState == null ? null : this.parentState.ParentStateMachine; }
-        }
+        public IStateMachine ParentStateMachine => this.parentState?.ParentStateMachine;
+
+        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.parentState?.ParentStateMachineInternal.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
         /// </summary>
-        public ChildStateMachine<TState> TopmostStateMachine
-        {
-            get
-            {
-                var parent = this.ParentStateMachine;
-                return parent == null ? this : parent.TopmostStateMachine;
-            }
-        }
+        public IStateMachine TopmostStateMachine => this.TopmostStateMachineInternal;
 
         IState IStateMachine.CurrentState => this.CurrentState;
         IState IStateMachine.CurrentChildState => this.CurrentChildState;
         IState IStateMachine.InitialState => this.InitialState;
         IStateMachine IStateMachine.ParentStateMachine => this.ParentStateMachine;
-        IStateMachine IStateMachine.TopmostStateMachine => this.TopmostStateMachine;
-        IEventDelegate IEventDelegate.TopmostStateMachine => this.TopmostStateMachine;
+        IStateMachine IStateMachine.TopmostStateMachine => this.TopmostStateMachineInternal;
+        IEventDelegate IEventDelegate.TopmostStateMachine => this.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
