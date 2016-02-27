@@ -179,14 +179,15 @@ namespace StateMechanic
         /// <summary>
         /// Create a StateMachine belonging to this state, which will be started when this State is entered
         /// </summary>
+        /// <param name="name">Optional name (inherits name of child state if not set)</param>
         /// <returns>The created state machine</returns>
-        public ChildStateMachine<TState> CreateChildStateMachine()
+        public ChildStateMachine<TState> CreateChildStateMachine(string name = null)
         {
             this.CheckInitialized();
             if (this.ChildStateMachine != null)
                 throw new InvalidOperationException("This state already has a child state machine");
 
-            this.ChildStateMachine = new ChildStateMachine<TState>(this.Name, this.ParentStateMachineInternal.Kernel, this.self);
+            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.ParentStateMachineInternal.Kernel, this.self);
             return this.ChildStateMachine;
         }
 

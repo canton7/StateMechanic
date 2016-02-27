@@ -24,13 +24,36 @@ namespace StateMechanicUnitTests
             var events = new List<string>();
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
-            var state1 = sm.CreateInitialState("State 1").WithExit(i => events.Add("State 1 Exit"));
-            var state2 = sm.CreateState("State 2").WithEntry(i => events.Add("State 2 Entry"));
+            var state1 = sm.CreateInitialState("State 1")
+                .WithEntry(i => events.Add("State 1 Entry"))
+                .WithExit(i => events.Add("State 1 Exit"));
+            var state2 = sm.CreateState("State 2")
+                .WithEntry(i => events.Add("State 2 Entry"))
+                .WithExit(i => events.Add("State 2 Exit"));
             var transition = state1.TransitionOn(evt).To(state2).WithHandler(i => events.Add("Transition 1 2"));
 
             evt.Fire();
 
             Assert.That(events, Is.EquivalentTo(new[] { "State 1 Exit", "Transition 1 2", "State 2 Entry" }));
+        }
+
+        [Test]
+        public void CorrectHandlersAreInvokedInDynamicTransition()
+        {
+            var events = new List<string>();
+            var sm = new StateMachine("State Machine");
+            var evt = new Event("Event");
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => events.Add("State 1 Exit"));
+            var state2 = sm.CreateState("State 2").WithEntry(i => events.Add("State 2 Entry"));
+            var transition = state1.TransitionOn(evt).ToDynamic(i =>
+            {
+                events.Add("Dynamic Handler");
+                return state2;
+            }).WithHandler(i => events.Add("Transition 1 2"));
+
+            evt.Fire();
+
+            Assert.That(events, Is.EquivalentTo(new[] { "Dynamic Handler", "State 1 Exit", "Transition 1 2", "State 2 Entry" }));
         }
 
         [Test]

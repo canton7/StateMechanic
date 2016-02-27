@@ -2,9 +2,9 @@
 {
     public class DynamicSelectorInfo<TState, TEventData>
     {
-        TState From { get; }
-        Event<TEventData> Event { get; }
-        TEventData EventData { get; }
+        public TState From { get; }
+        public Event<TEventData> Event { get; }
+        public TEventData EventData { get; }
 
         public DynamicSelectorInfo(TState from, Event<TEventData> @event, TEventData eventData)
         {

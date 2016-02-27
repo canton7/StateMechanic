@@ -2,8 +2,8 @@
 {
     public class DynamicSelectorInfo<TState>
     {
-        TState From { get; }
-        Event Event { get; }
+        public TState From { get; }
+        public Event Event { get; }
 
         internal DynamicSelectorInfo(TState from, Event @event)
         {
