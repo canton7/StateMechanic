@@ -6,7 +6,8 @@ namespace StateMechanic
     /// A transition from one state to another, triggered by an event
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
-    public sealed class Transition<TState> : ITransition<TState>, IInvokableTransition where TState : IState
+    public class Transition<TState> : ITransition<TState>, IInvokableTransition
+        where TState : IState
     {
         private readonly TransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
         private readonly TransitionInfo<TState> transitionInfo;

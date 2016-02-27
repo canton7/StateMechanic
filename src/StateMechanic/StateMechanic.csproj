@@ -43,6 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChildStateMachine`1.cs" />
+    <Compile Include="DynamicSelectorInfo`1.cs" />
+    <Compile Include="DynamicSelectorInfo`2.cs" />
+    <Compile Include="DynamicTransitionInner.cs" />
+    <Compile Include="DynamicTransition`1.cs" />
+    <Compile Include="DynamicTransition`2.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="EventFireMethod.cs" />
     <Compile Include="EventInner.cs" />
@@ -51,6 +56,7 @@
     <Compile Include="Event`1.cs" />
     <Compile Include="FaultedComponent.cs" />
     <Compile Include="ForcedTransitionInvoker.cs" />
+    <Compile Include="IDynamicTransition.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
     <Compile Include="IInvokableTransition.cs" />
