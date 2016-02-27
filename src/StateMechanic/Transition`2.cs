@@ -7,9 +7,10 @@ namespace StateMechanic
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
     /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
-    public class Transition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData> where TState : class, IState
+    public class Transition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData>
+        where TState : IState
     {
-        private readonly ITransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>> innerTransition;
+        private readonly TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>> innerTransition;
 
         /// <summary>
         /// Gets the state this transition is from
@@ -55,9 +56,14 @@ namespace StateMechanic
         /// </summary>
         public bool HasGuard { get { return this.Guard != null; } }
 
-        internal Transition(ITransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>> innerTransition)
+        internal Transition(TState from, TState to, Event<TEventData> @event, ITransitionDelegate<TState> transitionDelegate)
         {
-            this.innerTransition = innerTransition;
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(from, to, @event, transitionDelegate, isInnerTransition: false);
+        }
+
+        internal Transition(TState fromAndTo, Event<TEventData> @event, ITransitionDelegate<TState> transitionDelegate)
+        {
+            this.innerTransition = new TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>>(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true);
         }
 
         /// <summary>

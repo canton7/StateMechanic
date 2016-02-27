@@ -2,7 +2,9 @@
 
 namespace StateMechanic
 {
-    internal class TransitionInner<TState, TEvent, TTransitionInfo> : ITransitionInner<TState, TEvent, TTransitionInfo> where TState : class, IState<TState> where TEvent : IEvent
+    internal class TransitionInner<TState, TEvent, TTransitionInfo> : ITransitionInner<TState, TEvent, TTransitionInfo>
+        where TState : IState
+        where TEvent : IEvent
     {
         public TState From { get; }
         public TState To { get; }

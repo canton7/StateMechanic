@@ -3,7 +3,7 @@
 namespace StateMechanic
 {
     // Oh the hoops we jump through to have Transition<T> public...
-    internal interface ITransitionInner<TState, TEvent, TTransitionInfo> where TState : class, IState
+    internal interface ITransitionInner<TState, TEvent, TTransitionInfo> where TState : IState
     {
         TState From { get; }
         TState To { get; }

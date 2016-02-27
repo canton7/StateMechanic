@@ -85,7 +85,6 @@
     <Compile Include="StateMachinePrintingExtensions.cs" />
     <Compile Include="StateMachine`1.cs" />
     <Compile Include="State`1.cs" />
-    <Compile Include="Transition.cs" />
     <Compile Include="TransitionBuilder`2.cs" />
     <Compile Include="TransitionBuilder`1.cs" />
     <Compile Include="TransitionEventArgs.cs" />

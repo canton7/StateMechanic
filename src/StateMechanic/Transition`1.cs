@@ -6,9 +6,9 @@ namespace StateMechanic
     /// A transition from one state to another, triggered by an event
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
-    public class Transition<TState> : ITransition<TState>, IInvokableTransition where TState : class, IState
+    public sealed class Transition<TState> : ITransition<TState>, IInvokableTransition where TState : IState
     {
-        private readonly ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
+        private readonly TransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
         private readonly TransitionInfo<TState> transitionInfo;
 
         /// <summary>
@@ -55,11 +55,18 @@ namespace StateMechanic
         /// </summary>
         public bool HasGuard => this.Guard != null;
 
-        internal Transition(ITransitionInner<TState, Event, TransitionInfo<TState>> innerTransition)
+        internal Transition(TState from, TState to, Event @event, ITransitionDelegate<TState> transitionDelegate)
         {
-            this.innerTransition = innerTransition;
+            this.innerTransition = new TransitionInner<TState, Event, TransitionInfo<TState>>(from, to, @event, transitionDelegate, isInnerTransition: false);
             // Might as well cache this - it's never going to change
-            this.transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition);
+            this.transitionInfo = new TransitionInfo<TState>(from, to, @event, isInnerTransition: false);
+        }
+
+        internal Transition(TState fromAndTo, Event @event, ITransitionDelegate<TState> transitionDelegate)
+        {
+            this.innerTransition = new TransitionInner<TState, Event, TransitionInfo<TState>>(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true);
+            // Might as well cache this - it's never going to change
+            this.transitionInfo = new TransitionInfo<TState>(fromAndTo, fromAndTo, @event, isInnerTransition: true);
         }
 
         /// <summary>

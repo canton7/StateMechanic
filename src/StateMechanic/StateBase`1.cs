@@ -129,7 +129,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = Transition.CreateInner<TState>(this.self, @event, this.ParentStateMachineInternal.Kernel);
+            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachineInternal.Kernel);
             @event.AddTransition(this, transition, this.ParentStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
@@ -146,7 +146,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = Transition.CreateInner<TState, TEventData>(this.self, @event, this.ParentStateMachineInternal.Kernel);
+            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachineInternal.Kernel);
             @event.AddTransition(this, transition, this.ParentStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
