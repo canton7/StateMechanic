@@ -33,6 +33,11 @@ namespace StateMechanic
         IReadOnlyList<ITransition<IState>> Transitions { get; }
 
         /// <summary>
+        /// Gets a list of dynamic transitions available from the current state
+        /// </summary>
+        IReadOnlyList<IDynamicTransition<IState>> DynamicTransitions { get; }
+
+        /// <summary>
         /// Gets the list of groups which this state is a member of
         /// </summary>
         IReadOnlyList<IStateGroup> Groups { get; }

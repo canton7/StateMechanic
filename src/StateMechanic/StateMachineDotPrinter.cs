@@ -14,6 +14,7 @@ namespace StateMechanic
 
         private Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
         private int colorUseCount = 0;
+        private int virtualStateIndex = 0;
 
         /// <summary>
         /// Gets the list of colors that will be used if <see cref="Colorize"/> is true
@@ -89,7 +90,8 @@ namespace StateMechanic
                 else
                 {
                     sb.AppendFormat("{0}subgraph \"cluster_{1}\" {{\n", indent, state.Name);
-                    sb.AppendFormat("{0}   label=\"{1} / {2}\";\n", indent, state.Name, state.ChildStateMachine.Name);
+                    var name = (state.Name == state.ChildStateMachine.Name) ? state.Name : $"{state.Name} / {state.ChildStateMachine.Name}";
+                    sb.AppendFormat("{0}   label=\"{1}\";\n", indent, name);
                     if (this.Colorize)
                         sb.AppendFormat("{0}   color=\"{1}\";\n{0}   fontcolor=\"{1}\";\n", indent, this.ColorForState(state));
                     RenderStateMachine(sb, state.ChildStateMachine, indent + "   ");
@@ -113,6 +115,23 @@ namespace StateMechanic
                         this.Colorize && transition.To != stateMachine.InitialState ? String.Format(" color=\"{0}\" fontcolor=\"{0}\"", this.ColorForState(transition.To)) : "",
                         transition.From.ChildStateMachine == null ? "" : String.Format(" ltail=\"cluster_{0}\"", transition.From.Name),
                         transition.To.ChildStateMachine == null ? "" : String.Format(" lhead=\"cluster_{0}\"", transition.To.Name));
+                }
+                
+                foreach (var transition in state.DynamicTransitions)
+                {
+                    // Define an virtual state to move to
+                    // Destroyed [fillcolor=black, shape=doublecircle, label="", width=0.3]
+                    sb.AppendFormat("{0}\"VirtualState_{1}\" [label=\"?\" width=0.1];\n",
+                        indent,
+                        this.virtualStateIndex);
+
+                    sb.AppendFormat("{0}\"{1}\" -> \"VirtualState_{2}\" [label=\"{3}\"];\n",
+                        indent,
+                        transition.From.ChildStateMachine == null ? transition.From.Name : transition.From.ChildStateMachine.InitialState.Name,
+                        this.virtualStateIndex,
+                        transition.Event.Name);
+
+                    this.virtualStateIndex++;
                 }
             }
         }
