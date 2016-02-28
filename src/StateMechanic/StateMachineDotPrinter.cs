@@ -12,7 +12,9 @@ namespace StateMechanic
     {
         private readonly IStateMachine stateMachine;
 
-        private Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
+        private readonly Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
+        private Dictionary<IState, string> stateToNameMapping = new Dictionary<IState, string>();
+        private readonly Dictionary<IEvent, string> eventToNameMapping = new Dictionary<IEvent, string>();
         private int colorUseCount = 0;
         private int virtualStateIndex = 0;
 
@@ -73,24 +75,50 @@ namespace StateMechanic
             return color;
         }
 
+        private string NameForState(IState state)
+        {
+            string name;
+            if (this.stateToNameMapping.TryGetValue(state, out name))
+                return name;
+
+            // See how many other states have been given the same name...
+            var count = this.stateToNameMapping.Keys.Count(x => x.Name == state.Name);
+            var mungedName = (count == 0) ? state.Name : $"{state.Name} ({count})";
+            this.stateToNameMapping.Add(state, mungedName);
+            return mungedName;
+        }
+
+        private string NameForEvent(IEvent @event)
+        {
+            string name;
+            if (this.eventToNameMapping.TryGetValue(@event, out name))
+                return name;
+
+            // See how many other events have been given the same name...
+            var count = this.eventToNameMapping.Keys.Count(x => x.Name == @event.Name);
+            var mungedName = (count == 0) ? @event.Name : $"{@event.Name} ({count})";
+            this.eventToNameMapping.Add(@event, mungedName);
+            return mungedName;
+        }
+
         private void RenderStateMachine(StringBuilder sb, IStateMachine stateMachine, string indent)
         {
             sb.AppendFormat("{0}compound=true;\n", indent);
 
             // States
-            sb.AppendFormat("{0}\"{1}\" [shape=doublecircle width=1 penwidth=2.0];\n", indent, stateMachine.InitialState.Name);
+            sb.AppendFormat("{0}\"{1}\" [shape=doublecircle width=1 penwidth=2.0];\n", indent, this.NameForState(stateMachine.InitialState));
             foreach (var state in stateMachine.States.Except(new[] { stateMachine.InitialState }))
             {
                 // If it has a child state machine, we'll link to/from it differently
                 if (state.ChildStateMachine == null)
                 {
                     if (this.Colorize)
-                        sb.AppendFormat("{0}\"{1}\" [color=\"{2}\"];\n", indent, state.Name, this.ColorForState(state));
+                        sb.AppendFormat("{0}\"{1}\" [color=\"{2}\"];\n", indent, this.NameForState(state), this.ColorForState(state));
                 }
                 else
                 {
-                    sb.AppendFormat("{0}subgraph \"cluster_{1}\" {{\n", indent, state.Name);
-                    var name = (state.Name == state.ChildStateMachine.Name) ? state.Name : $"{state.Name} / {state.ChildStateMachine.Name}";
+                    sb.AppendFormat("{0}subgraph \"cluster_{1}\" {{\n", indent, this.NameForState(state));
+                    var name = (state.Name == state.ChildStateMachine.Name) ? this.NameForState(state) : $"{this.NameForState(state)} / {state.ChildStateMachine.Name}";
                     sb.AppendFormat("{0}   label=\"{1}\";\n", indent, name);
                     if (this.Colorize)
                         sb.AppendFormat("{0}   color=\"{1}\";\n{0}   fontcolor=\"{1}\";\n", indent, this.ColorForState(state));
@@ -108,13 +136,13 @@ namespace StateMechanic
                     // Likewise dest and ltail
                     sb.AppendFormat("{0}\"{1}\" -> \"{2}\" [label=\"{3}{4}\"{5}{6}{7}];\n",
                         indent,
-                        transition.From.ChildStateMachine == null ? transition.From.Name : transition.From.ChildStateMachine.InitialState.Name,
-                        transition.To.ChildStateMachine == null ? transition.To.Name : transition.To.ChildStateMachine.InitialState.Name,
-                        transition.Event.Name,
+                        this.NameForState(transition.From.ChildStateMachine == null ? transition.From : transition.From.ChildStateMachine.InitialState),
+                        this.NameForState(transition.To.ChildStateMachine == null ? transition.To : transition.To.ChildStateMachine.InitialState),
+                        this.NameForEvent(transition.Event),
                         transition.HasGuard ? "*" : "",
                         this.Colorize && transition.To != stateMachine.InitialState ? String.Format(" color=\"{0}\" fontcolor=\"{0}\"", this.ColorForState(transition.To)) : "",
-                        transition.From.ChildStateMachine == null ? "" : String.Format(" ltail=\"cluster_{0}\"", transition.From.Name),
-                        transition.To.ChildStateMachine == null ? "" : String.Format(" lhead=\"cluster_{0}\"", transition.To.Name));
+                        transition.From.ChildStateMachine == null ? "" : String.Format(" ltail=\"cluster_{0}\"", this.NameForState(transition.From)),
+                        transition.To.ChildStateMachine == null ? "" : String.Format(" lhead=\"cluster_{0}\"", this.NameForState(transition.To)));
                 }
                 
                 foreach (var transition in state.DynamicTransitions)
@@ -127,9 +155,9 @@ namespace StateMechanic
 
                     sb.AppendFormat("{0}\"{1}\" -> \"VirtualState_{2}\" [label=\"{3}\"];\n",
                         indent,
-                        transition.From.ChildStateMachine == null ? transition.From.Name : transition.From.ChildStateMachine.InitialState.Name,
+                        this.NameForState(transition.From.ChildStateMachine == null ? transition.From : transition.From.ChildStateMachine.InitialState),
                         this.virtualStateIndex,
-                        transition.Event.Name);
+                        this.NameForEvent(transition.Event));
 
                     this.virtualStateIndex++;
                 }
