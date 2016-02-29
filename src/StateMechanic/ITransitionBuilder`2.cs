@@ -16,6 +16,11 @@ namespace StateMechanic
         /// <returns>The created transition, to which handlers can be added</returns>
         Transition<TState, TEventData> To(TState state);
 
+        /// <summary>
+        /// Create a dynamic transition, where the state to transition to is determined at runtime by a user-provided callback
+        /// </summary>
+        /// <param name="stateSelector">Callback which will determine which state is transitioned to</param>
+        /// <returns>The created transition, to which handlers can be added</returns>
         DynamicTransition<TState, TEventData> ToDynamic(Func<DynamicSelectorInfo<TState, TEventData>, TState> stateSelector);
     }
 }
