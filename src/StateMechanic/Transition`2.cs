@@ -101,7 +101,7 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return String.Format("<Transition From={0} To={1} Event={2}{3}>", this.From.Name, this.To.Name, this.Event.Name, this.IsInnerTransition ? " IsInnerTransition" : "");
+            return String.Format("<Transition From={0} To={1} Event={2}{3}>", this.From.Name ?? "(unnamed)", this.To.Name ?? "(unnamed)", this.Event.Name ?? "(unnamed)", this.IsInnerTransition ? " IsInnerTransition" : "");
         }
     }
 }

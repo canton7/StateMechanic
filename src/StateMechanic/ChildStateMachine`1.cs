@@ -100,7 +100,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="name">Name given to the state</param>
         /// <returns>The new state</returns>
-        public TState CreateState(string name)
+        public TState CreateState(string name = null)
         {
             return this.CreateState<TState>(name);
         }
@@ -110,7 +110,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="name">Name given to the state</param>
         /// <returns>The new state</returns>
-        public TNewState CreateState<TNewState>(string name) where TNewState : TState, new()
+        public TNewState CreateState<TNewState>(string name = null) where TNewState : TState, new()
         {
             var state = new TNewState();
             state.Initialize(name, this);
@@ -123,7 +123,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="name">Name given to the state</param>
         /// <returns>The new state</returns>
-        public TState CreateInitialState(string name)
+        public TState CreateInitialState(string name = null)
         {
             return this.CreateInitialState<TState>(name);
         }
@@ -133,7 +133,7 @@ namespace StateMechanic
         /// </summary>
         /// <param name="name">Name given to the state</param>
         /// <returns>The new state</returns>
-        public TNewState CreateInitialState<TNewState>(string name) where TNewState : TState, new()
+        public TNewState CreateInitialState<TNewState>(string name = null) where TNewState : TState, new()
         {
             var state = this.CreateState<TNewState>(name);
             this.SetInitialState(state);
@@ -359,7 +359,9 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return $"<StateMachine Parent={this.Name} State={this.CurrentState?.Name ?? "None"}>";
+            var parentName = (this.ParentStateMachine == null) ? "" : $" Parent={this.ParentStateMachine.Name ?? "(unnamed)"}";
+            var stateName = (this.CurrentState == null) ? "None" : (this.CurrentState.Name ?? "(unnamed)");
+            return $"<StateMachine{parentName} Name={this.Name ?? "(unnamed)"} State={stateName}>";
         }
     }
 }

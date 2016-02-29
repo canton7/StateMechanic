@@ -279,7 +279,7 @@ namespace StateMechanic
         public override string ToString()
         {
             this.CheckInitialized();
-            return $"<State Name={this.Name}>";
+            return $"<State Name={this.Name ?? "(unnamed)"}>";
         }
     }
 }

@@ -84,7 +84,7 @@ namespace StateMechanic
         /// <returns>A string that represents the current object</returns>
         public override string ToString()
         {
-            return $"<Event Name={this.Name}>";
+            return $"<Event Name={this.Name ?? "(unnamed)"}>";
         }
     }
 }

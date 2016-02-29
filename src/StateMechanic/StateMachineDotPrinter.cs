@@ -83,7 +83,8 @@ namespace StateMechanic
 
             // See how many other states have been given the same name...
             var count = this.stateToNameMapping.Keys.Count(x => x.Name == state.Name);
-            var mungedName = (count == 0) ? state.Name : $"{state.Name} ({count})";
+            var stateName = state.Name ?? "(unnamed state)";
+            var mungedName = (count == 0) ? stateName : $"{stateName} ({count})";
             this.stateToNameMapping.Add(state, mungedName);
             return mungedName;
         }
@@ -96,7 +97,8 @@ namespace StateMechanic
 
             // See how many other events have been given the same name...
             var count = this.eventToNameMapping.Keys.Count(x => x.Name == @event.Name);
-            var mungedName = (count == 0) ? @event.Name : $"{@event.Name} ({count})";
+            var eventName = @event.Name ?? "(unnamed event)";
+            var mungedName = (count == 0) ? eventName : $"{eventName} ({count})";
             this.eventToNameMapping.Add(@event, mungedName);
             return mungedName;
         }

@@ -45,7 +45,7 @@ namespace StateMechanic
         /// Instantiates a new instance of the <see cref="StateMachine{TState}"/> class, with the given name
         /// </summary>
         /// <param name="name">Name of this state machine</param>
-        public StateMachine(string name)
+        public StateMachine(string name = null)
             : base(name, new StateMachineKernel<TState>(), null)
         {
             this.Kernel.Faulted += this.OnFaulted;
@@ -66,15 +66,6 @@ namespace StateMechanic
         private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<TState> eventArgs)
         {
             this.TransitionNotFound?.Invoke(this, eventArgs);
-        }
-
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>A string that represents the current object</returns>
-        public override string ToString()
-        {
-            return $"<StateMachine Name={this.Name} State={this.CurrentState.Name}>";
         }
     }
 }
