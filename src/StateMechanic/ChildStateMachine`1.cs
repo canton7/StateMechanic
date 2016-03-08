@@ -288,6 +288,9 @@ namespace StateMechanic
 
         void IStateMachine<TState>.SetCurrentState(TState state)
         {
+            if (state != null && state.ParentStateMachine != this)
+                throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
+
             this.CurrentState = state;
         }
 

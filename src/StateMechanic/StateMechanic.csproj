@@ -68,6 +68,7 @@
     <Compile Include="IStateGroup.cs" />
     <Compile Include="IStateGroup`1.cs" />
     <Compile Include="IStateMachine.cs" />
+    <Compile Include="IStateMachineSerializer.cs" />
     <Compile Include="IStateMachineSynchronizer.cs" />
     <Compile Include="IStateMachine`1.cs" />
     <Compile Include="IState`1.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="StateMachineKernel.cs" />
     <Compile Include="StateMachineDotPrinter.cs" />
     <Compile Include="StateMachinePrintingExtensions.cs" />
+    <Compile Include="StateMachineSerializer.cs" />
     <Compile Include="StateMachine`1.cs" />
     <Compile Include="State`1.cs" />
     <Compile Include="TransitionBuilder`2.cs" />

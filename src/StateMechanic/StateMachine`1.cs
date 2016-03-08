@@ -26,6 +26,18 @@ namespace StateMechanic
             set { this.Kernel.Synchronizer = value; }
         }
 
+        private IStateMachineSerializer<TState> serializer = new StateMachineSerializer<TState>();
+        public IStateMachineSerializer<TState> Serializer
+        {
+            get { return this.serializer; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                this.serializer = value;
+            }
+        }
+
         /// <summary>
         /// Event raised when a fault occurs in this state machine. A state machine will fault if one of its handlers throws an exception
         /// </summary>
@@ -51,6 +63,31 @@ namespace StateMechanic
             this.Kernel.Faulted += this.OnFaulted;
             this.Kernel.Transition += this.OnTransition;
             this.Kernel.TransitionNotFound += this.OnTransitionNotFound;
+        }
+
+        public string Serialize()
+        {
+            return this.serializer.Serialize(this);
+        }
+
+        public void Deserialize(string serialized)
+        {
+            this.Reset();
+
+            IStateMachine<TState> stateMachine = this;
+
+            foreach (var state in this.serializer.Deserialize(this, serialized))
+            {
+                // This will throw if the state doesn't belong to the state machine
+                stateMachine.SetCurrentState(state);
+
+                stateMachine = state.ChildStateMachine;
+            }
+
+            // Did we run out of identifiers?
+            // We need to check this to avoid internal inconsistency
+            if (stateMachine != null)
+                throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": a parent state has the child state machine {stateMachine}, but no information is present in the serialized string saying what its state should be. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
         }
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)
