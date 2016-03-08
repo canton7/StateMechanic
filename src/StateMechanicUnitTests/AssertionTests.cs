@@ -95,6 +95,20 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void ThrowsIfForcedTransitionOnAStateMachineWhichIsNotCurrent()
+        {
+            var sm = new StateMachine("State Machine");
+            var evt = new Event("Event");
+            var initial = sm.CreateInitialState("Initial State");
+            var state = sm.CreateState("state");
+            var subSm = state.CreateChildStateMachine();
+            var subInitial = subSm.CreateInitialState("subInitial");
+            var subState = subSm.CreateState("subState");
+
+            Assert.Throws<InvalidOperationException>(() => subSm.ForceTransition(subState, evt));
+        }
+
+        [Test]
         public void ThrowsIfEventFiredAndInitialStateNotSet()
         {
             var sm = new StateMachine("State Machine");

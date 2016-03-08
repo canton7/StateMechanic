@@ -192,6 +192,8 @@ namespace StateMechanic
 
         private bool ForceTransitionFromUserImpl(ITransitionInvoker<TState> transitionInvoker)
         {
+            this.EnsureCurrentStateSuitableForTransition();
+
             transitionInvoker.TryInvoke(this.CurrentState);
             return true;
         }
