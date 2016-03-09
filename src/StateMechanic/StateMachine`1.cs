@@ -27,6 +27,10 @@ namespace StateMechanic
         }
 
         private IStateMachineSerializer<TState> serializer = new StateMachineSerializer<TState>();
+
+        /// <summary>
+        /// Gets or sets the serializer used by this state machine to serialize or deserialize itself, (see <see cref="Serialize()"/> and <see cref="Deserialize(string)"/>).
+        /// </summary>
         public IStateMachineSerializer<TState> Serializer
         {
             get { return this.serializer; }
@@ -65,11 +69,19 @@ namespace StateMechanic
             this.Kernel.TransitionNotFound += this.OnTransitionNotFound;
         }
 
+        /// <summary>
+        /// Serialize the current state of this state machine into a string, which can later be used to restore the state of the state machine
+        /// </summary>
+        /// <returns></returns>
         public string Serialize()
         {
             return this.serializer.Serialize(this);
         }
 
+        /// <summary>
+        /// Restore the state of this state machine from a previously-created string (from calling the <see cref="Serialize()"/> method).
+        /// </summary>
+        /// <param name="serialized">String created by <see cref="Serialize()"/></param>
         public void Deserialize(string serialized)
         {
             this.Reset();
@@ -78,6 +90,10 @@ namespace StateMechanic
 
             foreach (var state in this.serializer.Deserialize(this, serialized))
             {
+                // We should only hit this if the deserializer is faulty
+                if (stateMachine == null)
+                    throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": the previous state has no child state machine. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
+
                 // This will throw if the state doesn't belong to the state machine
                 stateMachine.SetCurrentState(state);
 

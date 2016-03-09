@@ -11,9 +11,9 @@ namespace StateMechanic
         private const string separator = "/";
 
         // This is quite conservative - we can probably expand this
-        private static readonly Regex notAllowedIdentifierCharacters = new Regex(@"[^a-zA-Z0-9]");
+        private static readonly Regex notAllowedIdentifierCharacters = new Regex(@"[^a-zA-Z0-9]+");
 
-        public IEnumerable<TState> Deserialize(ChildStateMachine<TState> stateMachine, string serialized)
+        public IEnumerable<TState> Deserialize(StateMachine<TState> stateMachine, string serialized)
         {
             var parts = serialized.Split(new[] { ':' }, 2);
             int version;
@@ -46,13 +46,16 @@ namespace StateMechanic
             // StateMachine.Deserialize will throw if stateMachine != null at the end
         }
 
-        public string Serialize(ChildStateMachine<TState> stateMachine)
+        public string Serialize(StateMachine<TState> stateMachine)
         {
             var parts = new List<string>();
-            for (var sm = stateMachine; sm != null; sm = sm.CurrentState?.ChildStateMachine)
+            for (ChildStateMachine<TState> sm = stateMachine; sm != null; sm = sm.CurrentState?.ChildStateMachine)
             {
-                if (sm.CurrentState != null)
-                    parts.Add(IdentifierForState(sm, sm.CurrentState));
+                // State machine is not fully initialised
+                if (sm.CurrentState == null)
+                    throw new StateMachineSerializationException($"Unable to serialize state machine {sm} as it is not fully initialised (it has no initial state).");
+
+                parts.Add(IdentifierForState(sm, sm.CurrentState));
             }
 
             return $"{serializerVersion}:{String.Join(separator, parts)}";
@@ -67,22 +70,7 @@ namespace StateMechanic
 
             foreach (var state in stateMachine.States)
             {
-                var baseIdentifier = BaseIdentifierForState(state);
-
-                int count;
-                string stateIdentifier;
-                if (lookup.TryGetValue(baseIdentifier, out count))
-                {
-                    count++;
-                    stateIdentifier = $"{baseIdentifier}-{count}";
-                }
-                else
-                {
-                    count = 1;
-                    stateIdentifier = baseIdentifier;
-                }
-
-                lookup[baseIdentifier] = count;
+                var stateIdentifier = IdentifierForState(lookup, state);
 
                 if (identifier == stateIdentifier)
                     return state;
@@ -98,38 +86,42 @@ namespace StateMechanic
 
             foreach (var state in stateMachine.States)
             {
-                var baseIdentifier = BaseIdentifierForState(state);
-
-                int count;
-                string stateIdentifier;
-                if (lookup.TryGetValue(baseIdentifier, out count))
-                {
-                    count++;
-                    stateIdentifier = $"{baseIdentifier}-{count}";
-                }
-                else
-                {
-                    count = 1;
-                    stateIdentifier = baseIdentifier;
-                }
-
-                lookup[baseIdentifier] = count;
+                var stateIdentifier = IdentifierForState(lookup, state);
 
                 if (state == targetState)
-                {
                     return stateIdentifier;
-                }
             }
 
             throw new InvalidOperationException($"Unable to find state {targetState} on StateMachine {stateMachine}. This should not happen");
         }
 
+        private static string IdentifierForState(Dictionary<string, int> lookup, TState state)
+        {
+            var baseIdentifier = BaseIdentifierForState(state);
+
+            int count;
+            string stateIdentifier;
+            if (lookup.TryGetValue(baseIdentifier, out count))
+            {
+                count++;
+                stateIdentifier = $"{baseIdentifier}-{count}";
+            }
+            else
+            {
+                count = 1;
+                stateIdentifier = baseIdentifier;
+            }
+
+            lookup[baseIdentifier] = count;
+            return stateIdentifier;
+        }
+
         private static string BaseIdentifierForState(TState state)
         {
-            if (state.Name == null)
+            if (state.Identifier == null)
                 return "state";
 
-            return notAllowedIdentifierCharacters.Replace(state.Name, "");
+            return notAllowedIdentifierCharacters.Replace(state.Identifier, "-");
         }
     }
 }
