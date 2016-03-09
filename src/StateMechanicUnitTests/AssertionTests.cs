@@ -70,45 +70,6 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ThrowsIfForcedTransitionToAStateBelongingToAChildStateMachine()
-        {
-            var sm = new StateMachine("State Machine");
-            var evt = new Event("Event");
-            var state = sm.CreateInitialState("Initial State");
-            var subSm = state.CreateChildStateMachine();
-            var subState = subSm.CreateInitialState("Child Initial State");
-            
-            Assert.Throws<InvalidStateTransitionException>(() => sm.ForceTransition(subState, evt));
-        }
-
-        [Test]
-        public void DoesNotThrowIfForcedTransitionOnAParentEvent()
-        {
-            var sm = new StateMachine("State Machine");
-            var evt = new Event("Event");
-            var state = sm.CreateInitialState("Initial State");
-            var subSm = state.CreateChildStateMachine();
-            var subState1 = subSm.CreateInitialState("Child Initial State");
-            var subState2 = subSm.CreateState("Sub State 2");
-
-            subSm.ForceTransition(subState2, evt);
-        }
-
-        [Test]
-        public void ThrowsIfForcedTransitionOnAStateMachineWhichIsNotCurrent()
-        {
-            var sm = new StateMachine("State Machine");
-            var evt = new Event("Event");
-            var initial = sm.CreateInitialState("Initial State");
-            var state = sm.CreateState("state");
-            var subSm = state.CreateChildStateMachine();
-            var subInitial = subSm.CreateInitialState("subInitial");
-            var subState = subSm.CreateState("subState");
-
-            Assert.Throws<InvalidOperationException>(() => subSm.ForceTransition(subState, evt));
-        }
-
-        [Test]
         public void ThrowsIfEventFiredAndInitialStateNotSet()
         {
             var sm = new StateMachine("State Machine");

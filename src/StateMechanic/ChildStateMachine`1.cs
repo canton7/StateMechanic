@@ -12,9 +12,12 @@ namespace StateMechanic
     {
         internal StateMachineKernel<TState> Kernel { get; }
 
-        private readonly TState parentState;
-
         private readonly List<TState> states = new List<TState>();
+
+        /// <summary>
+        /// Gets the parent state of this state machine, or null if there is none
+        /// </summary>
+        public TState ParentState { get; }
 
         /// <summary>
         /// Gets the initial state of this state machine
@@ -63,15 +66,16 @@ namespace StateMechanic
         /// <summary>
         /// Gets the parent of this state machine, or null if there is none
         /// </summary>
-        public IStateMachine ParentStateMachine => this.parentState?.ParentStateMachine;
+        public IStateMachine ParentStateMachine => this.ParentState?.ParentStateMachine;
 
-        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.parentState?.ParentStateMachineInternal.TopmostStateMachineInternal ?? this;
+        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.ParentState?.ParentStateMachineInternal.TopmostStateMachineInternal ?? this;
 
         /// <summary>
         /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
         /// </summary>
         public IStateMachine TopmostStateMachine => this.TopmostStateMachineInternal;
 
+        IState IStateMachine.ParentState => this.ParentState;
         IState IStateMachine.CurrentState => this.CurrentState;
         IState IStateMachine.CurrentChildState => this.CurrentChildState;
         IState IStateMachine.InitialState => this.InitialState;
@@ -90,7 +94,7 @@ namespace StateMechanic
         {
             this.Name = name;
             this.Kernel = kernel;
-            this.parentState = parentState;
+            this.ParentState = parentState;
 
             this.States = new ReadOnlyCollection<TState>(this.states);
         }
@@ -156,49 +160,14 @@ namespace StateMechanic
 
         private void ResetCurrentState()
         {
-            if (this.parentState == null || this.parentState == this.parentState.ParentStateMachine.CurrentState)
+            if (this.ParentState == null || this.ParentState == this.ParentState.ParentStateMachine.CurrentState)
                 this.CurrentState = this.InitialState;
             else
                 this.CurrentState = null;
         }
 
-        /// <summary>
-        /// Force a transition to the given state, even though there may not be a valid configured transition to that state from the current state
-        /// </summary>
-        /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
-        /// <param name="toState">State to transition to</param>
-        /// <param name="event">Event pass to the exit/entry handlers</param>
-        public void ForceTransition(TState toState, IEvent @event)
-        {
-            if (toState == null)
-                throw new ArgumentNullException(nameof(toState));
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
-
-            if (toState.ParentStateMachine != this)
-                throw new InvalidStateTransitionException(this.CurrentState, toState);
-
-            var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, this.Kernel);
-            this.ForceTransitionFromUser(transitionInvoker);
-        }
-
-        private void ForceTransitionFromUser(ITransitionInvoker<TState> transitionInvoker)
-        {
-            if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(this.ForceTransitionFromUserImpl, transitionInvoker));
-            else
-                this.InvokeTransition(this.ForceTransitionFromUserImpl, transitionInvoker);
-        }
-
-        private bool ForceTransitionFromUserImpl(ITransitionInvoker<TState> transitionInvoker)
-        {
-            this.EnsureCurrentStateSuitableForTransition();
-
-            transitionInvoker.TryInvoke(this.CurrentState);
-            return true;
-        }
-
-        private bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
+        // Only supposed to be called from subclasses
+        internal bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
         {
             if (this.Kernel.Fault != null)
                 throw new StateMachineFaultedException(this.Kernel.Fault);
@@ -309,8 +278,6 @@ namespace StateMechanic
         // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
         private bool RequestEventFireFromEvent(ITransitionInvoker<TState> transitionInvoker)
         {
-            // TODO: I don't like how many delegates are created here
-
             if (this.Kernel.Synchronizer != null)
                 return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
             else

@@ -70,6 +70,37 @@ namespace StateMechanic
         }
 
         /// <summary>
+        /// Force a transition to the given state, even though there may not be a valid configured transition to that state from the current state
+        /// </summary>
+        /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
+        /// <param name="toState">State to transition to</param>
+        /// <param name="event">Event pass to the exit/entry handlers</param>
+        public void ForceTransition(TState toState, IEvent @event)
+        {
+            if (toState == null)
+                throw new ArgumentNullException(nameof(toState));
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            //if (toState.ParentStateMachine != this)
+            //    throw new InvalidStateTransitionException(this.CurrentState, toState);
+
+            var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, this.Kernel);
+            if (this.Kernel.Synchronizer != null)
+                this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker));
+            else
+                this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker);
+        }
+
+        private bool ForceTransitionImpl(ITransitionInvoker<TState> transitionInvoker)
+        {
+            //this.EnsureCurrentStateSuitableForTransition();
+
+            transitionInvoker.TryInvoke(this.CurrentState);
+            return true;
+        }
+
+        /// <summary>
         /// Serialize the current state of this state machine into a string, which can later be used to restore the state of the state machine
         /// </summary>
         /// <returns></returns>

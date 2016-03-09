@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StateMechanic;
+using System;
 
 namespace StateMechanicUnitTests
 {
@@ -292,6 +293,55 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state22, state22ExitInfo.From);
             Assert.AreEqual(state1, state22ExitInfo.To);
             Assert.AreEqual(evt1, state22ExitInfo.Event);
+        }
+
+        [Test]
+        public void ForcefullyTransitioningToMoreChildStateCallsCorrectHandlers()
+        {
+            var log = new List<Tuple<string, StateHandlerInfo<State>>>();
+
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+
+            var childSm1 = state1.CreateChildStateMachine("childSm1");
+            var state11 = childSm1.CreateInitialState("state11");
+            var state12 = childSm1.CreateState("state12");
+
+            var childSm11 = state11.CreateChildStateMachine("childsm11");
+            var state111 = childSm11.CreateInitialState("state111");
+            var state112 = childSm11.CreateState("state112");
+
+            var childSm12 = state12.CreateChildStateMachine("childSm12");
+            var state121 = childSm12.CreateInitialState("state121");
+            var state122 = childSm12.CreateState("state122");
+
+            var evt = new Event("evt");
+
+            // Start off in state112, forcefully transition to state122
+            sm.ForceTransition(state112, evt);
+
+            state1.EntryHandler = x => log.Add(Tuple.Create("state1 Entry", x));
+            state1.ExitHandler = x => log.Add(Tuple.Create("state1 Exit", x));
+
+            state11.EntryHandler = x => log.Add(Tuple.Create("state11 Entry", x));
+            state11.ExitHandler = x => log.Add(Tuple.Create("state11 Exit", x));
+
+            state111.EntryHandler = x => log.Add(Tuple.Create("state111 Entry", x));
+            state111.ExitHandler = x => log.Add(Tuple.Create("state111 Exit", x));
+
+            state112.EntryHandler = x => log.Add(Tuple.Create("state112 Entry", x));
+            state112.ExitHandler = x => log.Add(Tuple.Create("state112 Exit", x));
+
+            state12.EntryHandler = x => log.Add(Tuple.Create("state12 Entry", x));
+            state12.ExitHandler = x => log.Add(Tuple.Create("state12 Exit", x));
+
+            state121.EntryHandler = x => log.Add(Tuple.Create("state121 Entry", x));
+            state121.ExitHandler = x => log.Add(Tuple.Create("state121 Exit", x));
+
+            state122.EntryHandler = x => log.Add(Tuple.Create("state122 Entry", x));
+            state122.ExitHandler = x => log.Add(Tuple.Create("state122 Exit", x));
+
+            sm.ForceTransition(state122, evt);
         }
     }
 }

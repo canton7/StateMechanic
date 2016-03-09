@@ -33,6 +33,11 @@ namespace StateMechanic
         IReadOnlyList<IState> States { get; }
 
         /// <summary>
+        /// Gets the parent state of this state machine, or null if there is none
+        /// </summary>
+        IState ParentState { get; }
+
+        /// <summary>
         /// Gets the parent of this state machine, or null if there is none
         /// </summary>
         IStateMachine ParentStateMachine { get; }

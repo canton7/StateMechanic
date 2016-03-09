@@ -13,7 +13,6 @@ namespace StateMechanic
         public StateMachine(string name)
             : base(name)
         {
-
         }
     }
 }

@@ -24,8 +24,7 @@ namespace StateMechanicUnitTests
 
             var evt = new Event("evt");
 
-            sm.ForceTransition(state1, evt);
-            childSm.ForceTransition(childState1, evt);
+            sm.ForceTransition(childState1, evt);
 
             var serialized = sm.Serialize();
             Assert.AreEqual("1:state1/childState1", serialized);
