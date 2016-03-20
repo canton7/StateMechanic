@@ -8,7 +8,6 @@ namespace StateMechanic
         where TState : StateBase<TState>, new()
     {
         private const int serializerVersion = 1;
-        private const string separator = "/";
 
         // This is quite conservative - we can probably expand this
         private static readonly Regex notAllowedIdentifierCharacters = new Regex(@"[^a-zA-Z0-9]+");
@@ -26,49 +25,32 @@ namespace StateMechanic
             return DeserializeImpl(stateMachine, parts[1]);
         }
 
-        private static IEnumerable<TState> DeserializeImpl(ChildStateMachine<TState> stateMachine, string serialized)
+        private static IEnumerable<TState> DeserializeImpl(StateMachine<TState> stateMachine, string serialized)
         {
-            var identifiers = serialized.Split(new[] { separator }, StringSplitOptions.None);
-
-            foreach (var identifier in identifiers)
+            var intermediateStates = new List<TState>();
+            var childState = StateForIdentifier(stateMachine, serialized);
+            for (TState state = childState; state != null; state = state.ParentStateMachine.ParentState)
             {
-                // Have we run out of child state machines?
-                if (stateMachine == null)
-                    throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": tried to deserialize identifier \"{identifier}\", but the previous state has no child state machine. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
-
-                var state = StateForIdentifier(stateMachine, identifier);
-
-                yield return state;
-
-                stateMachine = state.ChildStateMachine;
+                intermediateStates.Add(state);
             }
+
+            intermediateStates.Reverse();
+            return intermediateStates;
 
             // StateMachine.Deserialize will throw if stateMachine != null at the end
         }
 
         public string Serialize(StateMachine<TState> stateMachine)
         {
-            var parts = new List<string>();
-            for (ChildStateMachine<TState> sm = stateMachine; sm != null; sm = sm.CurrentState?.ChildStateMachine)
-            {
-                // State machine is not fully initialised
-                if (sm.CurrentState == null)
-                    throw new StateMachineSerializationException($"Unable to serialize state machine {sm} as it is not fully initialised (it has no initial state).");
-
-                parts.Add(IdentifierForState(sm, sm.CurrentState));
-            }
-
-            return $"{serializerVersion}:{String.Join(separator, parts)}";
+            return $"{serializerVersion}:{IdentifierForState(stateMachine, stateMachine.CurrentChildState)}";
         }
 
-        private static TState StateForIdentifier(ChildStateMachine<TState> stateMachine, string identifier)
+        private static TState StateForIdentifier(StateMachine<TState> stateMachine, string identifier)
         {
-            // We iterate through the states until we find one with the given identifier
-
             // How many times we've seen each base identifier
             var lookup = new Dictionary<string, int>();
 
-            foreach (var state in stateMachine.States)
+            foreach (var state in StateIterator(stateMachine))
             {
                 var stateIdentifier = IdentifierForState(lookup, state);
 
@@ -79,20 +61,41 @@ namespace StateMechanic
             throw new StateMachineSerializationException($"Identifier {identifier} is not associated with any of the states on StateMachine {stateMachine}. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
         }
 
-        private static string IdentifierForState(ChildStateMachine<TState> stateMachine, TState targetState)
+        private static string IdentifierForState(StateMachine<TState> stateMachine, TState targetState)
         {
             // How many times we've seen each base identifier
             var lookup = new Dictionary<string, int>();
 
-            foreach (var state in stateMachine.States)
+            foreach (var state in StateIterator(stateMachine))
             {
                 var stateIdentifier = IdentifierForState(lookup, state);
-
                 if (state == targetState)
                     return stateIdentifier;
             }
 
             throw new InvalidOperationException($"Unable to find state {targetState} on StateMachine {stateMachine}. This should not happen");
+        }
+
+        private static IEnumerable<TState> StateIterator(ChildStateMachine<TState> stateMachine)
+        {
+            // Depth-first recursive iteration of all states
+
+            // State machine is not fully initialised
+            if (stateMachine.InitialState == null)
+                throw new StateMachineSerializationException($"Unable to serialize state machine {stateMachine} as it is not fully initialised (it has no initial state).");
+
+            foreach (var state in stateMachine.States)
+            {
+                yield return state;
+
+                if (state.ChildStateMachine != null)
+                {
+                    foreach (var subState in StateIterator(state.ChildStateMachine))
+                    {
+                        yield return subState;
+                    }
+                }
+            }
         }
 
         private static string IdentifierForState(Dictionary<string, int> lookup, TState state)

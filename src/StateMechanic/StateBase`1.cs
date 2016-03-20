@@ -28,8 +28,6 @@ namespace StateMechanic
         private readonly List<IStateGroup<TState>> groups = new List<IStateGroup<TState>>();
         private readonly IReadOnlyList<IStateGroup<TState>> readOnlyGroups;
 
-        internal ChildStateMachine<TState> ParentStateMachineInternal { get; private set; }
-
         /// <summary>
         /// Gets the list of groups which this state is a member of
         /// </summary>
@@ -48,7 +46,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets a value indicating whether this state's parent state machine is in this state
         /// </summary>
-        public bool IsCurrent => this.ParentStateMachineInternal.CurrentState == this;
+        public bool IsCurrent => this.ParentStateMachine.CurrentState == this;
 
         /// <summary>
         /// Gets the child state machine of this state, if any
@@ -58,14 +56,14 @@ namespace StateMechanic
         /// <summary>
         /// Gets the state machine to which this state belongs
         /// </summary>
-        public IStateMachine ParentStateMachine => this.ParentStateMachineInternal;
+        public ChildStateMachine<TState> ParentStateMachine { get; private set; }
 
         IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
-        IStateMachine IState.ParentStateMachine => this.ParentStateMachineInternal;
+        IStateMachine IState.ParentStateMachine => this.ParentStateMachine;
         IReadOnlyList<ITransition<IState>> IState.Transitions => this.Transitions;
         IReadOnlyList<IDynamicTransition<IState>> IState.DynamicTransitions => this.DynamicTransitions;
         IStateMachine<TState> IState<TState>.ChildStateMachine => this.ChildStateMachine;
-        IStateMachine<TState> IState<TState>.ParentStateMachine => this.ParentStateMachineInternal;
+        IStateMachine<TState> IState<TState>.ParentStateMachine => this.ParentStateMachine;
         IReadOnlyList<IStateGroup<TState>> IState<TState>.Groups => this.readOnlyGroups;
 
         /// <summary>
@@ -94,7 +92,7 @@ namespace StateMechanic
         {
             this.isInitialized = true;
             this.Name = name;
-            this.ParentStateMachineInternal = parentStateMachine;
+            this.ParentStateMachine = parentStateMachine;
         }
 
         private void CheckInitialized()
@@ -114,7 +112,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachineInternal.Kernel);
+            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachine.Kernel);
         }
 
         /// <summary>
@@ -128,7 +126,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachineInternal.Kernel);
+            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
         }
 
         /// <summary>
@@ -142,8 +140,8 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachineInternal.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachineInternal);
+            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.Kernel);
+            @event.AddTransition(this, transition, this.ParentStateMachine);
             this.transitions.Add(transition);
             return transition;
         }
@@ -159,8 +157,8 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachineInternal.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachineInternal);
+            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
+            @event.AddTransition(this, transition, this.ParentStateMachine);
             this.transitions.Add(transition);
             return transition;
         }
@@ -200,7 +198,7 @@ namespace StateMechanic
             if (this.ChildStateMachine != null)
                 throw new InvalidOperationException("This state already has a child state machine");
 
-            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.ParentStateMachineInternal.Kernel, this.self);
+            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.ParentStateMachine.Kernel, this.self);
             return this.ChildStateMachine;
         }
 

@@ -27,7 +27,7 @@ namespace StateMechanicUnitTests
             sm.ForceTransition(childState1, evt);
 
             var serialized = sm.Serialize();
-            Assert.AreEqual("1:state1/childState1", serialized);
+            Assert.AreEqual("1:childState1", serialized);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void SerializationDoesNotDeduplicateDifferentStateMachines()
+        public void SerializationDeduplicatesDifferentStateMachines()
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("state");
@@ -73,7 +73,7 @@ namespace StateMechanicUnitTests
             var childSm = initial.CreateChildStateMachine("childSm");
             var childInitial = childSm.CreateInitialState("state");
 
-            Assert.AreEqual("1:state/state", sm.Serialize());
+            Assert.AreEqual("1:state-2", sm.Serialize());
         }
 
         [Test]
@@ -89,13 +89,13 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
+            var state1 = sm.CreateState("state");
 
             var childSm = state1.CreateChildStateMachine("childSm");
-            var childInitial = childSm.CreateInitialState("childInitial");
-            var childState1 = childSm.CreateState("childState1");
+            var childInitial = childSm.CreateInitialState("state");
+            var childState1 = childSm.CreateState("state");
 
-            sm.Deserialize("1:state1/childState1");
+            sm.Deserialize("1:state-3");
 
             Assert.AreEqual(state1, sm.CurrentState);
             Assert.AreEqual(childState1, childSm.CurrentState);

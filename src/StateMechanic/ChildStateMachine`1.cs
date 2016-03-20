@@ -68,7 +68,7 @@ namespace StateMechanic
         /// </summary>
         public IStateMachine ParentStateMachine => this.ParentState?.ParentStateMachine;
 
-        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.ParentState?.ParentStateMachineInternal.TopmostStateMachineInternal ?? this;
+        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.ParentState?.ParentStateMachine.TopmostStateMachineInternal ?? this;
 
         /// <summary>
         /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
