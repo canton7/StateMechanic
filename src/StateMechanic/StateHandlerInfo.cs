@@ -21,11 +21,17 @@
         /// </summary>
         public IEvent Event { get; }
 
-        internal StateHandlerInfo(TState from, TState to, IEvent @event)
+        /// <summary>
+        /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
+        /// </summary>
+        public bool IsInnerTransition { get; }
+
+        internal StateHandlerInfo(TState from, TState to, IEvent @event, bool isInnerTransition)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
+            this.IsInnerTransition = isInnerTransition;
         }
     }
 }

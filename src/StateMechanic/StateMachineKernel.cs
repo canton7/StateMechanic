@@ -19,12 +19,12 @@ namespace StateMechanic
         {
             // We require that from.ParentStateMachine.Kernel == to.ParentStateMachine.Kernel == this
 
-            var stateHandlerInfo = new StateHandlerInfo<TState>(from, to, @event);
+            var stateHandlerInfo = new StateHandlerInfo<TState>(from, to, @event, isInnerTransition);
 
             if (!isInnerTransition)
             {
                 if (from.ChildStateMachine != null)
-                    this.ExitChildStateMachine(from.ChildStateMachine, to, @event);
+                    this.ExitChildStateMachine(from.ChildStateMachine, to, @event, isInnerTransition);
 
                 this.ExitState(stateHandlerInfo);
             }
@@ -48,30 +48,30 @@ namespace StateMechanic
                 this.EnterState(stateHandlerInfo);
 
                 if (to.ChildStateMachine != null)
-                    this.EnterChildStateMachine(to.ChildStateMachine, from, @event);
+                    this.EnterChildStateMachine(to.ChildStateMachine, from, @event, isInnerTransition);
             }
 
             this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
         }
 
-        private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event)
+        private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition)
         {
             if (childStateMachine.CurrentState != null && childStateMachine.CurrentState.ChildStateMachine != null)
-                this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event);
+                this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event, isInnerTransition);
 
-            this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event));
+            this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event, isInnerTransition));
 
             childStateMachine.SetCurrentState(null);
         }
 
-        private void EnterChildStateMachine(IStateMachine<TState> childStateMachine, TState from, IEvent @event)
+        private void EnterChildStateMachine(IStateMachine<TState> childStateMachine, TState from, IEvent @event, bool isInnerTransition)
         {
             childStateMachine.SetCurrentState(childStateMachine.InitialState);
 
-            this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event));
+            this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event, isInnerTransition));
 
             if (childStateMachine.InitialState.ChildStateMachine != null)
-                this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event);
+                this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event, isInnerTransition);
         }
 
         private void ExitState(StateHandlerInfo<TState> info)
