@@ -140,6 +140,7 @@ namespace StateMechanic
             while (this.transitionQueue.Count > 0)
             {
                 // TODO: Not sure whether these failing should affect the status of the outer parent transition...
+                // Current behaviour is that Fire will, but TryFire will not
                 var item = this.transitionQueue.Dequeue();
                 item.method(item.transitionInvoker);
             }
@@ -150,8 +151,9 @@ namespace StateMechanic
             this.Transition?.Invoke(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
-        public void OnTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
+        public void HandleTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
         {
+            this.transitionQueue.Clear();
             this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
         }
 

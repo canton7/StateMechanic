@@ -249,7 +249,7 @@ namespace StateMechanic
 
         private void HandleTransitionNotFound(IEvent @event, bool throwException)
         {
-            this.Kernel.OnTransitionNotFound(this.CurrentState, @event, this);
+            this.Kernel.HandleTransitionNotFound(this.CurrentState, @event, this);
 
             if (throwException)
                 throw new TransitionNotFoundException(this.CurrentState, @event, this);
