@@ -40,11 +40,19 @@ awaitingMoney.TransitionOn(moneyReceived).To(awaitingSelection);
 awaitingSelection.TransitionOn(selectionReceived).To(dispensing);
 dispensing.TransitionOn(dispenseComplete).To(awaitingMoney);
 
+// See that the state machine starts in the initial state
+Assert.AreEqual(awaitingMoney, stateMachine.CurrentState);
+Assert.True(awaitingMoney.IsCurrent);
+
 // Fire events directly. This will throw an exception if there is no transition
 // from the current state.
 moneyReceived.Fire();
 
-// Alternatively, you can 
+// Alternatively, you can try and fire the event - this won't throw on failure,
+// but will return a bool indicating whether it succeeded.
+moneyReceived.TryFire();
+
+Assert.AreEqual(awaitingSelection, stateMachine.CurrentState);
 
 ```
 
@@ -143,7 +151,6 @@ A transition guard is a delegate which is controls whether a particular transiti
 If it can't, then any other transitions from the current state on that event are tried (transitions are tried in the order in which they were added).
 
 ```csharp
-
 bool allowTransitionToStateB = false;
 
 stateA.TranstionOn(eventE).To(stateB).WithGuard(info => allowTransitionToStateB);
@@ -165,15 +172,52 @@ Dynamic Transitions
 -------------------
 
 Dynamic transitions are the other way of allowing you to specify what state to transition to at runtime.
+Instead of providing a state to transition to, you instead provide a delegate that, when called, gives the state to transition to.
+
+These are slightly less clear than transition guards (especially when printing the state machine, see later).
+
+```csharp
+bool allowTransitionToStateB = false;
+
+stateA.TranstionOn(eventE).ToDynamic(info => allowTransitionToStateB ? stateB : stateC);
+
+eventE.Fire();
+Assert.AreEqual(stateB, stateMachine.CurrentState);
+
+// Alternatively...
+allowTransitionToStateB = false;
+eventE.Fire();
+Assert.AreEqual(stateC, stateMachine.CurrentState);
+```
+
+
+Recursive Transitions
+---------------------
+
+You are allowed to fire events from within state entry and exit handlers, and from transition handlers.
+The event is queued until the current transition is complete, at which point it is fired.
+
+Because events are queued, the behaviour around `Event.Fire()` and `Event.TryFire()` changes a bit.
+
+`Event.Fire()` will never throw an exception directly, but when that event is dequeued it will throw an exception if no transition from the current state (at that point) on that event exists, and that will bubble back to whatever method (`Event.Fire()` **or** `Event.TryFire()`) was used to kick off the outermost transition.
+
+`Event.TryFire()` will always return true.
+When that event is dequeued, if no transition from the current state (at that point) on that event exists, then any queued events are not affected.
+You will have no way of knowing that firing the event failed (other than the `TransitionNotFound` event on the StateMachine).
+
+
+
 
 
 TODO
 ---- 
 
- - Handler order
- - Dynamic transitions
  - Events from within handlers
  - Faulting
  - Stuff on StateMachine
  - Custom states
  - Printing
+ - Child state machines
+ - State groups
+ - Thread safety
+ - Forced transitions
