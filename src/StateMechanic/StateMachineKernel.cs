@@ -151,9 +151,10 @@ namespace StateMechanic
             this.Transition?.Invoke(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
         }
 
-        public void HandleTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine)
+        public void HandleTransitionNotFound(TState fromState, IEvent @event, IStateMachine stateMachine, bool throwsException)
         {
-            this.transitionQueue.Clear();
+            if (throwsException)
+                this.transitionQueue.Clear();
             this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(fromState, @event, stateMachine));
         }
 
