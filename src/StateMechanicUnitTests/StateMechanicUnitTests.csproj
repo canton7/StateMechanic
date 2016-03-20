@@ -66,6 +66,7 @@
     <Compile Include="AssertionTests.cs" />
     <Compile Include="EventFireTests.cs" />
     <Compile Include="FaultTests.cs" />
+    <Compile Include="PrinterTests.cs" />
     <Compile Include="HandlerTests.cs" />
     <Compile Include="IntrospectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

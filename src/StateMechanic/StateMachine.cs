@@ -10,7 +10,7 @@ namespace StateMechanic
         /// Instantiates a new instance of the <see cref="StateMachine"/> class, with the given name
         /// </summary>
         /// <param name="name">Name of this state machine</param>
-        public StateMachine(string name)
+        public StateMachine(string name = null)
             : base(name)
         {
         }

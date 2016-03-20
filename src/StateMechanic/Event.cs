@@ -18,7 +18,7 @@ namespace StateMechanic
         /// Initialises a new instance of the <see cref="Event"/> class
         /// </summary>
         /// <param name="name">Name assigned to the evnet</param>
-        public Event(string name)
+        public Event(string name = null)
         {
             this.Name = name;
             this.innerEvent = new EventInner<Event, IInvokableTransition>();
