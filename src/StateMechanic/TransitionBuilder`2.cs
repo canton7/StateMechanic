@@ -34,7 +34,7 @@ namespace StateMechanic
 
             var transition = new DynamicTransition<TState, TEventData>(this.fromState, this.@event, stateSelector, this.transitionDelegate);
             this.@event.AddTransition(this.fromState, transition, this.fromState.ParentStateMachine);
-            this.fromState.AddDynamicTransition(transition);
+            this.fromState.AddTransition(transition);
             return transition;
         }
     }

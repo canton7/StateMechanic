@@ -13,17 +13,11 @@ namespace StateMechanic
         private readonly TState self;
 
         private readonly List<ITransition<TState>> transitions = new List<ITransition<TState>>();
-        private readonly List<IDynamicTransition<TState>> dynamicTransitions = new List<IDynamicTransition<TState>>();
 
         /// <summary>
         /// Gets a list of transitions available from the current state
         /// </summary>
         public IReadOnlyList<ITransition<TState>> Transitions { get; }
-
-        /// <summary>
-        /// Gets a list of dynamic transitions available from the current state
-        /// </summary>
-        public IReadOnlyList<IDynamicTransition<TState>> DynamicTransitions { get; }
 
         private readonly List<IStateGroup<TState>> groups = new List<IStateGroup<TState>>();
         private readonly IReadOnlyList<IStateGroup<TState>> readOnlyGroups;
@@ -61,7 +55,6 @@ namespace StateMechanic
         IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
         IStateMachine IState.ParentStateMachine => this.ParentStateMachine;
         IReadOnlyList<ITransition<IState>> IState.Transitions => this.Transitions;
-        IReadOnlyList<IDynamicTransition<IState>> IState.DynamicTransitions => this.DynamicTransitions;
         IStateMachine<TState> IState<TState>.ChildStateMachine => this.ChildStateMachine;
         IStateMachine<TState> IState<TState>.ParentStateMachine => this.ParentStateMachine;
         IReadOnlyList<IStateGroup<TState>> IState<TState>.Groups => this.readOnlyGroups;
@@ -84,7 +77,6 @@ namespace StateMechanic
 
             this.self = self;
             this.Transitions = new ReadOnlyCollection<ITransition<TState>>(this.transitions);
-            this.DynamicTransitions = new ReadOnlyCollection<IDynamicTransition<TState>>(this.dynamicTransitions);
             this.readOnlyGroups = new ReadOnlyCollection<IStateGroup<TState>>(this.groups);
         }
 
@@ -268,11 +260,6 @@ namespace StateMechanic
         void IState<TState>.AddTransition(ITransition<TState> transition)
         {
             this.transitions.Add(transition);
-        }
-
-        void IState<TState>.AddDynamicTransition(IDynamicTransition<TState> transition)
-        {
-            this.dynamicTransitions.Add(transition);
         }
 
         /// <summary>

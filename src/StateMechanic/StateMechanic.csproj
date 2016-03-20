@@ -56,7 +56,6 @@
     <Compile Include="Event`1.cs" />
     <Compile Include="FaultedComponent.cs" />
     <Compile Include="ForcedTransitionInvoker.cs" />
-    <Compile Include="IDynamicTransition.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
     <Compile Include="IInvokableTransition.cs" />
