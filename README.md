@@ -53,7 +53,6 @@ moneyReceived.Fire();
 moneyReceived.TryFire();
 
 Assert.AreEqual(awaitingSelection, stateMachine.CurrentState);
-
 ```
 
 You'll notice that states and events are instances, rather than being enums (as in other state machine libraries).
@@ -190,6 +189,8 @@ eventE.Fire();
 Assert.AreEqual(stateC, stateMachine.CurrentState);
 ```
 
+You can return `null` from the delegate given to `ToDynamic`, in which case the next eligible transition is attempted (i.e. the same as if the transition had a guard, which returned false).
+
 
 Recursive Transitions
 ---------------------
@@ -206,18 +207,84 @@ When that event is dequeued, if no transition from the current state (at that po
 You will have no way of knowing that firing the event failed (other than the `TransitionNotFound` event on the StateMachine).
 
 
+Exceptions and Faulting
+-----------------------
 
+State entry/exit handlers and transition handlers may not throw exceptions.
+(If exceptions were allowed, then these handlers would not run to completion, and it would be impossible to guarentee the integrity of the state machine).
+
+If one of these handlers does throw an exception, then a `TransitionFailedException` will be thrown, and the state machine will enter a faulted state.
+The `Faulted` event on the StateMachine will also be raised, and its `Fault` property will contain information about the fault.
+
+When a state machine has faulted, no more transitions may occur, and the current state may not be queried.
+The only way to recovert is to call `Reset()` on the state machine, which will reset it to its initial state and clear the fault.
+
+Transition guards and dynamic transition state selectors may throw exceptions: these exceptions are propagated back to the `Event.Fire()` or `Event.TryFire()` call which initiated the transition, and the transition will not occur.
+
+
+State Groups
+------------
+
+State groups provide a lightweight alternative to full-blown hierarchical state machines (documented below).
+A state group can contain one or more states, and a state can be part of one of more state groups.
+
+State groups have an `IsCurrent` property, which indicates whether any of their states are current.
+This can be useful if you have, for example, multiple states which together indicate that a device is connecting to another device.
+You can add all of these 'connecting' states to a state group, and use the state groups 'IsCurrent' property to determine whether the state machine is in any of the states related to connecting.
+
+State groups also have their own Exit and Entry handlers.
+The Entry handler is invoked if the state machine transitions from a state which is not part of the state group, to a state which is.
+Likewise the Exit handler is invoked if the state machine transitions from a state which is part of the state group to a state which is not.
+
+```csharp
+var stateA = stateMachine.CreateState("State A");
+var stateB = stateMachine.CreateState("State B");
+
+// You can create state groups, and add states to them
+var statesAAndB = new StateGroup("States A and B")
+	.WithEntry(info => Console.WriteLine($"Entering group from {info.From} to {info.To} on {info.Event}"))
+	.WithExit(info => Console.WriteLine($"Exiting group from {info.From} to {info.To} on {info.Event}"));
+
+statesAAndB.AddStates(stateA, stateB);
+
+// You can also add states to groups
+stateA.AddToGroup(statesAAndB);
+```
+
+
+Child State Machines
+--------------------
+
+StateMechanic supports fully hierarchical state machines.
+The model is that any state may have a single child state machine, which are fully-fledges state machines in their own right.
+
+Child state machines start by not existing in any state (`CurrentState` is `null`).
+When a state machine transitions to a state which has a child state machine, that child state machine will also transition to its initial state.
+This child state machine is now active.
+
+When an event is fired, any active child state machines are given the opportunity to handle the event: if a transition exists from the child machine's current state to another state, then that transition will be invoked.
+If no transitions are found, then the parent of that child attempts to handle the event, and so on.
+
+States belonging to a state machine may not transition to states belonging to a different (parent or child) state machine.
+The only way that a child state machine can be exited is if a transition occurs on its parent which changes the current state away from the state which owns that child state machine.
+
+A state machine's `CurrentState` will never refer to a state belonging to a child state machine.
+The `CurrentChildState` property will, however, refer to the child-most active state.
+
+All of this is quite confusing!
+Here's an example to hopefully clear the smoke.
+
+```csharp
+
+```
 
 
 TODO
 ---- 
 
- - Events from within handlers
- - Faulting
  - Stuff on StateMachine
  - Custom states
  - Printing
  - Child state machines
- - State groups
  - Thread safety
  - Forced transitions
