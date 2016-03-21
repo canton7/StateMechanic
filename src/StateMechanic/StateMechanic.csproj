@@ -80,6 +80,7 @@
     <Compile Include="LockingStateMachineSynchronizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateBase`1.cs" />
+    <Compile Include="StateGroup.cs" />
     <Compile Include="StateGroup`1.cs" />
     <Compile Include="StateHandlerInfo.cs" />
     <Compile Include="StateMachine.cs" />

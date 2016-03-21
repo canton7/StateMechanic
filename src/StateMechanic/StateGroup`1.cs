@@ -6,7 +6,7 @@ using System.Linq;
 namespace StateMechanic
 {
     /// <summary>
-    /// A group, which contains many states, and can have its own entry and exit ahndlers
+    /// A group, which contains many states, and can have its own entry and exit handlers
     /// </summary>
     public class StateGroup<TState> : IStateGroup<TState> where TState : StateBase<TState>, new()
     {
@@ -16,7 +16,7 @@ namespace StateMechanic
         /// Initialises a new instance of the <see cref="StateGroup{TState}"/> class
         /// </summary>
         /// <param name="name">Name of this state group</param>
-        public StateGroup(string name)
+        public StateGroup(string name = null)
         {
             this.States = new ReadOnlyCollection<TState>(this.states);
             this.Name = name;
