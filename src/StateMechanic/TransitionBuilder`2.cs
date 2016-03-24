@@ -3,7 +3,7 @@
 namespace StateMechanic
 {
     internal class TransitionBuilder<TState, TEventData> : ITransitionBuilder<TState, TEventData>
-        where TState : class, IState<TState>
+        where TState : StateBase<TState>, new()
     {
         private readonly TState fromState;
         private readonly Event<TEventData> @event;

@@ -7,7 +7,7 @@ namespace StateMechanic
     /// <summary>
     /// A state machine, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine<TState> : IStateMachine<TState>, IEventDelegate, IStateDelegate<TState>
+    public class ChildStateMachine<TState> : IStateMachine, IEventDelegate, IStateDelegate<TState>
         where TState : StateBase<TState>, new()
     {
         internal StateMachineKernel<TState> Kernel { get; }
@@ -255,7 +255,7 @@ namespace StateMechanic
                 throw new TransitionNotFoundException(this.CurrentState, @event, this);
         }
 
-        void IStateMachine<TState>.SetCurrentState(TState state)
+        internal void SetCurrentState(TState state)
         {
             if (state != null && state.ParentStateMachine != this)
                 throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");

@@ -65,12 +65,9 @@
     <Compile Include="IState.cs" />
     <Compile Include="IStateDelegate.cs" />
     <Compile Include="IStateGroup.cs" />
-    <Compile Include="IStateGroup`1.cs" />
     <Compile Include="IStateMachine.cs" />
     <Compile Include="IStateMachineSerializer.cs" />
     <Compile Include="IStateMachineSynchronizer.cs" />
-    <Compile Include="IStateMachine`1.cs" />
-    <Compile Include="IState`1.cs" />
     <Compile Include="ITransition.cs" />
     <Compile Include="ITransitionBuilder`1.cs" />
     <Compile Include="ITransitionBuilder`2.cs" />

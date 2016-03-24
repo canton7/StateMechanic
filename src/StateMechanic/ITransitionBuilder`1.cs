@@ -6,7 +6,7 @@ namespace StateMechanic
     /// The result of calling <see cref="StateBase{TState}.TransitionOn(Event)"/> or <see cref="StateBase{TState}.TransitionOn{TEventData}(Event{TEventData})"/> represents a builder creating a transition
     /// </summary>
     /// <typeparam name="TState">Type of state this transition will be from</typeparam>
-    public interface ITransitionBuilder<TState> where TState : class, IState
+    public interface ITransitionBuilder<TState> where TState : StateBase<TState>, new()
     {
         /// <summary>
         /// Set the state this transition will transition to

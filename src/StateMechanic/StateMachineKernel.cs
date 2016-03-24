@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace StateMechanic
 {
-    internal class StateMachineKernel<TState> : ITransitionDelegate<TState> where TState : class, IState<TState>
+    internal class StateMachineKernel<TState> : ITransitionDelegate<TState> where TState : StateBase<TState>, new()
     {
         private readonly Queue<TransitionQueueItem> transitionQueue = new Queue<TransitionQueueItem>();
         public IStateMachineSynchronizer Synchronizer { get; set; }
@@ -54,7 +54,7 @@ namespace StateMechanic
             this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
         }
 
-        private void ExitChildStateMachine(IStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition)
+        private void ExitChildStateMachine(ChildStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition)
         {
             if (childStateMachine.CurrentState != null && childStateMachine.CurrentState.ChildStateMachine != null)
                 this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event, isInnerTransition);
@@ -64,7 +64,7 @@ namespace StateMechanic
             childStateMachine.SetCurrentState(null);
         }
 
-        private void EnterChildStateMachine(IStateMachine<TState> childStateMachine, TState from, IEvent @event, bool isInnerTransition)
+        private void EnterChildStateMachine(ChildStateMachine<TState> childStateMachine, TState from, IEvent @event, bool isInnerTransition)
         {
             childStateMachine.SetCurrentState(childStateMachine.InitialState);
 
@@ -78,7 +78,7 @@ namespace StateMechanic
         {
             try
             {
-                info.From.FireExitHandler(info);
+                info.From.OnExit(info);
             }
             catch (Exception e)
             {
@@ -93,7 +93,7 @@ namespace StateMechanic
 
                 try
                 {
-                    group.FireExitHandler(info);
+                    group.OnExit(info);
                 }
                 catch (Exception e)
                 {
@@ -106,7 +106,7 @@ namespace StateMechanic
         {
             try
             {
-                info.To.FireEntryHandler(info);
+                info.To.OnEntry(info);
             }
             catch (Exception e)
             {
@@ -121,7 +121,7 @@ namespace StateMechanic
 
                 try
                 {
-                    group.FireEntryHandler(info);
+                    group.OnEntry(info);
                 }
                 catch (Exception e)
                 {

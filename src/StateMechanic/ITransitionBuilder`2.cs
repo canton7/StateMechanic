@@ -7,7 +7,7 @@ namespace StateMechanic
     /// </summary>
     /// <typeparam name="TState">Type of state this transition will be from</typeparam>
     /// <typeparam name="TEventData">Type of event data associted with this transition</typeparam>
-    public interface ITransitionBuilder<TState, TEventData> where TState : class, IState
+    public interface ITransitionBuilder<TState, TEventData> where TState : StateBase<TState>, new()
     {
         /// <summary>
         /// Set the state this transition will transition to

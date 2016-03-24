@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace StateMechanic
 {
-    internal class ForcedTransitionInvoker<TState> : ITransitionInvoker<TState> where TState : class, IState<TState>
+    internal class ForcedTransitionInvoker<TState> : ITransitionInvoker<TState> where TState : StateBase<TState>, new()
     {
         private readonly TState toState;
         private readonly ITransitionDelegate<TState> transitionDelegate;

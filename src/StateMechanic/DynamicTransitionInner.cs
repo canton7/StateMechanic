@@ -3,7 +3,7 @@
 namespace StateMechanic
 {
     internal class DynamicTransitionInner<TState, TEvent, TTransitionInfo, TDynamicSelectorInfo>
-        where TState : class, IState
+        where TState : StateBase<TState>, new()
         where TEvent : IEvent
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
@@ -45,9 +45,13 @@ namespace StateMechanic
             return to;
         }
 
-        public void Invoke(TState to, TTransitionInfo transitionInfo)
+        public bool TryInvoke(TState to, TTransitionInfo transitionInfo)
         {
+            if (!to.CanTransition(this.Event, to))
+                return false;
+
             this.transitionDelegate.CoordinateTransition(this.From, to, this.Event, false, this.Handler, transitionInfo);
+            return true;
         }
     }
 }

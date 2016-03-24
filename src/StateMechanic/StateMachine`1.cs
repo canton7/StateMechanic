@@ -117,7 +117,7 @@ namespace StateMechanic
         {
             this.Reset();
 
-            IStateMachine<TState> stateMachine = this;
+            ChildStateMachine<TState> stateMachine = this;
 
             foreach (var state in this.serializer.Deserialize(this, serialized))
             {

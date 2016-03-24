@@ -6,7 +6,7 @@ namespace StateMechanic
     /// A transition from one state to another, triggered by an event, where the destination state is determined by a user-supplied callback
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
-    public class DynamicTransition<TState> : ITransition<TState>, IInvokableTransition where TState : class, IState
+    public class DynamicTransition<TState> : ITransition<TState>, IInvokableTransition where TState : StateBase<TState>, new()
     {
         private readonly DynamicTransitionInner<TState, Event, TransitionInfo<TState>, DynamicSelectorInfo<TState>> innerTransition;
 
@@ -67,8 +67,8 @@ namespace StateMechanic
             var to = this.innerTransition.FindToState(dynamicTransitionInfo);
             if (to == null)
                 return false;
-            this.innerTransition.Invoke(to, new TransitionInfo<TState>(this.innerTransition.From, to, this.innerTransition.Event, false));
-            return true;
+
+            return this.innerTransition.TryInvoke(to, new TransitionInfo<TState>(this.innerTransition.From, to, this.innerTransition.Event, false));
         }
     }
 }

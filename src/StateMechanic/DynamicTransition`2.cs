@@ -7,7 +7,7 @@ namespace StateMechanic
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
     /// /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
-    public class DynamicTransition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData> where TState : class, IState
+    public class DynamicTransition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData> where TState : StateBase<TState>, new()
     {
         private readonly DynamicTransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>, DynamicSelectorInfo<TState, TEventData>> innerTransition;
 
@@ -68,8 +68,8 @@ namespace StateMechanic
             var to = this.innerTransition.FindToState(dynamicTransitionInfo);
             if (to == null)
                 return false;
-            this.innerTransition.Invoke(to, new TransitionInfo<TState, TEventData>(this.innerTransition.From, to, this.innerTransition.Event, eventData, false));
-            return true;
+
+            return this.innerTransition.TryInvoke(to, new TransitionInfo<TState, TEventData>(this.innerTransition.From, to, this.innerTransition.Event, eventData, false));
         }
     }
 }

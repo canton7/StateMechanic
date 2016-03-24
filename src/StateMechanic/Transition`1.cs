@@ -7,7 +7,7 @@ namespace StateMechanic
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
     public class Transition<TState> : ITransition<TState>, IInvokableTransition
-        where TState : IState
+        where TState : StateBase<TState>, new()
     {
         private readonly TransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
         private readonly TransitionInfo<TState> transitionInfo;

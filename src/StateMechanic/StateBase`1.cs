@@ -7,7 +7,7 @@ namespace StateMechanic
     /// <summary>
     /// A state, which can be transioned from/to, and which can represent the current state of a <see cref="StateMachine{TState}"/>
     /// </summary>
-    public abstract class StateBase<TState> : IState<TState> where TState : StateBase<TState>, new()
+    public abstract class StateBase<TState> : IState where TState : StateBase<TState>, new()
     {
         private bool isInitialized;
         private readonly TState self;
@@ -19,13 +19,12 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<ITransition<TState>> Transitions { get; }
 
-        private readonly List<IStateGroup<TState>> groups = new List<IStateGroup<TState>>();
-        private readonly IReadOnlyList<IStateGroup<TState>> readOnlyGroups;
+        private readonly List<StateGroup<TState>> groups = new List<StateGroup<TState>>();
 
         /// <summary>
         /// Gets the list of groups which this state is a member of
         /// </summary>
-        public IReadOnlyList<IStateGroup> Groups => this.readOnlyGroups;
+        public IReadOnlyList<StateGroup<TState>> Groups { get; }
 
         /// <summary>
         /// Gets the name assigned to this state
@@ -55,9 +54,7 @@ namespace StateMechanic
         IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
         IStateMachine IState.ParentStateMachine => this.ParentStateMachine;
         IReadOnlyList<ITransition<IState>> IState.Transitions => this.Transitions;
-        IStateMachine<TState> IState<TState>.ChildStateMachine => this.ChildStateMachine;
-        IStateMachine<TState> IState<TState>.ParentStateMachine => this.ParentStateMachine;
-        IReadOnlyList<IStateGroup<TState>> IState<TState>.Groups => this.readOnlyGroups;
+        IReadOnlyList<IStateGroup> IState.Groups => this.Groups;
 
         /// <summary>
         /// Gets or sets the method called when the StateMachine enters this state
@@ -77,7 +74,7 @@ namespace StateMechanic
 
             this.self = self;
             this.Transitions = new ReadOnlyCollection<ITransition<TState>>(this.transitions);
-            this.readOnlyGroups = new ReadOnlyCollection<IStateGroup<TState>>(this.groups);
+            this.Groups = new ReadOnlyCollection<StateGroup<TState>>(this.groups);
         }
 
         internal void Initialize(string name, ChildStateMachine<TState> parentStateMachine)
@@ -228,7 +225,7 @@ namespace StateMechanic
         /// Invoke the entry handler - override for custom behaviour
         /// </summary>
         /// <param name="info">Information associated with this transition</param>
-        protected virtual void OnEntry(StateHandlerInfo<TState> info)
+        protected internal virtual void OnEntry(StateHandlerInfo<TState> info)
         {
             this.EntryHandler?.Invoke(info);
         }
@@ -237,19 +234,34 @@ namespace StateMechanic
         /// Invoke the exit handler - override for custom behaviour
         /// </summary>
         /// <param name="info">Information associated with this transition</param>
-        protected virtual void OnExit(StateHandlerInfo<TState> info)
+        protected internal virtual void OnExit(StateHandlerInfo<TState> info)
         {
             this.ExitHandler?.Invoke(info);
         }
 
-        void IState<TState>.FireEntryHandler(StateHandlerInfo<TState> info)
+        /// <summary>
+        /// Optional override point. If overridden, will be called each time an event is fired, and will return
+        /// the state to transition to (will override whatever was configured in the transition), or null to
+        /// use whatever was configured in the transitions.
+        /// </summary>
+        /// <param name="event">Event that was fired</param>
+        /// <returns>State to transition to, or null</returns>
+        protected internal virtual TState HandleEvent(IEvent @event)
         {
-            this.OnEntry(info);
+            return null;
         }
 
-        void IState<TState>.FireExitHandler(StateHandlerInfo<TState> info)
+
+        /// <summary>
+        /// Optional override point. If overridden, will be called before a transition occurs, and can return
+        /// false to abort the transition. If it returns true, the transition guard will be called.
+        /// </summary>
+        /// <param name="event">Event which triggered the transition</param>
+        /// <param name="to">State to transition to</param>
+        /// <returns>False to abort the transition, true to continue</returns>
+        protected internal virtual bool CanTransition(IEvent @event, TState to)
         {
-            this.OnExit(info);
+            return true;
         }
 
         internal void Reset()
@@ -257,7 +269,7 @@ namespace StateMechanic
             this.ChildStateMachine?.ResetChildStateMachine();
         }
 
-        void IState<TState>.AddTransition(ITransition<TState> transition)
+        internal void AddTransition(ITransition<TState> transition)
         {
             this.transitions.Add(transition);
         }

@@ -8,7 +8,7 @@ namespace StateMechanic
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
     /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
     public class Transition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData>
-        where TState : IState
+        where TState : StateBase<TState>, new()
     {
         private readonly TransitionInner<TState, Event<TEventData>, TransitionInfo<TState, TEventData>> innerTransition;
 

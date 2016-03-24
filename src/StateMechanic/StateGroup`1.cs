@@ -8,7 +8,7 @@ namespace StateMechanic
     /// <summary>
     /// A group, which contains many states, and can have its own entry and exit handlers
     /// </summary>
-    public class StateGroup<TState> : IStateGroup<TState> where TState : StateBase<TState>, new()
+    public class StateGroup<TState> : IStateGroup where TState : StateBase<TState>, new()
     {
         private readonly List<TState> states = new List<TState>();   
 
@@ -98,12 +98,20 @@ namespace StateMechanic
             }
         }
 
-        void IStateGroup<TState>.FireEntryHandler(StateHandlerInfo<TState> info)
+        /// <summary>
+        /// Invoke the entry handler - override for custom behaviour
+        /// </summary>
+        /// <param name="info">Information associated with this transition</param>
+        protected internal virtual void OnEntry(StateHandlerInfo<TState> info)
         {
             this.EntryHandler?.Invoke(info);
         }
 
-        void IStateGroup<TState>.FireExitHandler(StateHandlerInfo<TState> info)
+        /// <summary>
+        /// Invoke the exit handler - override for custom behaviour
+        /// </summary>
+        /// <param name="info">Information associated with this transition</param>
+        protected internal virtual void OnExit(StateHandlerInfo<TState> info)
         {
             this.ExitHandler?.Invoke(info);
         }
