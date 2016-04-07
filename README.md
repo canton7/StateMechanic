@@ -20,7 +20,7 @@ We'll create a state machine to represent a drinks dispenser.
 ```csharp
 // First off, create a state machine. It's recommended to give it a name
 // (which helps debugging), but you don't have to.
-var stateMachine = new StateMachine("Sode Machine");
+var stateMachine = new StateMachine("State Machine");
 
 // Whenever we create a state machine, we need to give it an initial state. This
 // is the state which the state machine starts in.
@@ -69,8 +69,8 @@ Entry and exit handlers are passed an object containing various bits of useful i
 
 ```csharp
 var someState = stateMachine.CreateState("Some State")
-	.WithEntry(info => Console.WriteLine($"Entry from {info.From} to {info.To} on {info.Event}"))
-	.WithExit(info => Console.WriteLine($"Exit from {info.From} to {info.To} on {info.Event}"));
+    .WithEntry(info => Console.WriteLine($"Entry from {info.From} to {info.To} on {info.Event}"))
+    .WithExit(info => Console.WriteLine($"Exit from {info.From} to {info.To} on {info.Event}"));
 
 // You can also set the EntryHandler and ExitHandler properties directly
 someState.EntryHandler = info => Console.WriteLine($"Entry from {info.From} to {info.To} on {info.Event}");
@@ -86,7 +86,7 @@ As with state entry/exit handlers, transition handlers receive an object contain
 
 ```csharp
 someState.TransitionOn(someEvent).To(someOtherState)
-	.WithHandler(info => Console.WriteLine($"Transition from {info.From} to {info.To} on {info.Event}"));
+    .WithHandler(info => Console.WriteLine($"Transition from {info.From} to {info.To} on {info.Event}"));
 
 // You can also set the Handler property directly
 var transition = someState.TransitionOn(someEvent).To(someOtherState);
@@ -103,9 +103,9 @@ By default, both the exit and entry handlers will also be invoked in this case.
 If you don't want this, then create an inner self transition instead.
 
 ```csharp
-var state = stateMachine.CreateState("State")
-	.WithEntry(i => Console.WriteLine("Entry"))
-	.WithExit(i => Console.WriteLine("Exit"));
+var state = stateMachine.CreateInitialState("State")
+    .WithEntry(i => Console.WriteLine("Entry"))
+    .WithExit(i => Console.WriteLine("Exit"));
 
 state.TransitionOn(event1).To(state).WithHandler(i => Console.WriteLine("Handler"));
 
@@ -130,7 +130,7 @@ This data is then available to transition handlers and transition guards (see be
 var eventWithData = new Event<string>();
 
 state.TransitionOn(eventWithData).To(anotherState)
-	.WithHandler(info => Console.WriteLine($"Data: {info.EventData}"));
+    .WithHandler(info => Console.WriteLine($"Data: {info.EventData}"));
 
 // Provide the data when you fire the event
 eventWithData.Fire("Some Data");
@@ -152,16 +152,16 @@ If it can't, then any other transitions from the current state on that event are
 ```csharp
 bool allowTransitionToStateB = false;
 
-stateA.TranstionOn(eventE).To(stateB).WithGuard(info => allowTransitionToStateB);
-stateA.TranstionOn(eventE).To(stateC);
+stateA.TransitionOn(eventE).To(stateB).WithGuard(info => allowTransitionToStateB);
+stateA.TransitionOn(eventE).To(stateC);
 
-eventE.Fire();
-Assert.AreEqual(stateB, stateMachine.CurrentState);
-
-// Alternatively...
-allowTransitionToStateB = false;
 eventE.Fire();
 Assert.AreEqual(stateC, stateMachine.CurrentState);
+
+// Alternatively...
+allowTransitionToStateB = true;
+eventE.Fire();
+Assert.AreEqual(stateB, stateMachine.CurrentState);
 ```
 
 The guard receives an object with useful information about the transition.
@@ -176,15 +176,15 @@ Instead of providing a state to transition to, you instead provide a delegate th
 These are slightly less clear than transition guards (especially when printing the state machine, see later).
 
 ```csharp
-bool allowTransitionToStateB = false;
+State stateToTransitionTo = stateB;
 
-stateA.TranstionOn(eventE).ToDynamic(info => allowTransitionToStateB ? stateB : stateC);
+stateA.TransitionOn(eventE).ToDynamic(info => stateToTransitionTo);
 
 eventE.Fire();
 Assert.AreEqual(stateB, stateMachine.CurrentState);
 
 // Alternatively...
-allowTransitionToStateB = false;
+stateToTransitionTo = stateC;
 eventE.Fire();
 Assert.AreEqual(stateC, stateMachine.CurrentState);
 ```
@@ -242,8 +242,8 @@ var stateB = stateMachine.CreateState("State B");
 
 // You can create state groups, and add states to them
 var statesAAndB = new StateGroup("States A and B")
-	.WithEntry(info => Console.WriteLine($"Entering group from {info.From} to {info.To} on {info.Event}"))
-	.WithExit(info => Console.WriteLine($"Exiting group from {info.From} to {info.To} on {info.Event}"));
+    .WithEntry(info => Console.WriteLine($"Entering group from {info.From} to {info.To} on {info.Event}"))
+    .WithExit(info => Console.WriteLine($"Exiting group from {info.From} to {info.To} on {info.Event}"));
 
 statesAAndB.AddStates(stateA, stateB);
 

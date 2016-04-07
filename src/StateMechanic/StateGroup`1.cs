@@ -92,7 +92,7 @@ namespace StateMechanic
             if (states == null)
                 throw new ArgumentNullException(nameof(states));
 
-            foreach (var state in States)
+            foreach (var state in states)
             {
                 state.AddToGroup(this);
             }
@@ -118,7 +118,8 @@ namespace StateMechanic
 
         internal void AddStateInternal(TState state)
         {
-            this.states.Add(state);
+            if (!this.states.Contains(state))
+                this.states.Add(state);
         }
     }
 }

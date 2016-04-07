@@ -201,7 +201,8 @@ namespace StateMechanic
             if (group == null)
                 throw new ArgumentNullException(nameof(group));
 
-            this.groups.Add(group);
+            if (!this.groups.Contains(group))
+                this.groups.Add(group);
             group.AddStateInternal(this.self);
         }
 
