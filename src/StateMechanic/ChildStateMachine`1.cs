@@ -59,6 +59,11 @@ namespace StateMechanic
         }
 
         /// <summary>
+        /// Gets a value indicating whether the current state machine is active
+        /// </summary>
+        public bool IsActive => this.CurrentState != null;
+
+        /// <summary>
         /// Gets the name given to this state machine when it was created
         /// </summary>
         public string Name { get; }

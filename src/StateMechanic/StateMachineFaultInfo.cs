@@ -52,5 +52,15 @@ namespace StateMechanic
             this.Event = @event;
             this.Group = group;
         }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns> A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            var group = this.Group != null ? $" Group={this.Group}" : String.Empty;
+            return $"<StateMachineFaultInfo StateMachine={this.StateMachine} FauledComponent={this.FaultedComponent} Exception=\"{this.Exception.Message}\" From={this.From} To={this.To} Event={this.Event}{group}>";
+        }
     }
 }

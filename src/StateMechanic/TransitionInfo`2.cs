@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="TState">Type of state</typeparam>
     /// <typeparam name="TEventData">Type of event data associated with the event</typeparam>
-    public class TransitionInfo<TState, TEventData>
+    public class TransitionInfo<TState, TEventData> : object
     {
         /// <summary>
         /// Gets the state this transition is from
@@ -39,6 +39,15 @@
             this.Event = @event;
             this.EventData = eventData;
             this.IsInnerTransition = isInnerTransition;
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns> A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"<TransitionInfo From=${this.From} To={this.To} Event={this.Event} EventData={this.EventData} IsInnerTransition={this.IsInnerTransition}>";
         }
     }
 }

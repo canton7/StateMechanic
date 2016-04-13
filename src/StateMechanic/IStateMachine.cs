@@ -48,6 +48,11 @@ namespace StateMechanic
         IStateMachine TopmostStateMachine { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the current state machine is active
+        /// </summary>
+        bool IsActive { get; }
+
+        /// <summary>
         /// Determines whether this state machine is a child of another state machine
         /// </summary>
         /// <param name="parentStateMachine">State machine which may be a parent of this state machine</param>

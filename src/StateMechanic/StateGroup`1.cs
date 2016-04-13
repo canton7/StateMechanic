@@ -13,16 +13,6 @@ namespace StateMechanic
         private readonly List<TState> states = new List<TState>();   
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="StateGroup{TState}"/> class
-        /// </summary>
-        /// <param name="name">Name of this state group</param>
-        public StateGroup(string name = null)
-        {
-            this.States = new ReadOnlyCollection<TState>(this.states);
-            this.Name = name;
-        }
-
-        /// <summary>
         /// Gets the name given to this group
         /// </summary>
         public string Name { get; }
@@ -48,6 +38,16 @@ namespace StateMechanic
         /// Gets or sets the method called when the StateMachine exits this state
         /// </summary>
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="StateGroup{TState}"/> class
+        /// </summary>
+        /// <param name="name">Name of this state group</param>
+        public StateGroup(string name = null)
+        {
+            this.States = new ReadOnlyCollection<TState>(this.states);
+            this.Name = name;
+        }
 
         /// <summary>
         /// Set the method called when the StateMachine enters this state
@@ -120,6 +120,15 @@ namespace StateMechanic
         {
             if (!this.states.Contains(state))
                 this.states.Add(state);
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns> A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"<StateGroup Name={this.Name ?? "(unnamed)"} States=[{String.Join(", ", this.States.Select(x => x.ToString()))}>";
         }
     }
 }
