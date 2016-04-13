@@ -245,5 +245,135 @@ namespace Samples
             evt.Fire();
             evt.Fire();
         }
+
+        [Description("Child State Machines")]
+        public static void ChildStateMachines()
+        {
+            var parentStateMachine = new StateMachine("Parent");
+            parentStateMachine.Transition += (o, e) => Console.WriteLine($"Transition: {e.From.Name} -> {e.To.Name} ({e.Event.Name})");
+
+            var disconnected = parentStateMachine.CreateInitialState("Disconnected")
+                .WithEntry(i => Console.WriteLine($"Disconnected entered: {i}"))
+                .WithExit(i => Console.WriteLine($"Disconnected exited: {i}"));
+
+            var connectingSuperState = parentStateMachine.CreateState("ConnectingSuperState")
+                .WithEntry(i => Console.WriteLine($"ConnectingSuperState entered: {i}"))
+                .WithExit(i => Console.WriteLine($"ConnectingSuperState exited: {i}"));
+
+            var connectedSuperState = parentStateMachine.CreateState("ConnectedSuperState")
+                .WithEntry(i => Console.WriteLine($"ConnectedSuperState entered: {i}"))
+                .WithExit(i => Console.WriteLine($"ConnectedSuperState exited: {i}"));
+
+            // 'Connecting' child state machine
+            var connectingStateMachine = connectingSuperState.CreateChildStateMachine("ConnectingSM");
+
+            var connectingInitialise = connectingStateMachine.CreateInitialState("ConnectingInitialisation")
+                .WithEntry(i => Console.WriteLine($"ConnectingInitialisation entered: {i}"))
+                .WithExit(i => Console.WriteLine($"ConnectingInitialisation exited: {i}"));
+
+            var connecting = connectingStateMachine.CreateState("Connecting")
+                .WithEntry(i => Console.WriteLine($"Connecting entered: {i}"))
+                .WithExit(i => Console.WriteLine($"Connecting exited: {i}"));
+
+            var handshaking = connectingStateMachine.CreateState("Handshaking")
+                .WithEntry(i => Console.WriteLine($"Handshaking entered: {i}"))
+                .WithExit(i => Console.WriteLine($"Handshaking exited: {i}"));
+
+            // 'Connected' child state machine
+            var connectedStateMachine = connectedSuperState.CreateChildStateMachine("ConnectedSM");
+
+            var authorising = connectedStateMachine.CreateInitialState("Authorising")
+                .WithEntry(i => Console.WriteLine($"Authorising entered: {i}"))
+                .WithExit(i => Console.WriteLine($"Authorising exited: {i}"));
+
+            var connected = connectedStateMachine.CreateState("Connected")
+                .WithEntry(i => Console.WriteLine($"Connected entered: {i}"))
+                .WithExit(i => Console.WriteLine($"Connected exited: {i}"));
+
+            var eventConnect = new Event("Connect");
+            var eventConnectionInitialised = new Event("Connecting Initialised");
+            var eventConnected = new Event("Connected");
+            var eventHandshakingCompleted = new Event("Handshaking Completed");
+            var eventAuthorisingCompleted = new Event("Authorising Completed");
+
+            var eventDisconnected = new Event("Disconnected");
+
+            disconnected.TransitionOn(eventConnect).To(connectingSuperState);
+
+            connectingInitialise.TransitionOn(eventConnectionInitialised).To(connecting);
+            connecting.TransitionOn(eventConnected).To(handshaking);
+            handshaking.TransitionOn(eventDisconnected).To(connecting);
+
+            connectingSuperState.TransitionOn(eventHandshakingCompleted).To(connectedSuperState);
+
+            authorising.TransitionOn(eventAuthorisingCompleted).To(connected);
+
+            connectingSuperState.TransitionOn(eventDisconnected).To(disconnected);
+            connectedSuperState.TransitionOn(eventDisconnected).To(disconnected);
+
+            // This is a "successful" path through the system
+
+            // We start off in the initial state
+            Assert.AreEqual(disconnected, parentStateMachine.CurrentState);
+            // And the child state machines are not active
+            Assert.False(connectingStateMachine.IsActive);
+
+
+            // This causes a transition from disconnected -> connectingSuperState. Since connectingSuperState
+            // has a child state machine, this is activated and its initial state connectingInitialise is entered.
+            // The following events therefore occur:
+            // 1. Disconnected's Exit Handler is called. From=Disconnected, To=ConnectingSuperState
+            // 2. ConnectingSuperState's Entry Handler is called. From=Disconnected, To=ConnectingSuperState
+            // 3. ConnectingInitialisation's Entry Handler is called. From=Disconnected, To=ConnectingInitialisation
+            // 4. The Transition event on the parentStateMachine is raised
+            eventConnect.Fire();
+
+            // The parent state machine's 'CurrentState' is the topmost current state
+            Assert.AreEqual(connectingSuperState, parentStateMachine.CurrentState);
+            // While its 'CurrentChildState' property indicates the currently-active child state machine's state
+            Assert.AreEqual(connectingInitialise, parentStateMachine.CurrentChildState);
+
+            // The child state machine knows that it is active
+            Assert.True(connectingStateMachine.IsActive);
+            // And knows what its current state is
+            Assert.AreEqual(connectingInitialise, connectingStateMachine.CurrentState);
+
+
+            // When this event is fired, the currently active child state machine (which is connectingStateMachine)
+            // is given the chance to handle the event. Since there's a valid transition (from connectingInitialise
+            // to connecting), this transition takes place
+            eventConnectionInitialised.Fire();
+
+            // As before, this indicates the currently-active child state
+            Assert.AreEqual(connecting, parentStateMachine.CurrentChildState);
+
+
+            // Again, this is handled by the child state machine
+            eventConnected.Fire();
+            Assert.AreEqual(handshaking, parentStateMachine.CurrentChildState);
+
+
+            // This is passed to the child state machine, but that does not know how to handle it, so it bubbles
+            // up to the parent state machine. This causes a transition from connectingSuperState to
+            // connectedSuperState. This causes a number of things, in order:
+            // 1. Handshaking's Exit Handler is called. From=Handshaking, To=ConnectedSuperState
+            // 2. ConnectingSuperState's Exit Handler is called. From=ConnectingSuperState, To=ConnectedSuperState
+            // 3. The transition handler for the transition between ConnectingSuperState and ConnectedSuperState
+            //    is called
+            // 4. ConnectedSuperState's Entry Handler is called. From=ConnectingSuperState, To=ConnectedSuperState
+            // 5. Authorising's Entry Handler is called. From=ConnectingSuperState, To=Authorising
+            // 6. The Transition event on the parentStateMachine is raised
+            eventHandshakingCompleted.Fire();
+
+            Assert.True(authorising.IsCurrent);
+
+            eventAuthorisingCompleted.Fire();
+            eventDisconnected.Fire();
+
+            // Here we show that firing 'disconnected' while in 'connecting' transitions to 'disconnected'
+            eventConnect.Fire();
+            eventDisconnected.Fire();
+            Assert.AreEqual(disconnected, parentStateMachine.CurrentState);
+        }
     }
 }
