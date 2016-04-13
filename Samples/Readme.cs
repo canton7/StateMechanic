@@ -429,5 +429,24 @@ namespace Samples
             stateMachine.Deserialize(serialized);
             Assert.AreEqual(stateB, stateMachine.CurrentState);
         }
+
+        [Description("Custom State Base Subclasses")]
+        public static void CustomStateBaseSubclasses()
+        {
+            // Create a state machine where all states are CustomState (or subclasses)
+
+            var stateMachine = new StateMachine<CustomBaseState>();
+            CustomBaseState intiial = stateMachine.CreateInitialState("Initial");
+
+            // Properties on stateMachine refer to CustomStates
+            CustomBaseState currentState = stateMachine.CurrentState;
+        }
+
+        [Description("Custom Specific State Subclasses")]
+        public static void CustomSpecificStateSubclasses()
+        {
+            var stateMachine = new StateMachine();
+            CustomSpecificState normalInitial = stateMachine.CreateInitialState<CustomSpecificState>("Initial");
+        }
     }
 }

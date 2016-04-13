@@ -66,7 +66,10 @@ namespace StateMechanic
         /// </summary>
         public Action<StateHandlerInfo<TState>> ExitHandler { get; set; }
 
-        internal StateBase()
+        /// <summary>
+        /// YOU SHOULD NOT CALL THIS! This is invoked by <see cref="ChildStateMachine{TState}.CreateState(string)"/>
+        /// </summary>
+        public StateBase()
         {
             var self = this as TState;
             if (self == null)

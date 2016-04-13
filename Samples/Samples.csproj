@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomBaseState.cs" />
+    <Compile Include="CustomSpecificState.cs" />
     <Compile Include="Helpers\Assert.cs" />
     <Compile Include="Helpers\DescriptionAttribute.cs" />
     <Compile Include="Program.cs" />

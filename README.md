@@ -396,6 +396,19 @@ Assert.AreEqual(connecting, parentStateMachine.CurrentChildState);
 ```
 
 
+Forced Transitions
+------------------
+
+Forced transitions are a mechism for forcibly transitioning between two states, regardless of whether there's a defined transition between them.
+They're strongly discouraged - the whole advantage of a state machine is that the possible transitions between states is very clear and explicit, and forced transitions violate this - but sometimes there's no alternative.
+
+When you force a transition, you specify the state to transition to, and an event.
+The event is passed to state exit and entry handlers (you're pretending that that event caused the transition), but that is all.
+
+You may force a transition to any state, even ones that belong to child or parent state machines, and the appropriate exit and entry handlers will be called.
+
+
+
 Thread Safety
 -------------
 
@@ -451,10 +464,52 @@ Assert.AreEqual(stateB, stateMachine.CurrentState);
 If you wish, you can customize how serialization occurs by implementing `IStateMachineSerializer<TState>`, then setting the `StateMachine.Serializer` property.
 
 
+Printing State Machines
+-----------------------
+
+It's very useful to be able to visualise your state machines: it lets you easily spot and debug mistakes you made when setting it up, and they make fantastic inputs to your documentation ("this is our state machine, and I know that it's correct").
+
+StateMechanic can take a state machine and create a [Graphviz DOT](http://www.graphviz.org/content/dot-language) file, which can be rendered to a utility using the `dot` executable included in the Graphviz package (or [loads](http://dreampuf.github.io/GraphvizOnline/) [of](http://sandbox.kidstrythisathome.com/erdos/) [online](http://stamm-wilbrandt.de/GraphvizFiddle) [utilities](http://www.webgraphviz.com)).
+
+To render a state machine, call `StateMachine.FormatDot()`.
+
+
+Custom State Subclasses
+-----------------------
+
+StateMechanic's default mode is to define entry/exit handlers, guard, and dynamic transition handlers using delegates, provided using the fluent syntax used elsewhere in this document.
+However, you can define your own custom state classes if you wish.
+This allows you to encapsulate more complex logic more easily.
+
+Subclasses cannot be used to specify transition handlers.
+
+The are two ways specify custom state classes: a custom base state for the entire state machine, and custom state classes for individual states.
+
+### Custom Base State
+
+By default, the `State` class is used everywhere in StateMechanic, when looking at e.g. `StateMachine.CurrentState`, in information given to various handlers, etc.
+However, you can customize this.
+
+First, derive from `StateBase<T>`.
+The `T` here has to be a reference to your class type: this is an unfortunate artefact of C#'s type system, and is checked at runtime.
+
+```csharp
+class CustomBaseState : StateBase<CustomBaseState>
+{
+    // There are various methods you can override
+}
+
+var stateMachine = new StateMachine<CustomBaseState>();
+CustomBaseState initial = stateMachine.CreateInitialState("Initial");
+// Properties on stateMachine refer to CustomStates
+CustomBaseState currentState = stateMachine.CurrentState;
+```
+
+
+
+
 TODO
 ---- 
 
  - Stuff on StateMachine (??)
  - Custom states
- - Printing
- - Forced transitions
