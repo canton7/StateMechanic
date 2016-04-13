@@ -298,18 +298,29 @@ namespace Samples
 
             var eventDisconnected = new Event("Disconnected");
 
-            disconnected.TransitionOn(eventConnect).To(connectingSuperState);
+            disconnected.TransitionOn(eventConnect).To(connectingSuperState)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
 
-            connectingInitialise.TransitionOn(eventConnectionInitialised).To(connecting);
-            connecting.TransitionOn(eventConnected).To(handshaking);
-            handshaking.TransitionOn(eventDisconnected).To(connecting);
+            connectingInitialise.TransitionOn(eventConnectionInitialised).To(connecting)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
 
-            connectingSuperState.TransitionOn(eventHandshakingCompleted).To(connectedSuperState);
+            connecting.TransitionOn(eventConnected).To(handshaking)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
 
-            authorising.TransitionOn(eventAuthorisingCompleted).To(connected);
+            handshaking.TransitionOn(eventDisconnected).To(connecting)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
 
-            connectingSuperState.TransitionOn(eventDisconnected).To(disconnected);
-            connectedSuperState.TransitionOn(eventDisconnected).To(disconnected);
+            connectingSuperState.TransitionOn(eventHandshakingCompleted).To(connectedSuperState)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
+
+            authorising.TransitionOn(eventAuthorisingCompleted).To(connected)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}")); ;
+
+            connectingSuperState.TransitionOn(eventDisconnected).To(disconnected)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
+
+            connectedSuperState.TransitionOn(eventDisconnected).To(disconnected)
+                .WithHandler(i => Console.WriteLine($"Transition Handler: {i}"));
 
             // This is a "successful" path through the system
 
@@ -323,9 +334,11 @@ namespace Samples
             // has a child state machine, this is activated and its initial state connectingInitialise is entered.
             // The following events therefore occur:
             // 1. Disconnected's Exit Handler is called. From=Disconnected, To=ConnectingSuperState
-            // 2. ConnectingSuperState's Entry Handler is called. From=Disconnected, To=ConnectingSuperState
-            // 3. ConnectingInitialisation's Entry Handler is called. From=Disconnected, To=ConnectingInitialisation
-            // 4. The Transition event on the parentStateMachine is raised
+            // 2. The transition handler from Disconnected to ConnectingSuperState is called. From=Disconnected,
+            //    To=ConnectingSuperState
+            // 3. ConnectingSuperState's Entry Handler is called. From=Disconnected, To=ConnectingSuperState
+            // 4. ConnectingInitialisation's Entry Handler is called. From=Disconnected, To=ConnectingInitialisation
+            // 5. The Transition event on the parentStateMachine is raised
             eventConnect.Fire();
 
             // The parent state machine's 'CurrentState' is the topmost current state
@@ -367,13 +380,54 @@ namespace Samples
 
             Assert.True(authorising.IsCurrent);
 
+            // This is another transition solely inside a child state machine, from authorising to connected
             eventAuthorisingCompleted.Fire();
+
+            // This is another event which is first sent to the child state machine, then bubbled up to its parent
+            // state machine. It causes the following things to occur:
+            // 1. Connected's Exit Handler is called. From=Connected, To=Disconnected
+            // 2. ConnectedSuperState's Exit Handler is called. From=ConnectedSuperState, To=Disconnected
+            // 3. The transition handler from ConnectedSuperState to Disconnected is called.
+            //    From=ConnectedSuperState, To=Disconnected
+            // 4. Disconnected's Entry Handler is called. From=ConnectedSuperState, To=Disconnected
+            // 5. The Transition event on the parentStateMachine is raised
             eventDisconnected.Fire();
 
-            // Here we show that firing 'disconnected' while in 'connecting' transitions to 'disconnected'
-            eventConnect.Fire();
-            eventDisconnected.Fire();
             Assert.AreEqual(disconnected, parentStateMachine.CurrentState);
+
+            // Here we show that firing 'disconnected' while in 'connecting' transitions to 'disconnected'.
+            // I won't go into as much detail as the previous example.
+            eventConnect.Fire();
+            eventConnectionInitialised.Fire();
+            eventConnected.Fire();
+            // This will be handled by the child state machine
+            eventDisconnected.Fire();
+            Assert.AreEqual(connecting, parentStateMachine.CurrentChildState);
+        }
+
+        [Description("Serialization and Deserialization")]
+        public static void SerializationAndDeserialization()
+        {
+            var stateMachine = new StateMachine();
+            var stateA = stateMachine.CreateInitialState("StateA");
+            var stateB = stateMachine.CreateState("StateB");
+
+            var evt = new Event();
+            stateA.TransitionOn(evt).To(stateB);
+
+            // Move us out of the default state
+            evt.Fire();
+            Assert.AreEqual(stateB, stateMachine.CurrentState);
+
+            string serialized = stateMachine.Serialize();
+
+            // Reset the state machine
+            stateMachine.Reset();
+            Assert.AreEqual(stateA, stateMachine.CurrentState);
+
+            // Deserialize into it
+            stateMachine.Deserialize(serialized);
+            Assert.AreEqual(stateB, stateMachine.CurrentState);
         }
     }
 }

@@ -217,6 +217,7 @@ If one of these handlers does throw an exception, then a `TransitionFailedExcept
 The `Faulted` event on the StateMachine will also be raised, and its `Fault` property will contain information about the fault.
 
 When a state machine has faulted, no more transitions may occur, and the current state may not be queried.
+The state machine will raise the `Faulted` event, then `IsFaulted` property returns true, and the `Fault` property will give information on the fault.
 The only way to recovert is to call `Reset()` on the state machine, which will reset it to its initial state and clear the fault.
 
 Transition guards and dynamic transition state selectors may throw exceptions: these exceptions are propagated back to the `Event.Fire()` or `Event.TryFire()` call which initiated the transition, and the transition will not occur.
@@ -259,8 +260,13 @@ StateMechanic supports fully hierarchical state machines.
 The model is that any state may have a single child state machine, which are fully-fledges state machines in their own right.
 
 Child state machines start by not existing in any state (`CurrentState` is `null`).
-When a state machine transitions to a state which has a child state machine, that child state machine will also transition to its initial state.
+When a sparent tate machine transitions to a state which has a child state machine, that child state machine will also transition to its initial state.
 This child state machine is now active.
+
+When a parent state machine transitions away from a state which has a child state machine, that child state machine will first transition away from its current state.
+The parent state machine will then transition to the next state.
+
+The order in which handlers are called is detailed in the code example below.
 
 When an event is fired, any active child state machines are given the opportunity to handle the event: if a transition exists from the child machine's current state to another state, then that transition will be invoked.
 If no transitions are found, then the parent of that child attempts to handle the event, and so on.
@@ -275,16 +281,180 @@ All of this is quite confusing!
 Here's an example to hopefully clear the smoke.
 
 ```csharp
+var parentStateMachine = new StateMachine("Parent");
 
+var disconnected = parentStateMachine.CreateInitialState("Disconnected");
+var connectingSuperState = parentStateMachine.CreateState("ConnectingSuperState");
+var connectedSuperState = parentStateMachine.CreateState("ConnectedSuperState");
+
+// 'Connecting' child state machine
+var connectingStateMachine = connectingSuperState.CreateChildStateMachine("ConnectingSM");
+var connectingInitialise = connectingStateMachine.CreateInitialState("ConnectingInitialisation");
+var connecting = connectingStateMachine.CreateState("Connecting");
+var handshaking = connectingStateMachine.CreateState("Handshaking");
+
+// 'Connected' child state machine
+var connectedStateMachine = connectedSuperState.CreateChildStateMachine("ConnectedSM");
+var authorising = connectedStateMachine.CreateInitialState("Authorising");
+var connected = connectedStateMachine.CreateState("Connected");
+
+// Events
+var eventConnect = new Event("Connect");
+var eventConnectionInitialised = new Event("Connecting Initialised");
+var eventConnected = new Event("Connected");
+var eventHandshakingCompleted = new Event("Handshaking Completed");
+var eventAuthorisingCompleted = new Event("Authorising Completed");
+var eventDisconnected = new Event("Disconnected");
+
+disconnected.TransitionOn(eventConnect).To(connectingSuperState);
+connectingInitialise.TransitionOn(eventConnectionInitialised).To(connecting);
+connecting.TransitionOn(eventConnected).To(handshaking);
+handshaking.TransitionOn(eventDisconnected).To(connecting);
+connectingSuperState.TransitionOn(eventHandshakingCompleted).To(connectedSuperState);
+authorising.TransitionOn(eventAuthorisingCompleted).To(connected);
+connectingSuperState.TransitionOn(eventDisconnected).To(disconnected);
+connectedSuperState.TransitionOn(eventDisconnected).To(disconnected);
+
+
+// This is a "successful" path through the system
+
+// We start off in the initial state
+Assert.AreEqual(disconnected, parentStateMachine.CurrentState);
+// And the child state machines are not active
+Assert.False(connectingStateMachine.IsActive);
+
+// This causes a transition from disconnected -> connectingSuperState. Since connectingSuperState
+// has a child state machine, this is activated and its initial state connectingInitialise is entered.
+// The following events therefore occur:
+// 1. Disconnected's Exit Handler is called. From=Disconnected, To=ConnectingSuperState
+// 2. The transition handler from Disconnected to ConnectingSuperState is called. From=Disconnected,
+//    To=ConnectingSuperState
+// 3. ConnectingSuperState's Entry Handler is called. From=Disconnected, To=ConnectingSuperState
+// 4. ConnectingInitialisation's Entry Handler is called. From=Disconnected, To=ConnectingInitialisation
+// 5. The Transition event on the parentStateMachine is raised
+eventConnect.Fire();
+
+// The parent state machine's 'CurrentState' is the topmost current state
+Assert.AreEqual(connectingSuperState, parentStateMachine.CurrentState);
+// While its 'CurrentChildState' property indicates the currently-active child state machine's state
+Assert.AreEqual(connectingInitialise, parentStateMachine.CurrentChildState);
+
+// The child state machine knows that it is active
+Assert.True(connectingStateMachine.IsActive);
+// And knows what its current state is
+Assert.AreEqual(connectingInitialise, connectingStateMachine.CurrentState);
+
+// When this event is fired, the currently active child state machine (which is connectingStateMachine)
+// is given the chance to handle the event. Since there's a valid transition (from connectingInitialise
+// to connecting), this transition takes place
+eventConnectionInitialised.Fire();
+
+// As before, this indicates the currently-active child state
+Assert.AreEqual(connecting, parentStateMachine.CurrentChildState);
+
+// Again, this is handled by the child state machine
+eventConnected.Fire();
+Assert.AreEqual(handshaking, parentStateMachine.CurrentChildState);
+
+// This is passed to the child state machine, but that does not know how to handle it, so it bubbles
+// up to the parent state machine. This causes a transition from connectingSuperState to
+// connectedSuperState. This causes a number of things, in order:
+// 1. Handshaking's Exit Handler is called. From=Handshaking, To=ConnectedSuperState
+// 2. ConnectingSuperState's Exit Handler is called. From=ConnectingSuperState, To=ConnectedSuperState
+// 3. The transition handler for the transition between ConnectingSuperState and ConnectedSuperState
+//    is called
+// 4. ConnectedSuperState's Entry Handler is called. From=ConnectingSuperState, To=ConnectedSuperState
+// 5. Authorising's Entry Handler is called. From=ConnectingSuperState, To=Authorising
+// 6. The Transition event on the parentStateMachine is raised
+eventHandshakingCompleted.Fire();
+
+Assert.True(authorising.IsCurrent);
+
+// This is another transition solely inside a child state machine, from authorising to connected
+eventAuthorisingCompleted.Fire();
+
+// This is another event which is first sent to the child state machine, then bubbled up to its parent
+// state machine. It causes the following things to occur:
+// 1. Connected's Exit Handler is called. From=Connected, To=Disconnected
+// 2. ConnectedSuperState's Exit Handler is called. From=ConnectedSuperState, To=Disconnected
+// 3. The transition handler from ConnectedSuperState to Disconnected is called.
+//    From=ConnectedSuperState, To=Disconnected
+// 4. Disconnected's Entry Handler is called. From=ConnectedSuperState, To=Disconnected
+// 5. The Transition event on the parentStateMachine is raised
+eventDisconnected.Fire();
+
+Assert.AreEqual(disconnected, parentStateMachine.CurrentState);
+
+// Here we show that firing 'disconnected' while in 'connecting' transitions to 'disconnected'.
+// I won't go into as much detail as the previous example.
+eventConnect.Fire();
+eventConnectionInitialised.Fire();
+eventConnected.Fire();
+// This will be handled by the child state machine
+eventDisconnected.Fire();
+Assert.AreEqual(connecting, parentStateMachine.CurrentChildState);
 ```
+
+
+Thread Safety
+-------------
+
+StateMechanic is not thread safe by default.
+
+It does however provide a mechanism for providing thread safety.
+You can assign an `IStateMachineSynchronizer` to `StateMachine.Synchronizer`.
+Methods on the synchronizer will be invoked when events are fired, and the synchronizer ensures that these are given to the rest of the StateMachine in a thread-safe way (i.e. one at a time).
+See the remarks on that interface for more information.
+
+A simple locking implementation, `LockingStateMachineSynchronizer`, exists.
+This will cause calls to `Event.Fire()`, `Event.TryFire()`, `StateMachine.Reset()`, and `StateMachine.ForceTransition()` to block until any preceding transitions have finished.
+
+Note that it is not recommended to perform long-running or blocking operations in any handlers: this leaves the state machine in a mid-way point between two states, which is inconsistent.
+Instead, use a state to represent the fact that the long-running operation is ongoing, but don't block any handlers to perform this operation (e.g. 'Connecting'), and transition away from it when the operation completes.
+
+
+Serialization
+-------------
+
+It can be useful to serialize a state machine, for example to a database, and restore it to a later date.
+
+StateMechanic supports this, with the following restrictions:
+
+1. The state machine which is deserialized into must be identical to that which was serialized. If it is not, deserialization may produce the wrong result, or it may fail completely.
+2. The serialization format may change between minor StateMechanic versions. This will cause deserialization to fail in a controlled manner.
+
+For example:
+
+```csharp
+var stateMachine = new StateMachine();
+var stateA = stateMachine.CreateInitialState("StateA");
+var stateB = stateMachine.CreateState("StateB");
+
+var evt = new Event();
+stateA.TransitionOn(evt).To(stateB);
+
+// Move us out of the default state
+evt.Fire();
+Assert.AreEqual(stateB, stateMachine.CurrentState);
+
+string serialized = stateMachine.Serialize();
+
+// Reset the state machine
+stateMachine.Reset();
+Assert.AreEqual(stateA, stateMachine.CurrentState);
+
+// Deserialize into it
+stateMachine.Deserialize(serialized);
+Assert.AreEqual(stateB, stateMachine.CurrentState);
+```
+
+If you wish, you can customize how serialization occurs by implementing `IStateMachineSerializer<TState>`, then setting the `StateMachine.Serializer` property.
 
 
 TODO
 ---- 
 
- - Stuff on StateMachine
+ - Stuff on StateMachine (??)
  - Custom states
  - Printing
- - Child state machines
- - Thread safety
  - Forced transitions
