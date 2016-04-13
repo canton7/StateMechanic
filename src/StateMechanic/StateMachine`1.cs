@@ -84,9 +84,6 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            //if (toState.ParentStateMachine != this)
-            //    throw new InvalidStateTransitionException(this.CurrentState, toState);
-
             var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, this.Kernel);
             if (this.Kernel.Synchronizer != null)
                 this.Kernel.Synchronizer.ForceTransition(() => this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker));
@@ -96,8 +93,6 @@ namespace StateMechanic
 
         private bool ForceTransitionImpl(ITransitionInvoker<TState> transitionInvoker)
         {
-            //this.EnsureCurrentStateSuitableForTransition();
-
             transitionInvoker.TryInvoke(this.CurrentState);
             return true;
         }
