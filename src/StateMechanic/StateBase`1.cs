@@ -34,7 +34,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets the indentifier for the state. Used for serializing/deserializing state machines. Can be overridden.
         /// </summary>
-        public virtual string Identifier => this.Name ?? "state";
+        public virtual string Identifier => this.Name;
 
         /// <summary>
         /// Gets a value indicating whether this state's parent state machine is in this state

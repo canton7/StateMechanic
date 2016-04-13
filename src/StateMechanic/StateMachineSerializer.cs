@@ -9,10 +9,7 @@ namespace StateMechanic
     {
         private const int serializerVersion = 1;
 
-        // This is quite conservative - we can probably expand this
-        private static readonly Regex notAllowedIdentifierCharacters = new Regex(@"[^a-zA-Z0-9]+");
-
-        public IEnumerable<TState> Deserialize(StateMachine<TState> stateMachine, string serialized)
+        public TState Deserialize(StateMachine<TState> stateMachine, string serialized)
         {
             var parts = serialized.Split(new[] { ':' }, 2);
             int version;
@@ -22,22 +19,8 @@ namespace StateMechanic
             if (version != serializerVersion)
                 throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": expected serializer version {serializerVersion}, but got {version}");
 
-            return DeserializeImpl(stateMachine, parts[1]);
-        }
-
-        private static IEnumerable<TState> DeserializeImpl(StateMachine<TState> stateMachine, string serialized)
-        {
-            var intermediateStates = new List<TState>();
-            var childState = StateForIdentifier(stateMachine, serialized);
-            for (TState state = childState; state != null; state = state.ParentStateMachine.ParentState)
-            {
-                intermediateStates.Add(state);
-            }
-
-            intermediateStates.Reverse();
-            return intermediateStates;
-
-            // StateMachine.Deserialize will throw if stateMachine != null at the end
+            var childState = StateForIdentifier(stateMachine, parts[1]);
+            return childState;
         }
 
         public string Serialize(StateMachine<TState> stateMachine)
@@ -121,10 +104,8 @@ namespace StateMechanic
 
         private static string BaseIdentifierForState(TState state)
         {
-            if (state.Identifier == null)
-                return "state";
-
-            return notAllowedIdentifierCharacters.Replace(state.Identifier, "-");
+            var identifier = state.Identifier;
+            return String.IsNullOrWhiteSpace(identifier) ? "state" : identifier;
         }
     }
 }

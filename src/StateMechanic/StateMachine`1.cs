@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StateMechanic
 {
@@ -117,9 +119,16 @@ namespace StateMechanic
         {
             this.Reset();
 
+            var childState = this.serializer.Deserialize(this, serialized);
+            var intermediateStates = new List<TState>();
+            for (TState state = childState; state != null; state = state.ParentStateMachine.ParentState)
+            {
+                intermediateStates.Add(state);
+            }
+
             ChildStateMachine<TState> stateMachine = this;
 
-            foreach (var state in this.serializer.Deserialize(this, serialized))
+            foreach (var state in intermediateStates.AsEnumerable().Reverse())
             {
                 // We should only hit this if the deserializer is faulty
                 if (stateMachine == null)

@@ -47,15 +47,6 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void SerializationRemovesNotAllowedCharactersFromIdentifier()
-        {
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("this is! A state / 2");
-
-            Assert.AreEqual("1:this-is-A-state-2", sm.Serialize());
-        }
-
-        [Test]
         public void SerializationProvidesDefaultIdentifiers()
         {
             var sm = new StateMachine("sm");
