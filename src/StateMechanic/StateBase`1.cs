@@ -29,7 +29,7 @@ namespace StateMechanic
         /// <summary>
         /// Gets the name assigned to this state
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
 
         /// <summary>
         /// Gets the indentifier for the state. Used for serializing/deserializing state machines. Can be overridden.
@@ -83,7 +83,10 @@ namespace StateMechanic
         internal void Initialize(string name, ChildStateMachine<TState> parentStateMachine)
         {
             this.isInitialized = true;
-            this.Name = name;
+            // If they've subclassed this and set Name themselves, then provided 'null' in CreateState,
+            // don't override what they set
+            if (this.Name == null)
+                this.Name = name;
             this.ParentStateMachine = parentStateMachine;
         }
 
