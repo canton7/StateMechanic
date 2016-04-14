@@ -1,4 +1,0 @@
- - Add ability to log transitions
- - Do forced transitions on parent state machines correctly exit their children?
- - TESTS!
- 
