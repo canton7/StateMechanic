@@ -1,16 +1,32 @@
-StateMechanic
+![Project Icon](icon.png) StateMechanic
 =============
 
-StateMechinic is a hierarchical state machine library.
+[![NuGet](https://img.shields.io/nuget/v/StateMechanic.svg)](https://www.nuget.org/packages/StateMechanic/)
+[![Build status](https://ci.appveyor.com/api/projects/status/lx2an4nfb743gt6v?svg=true)](https://ci.appveyor.com/project/canton7/statemechanic)
+
+StateMechinic is a simple but powerful hierarchical state machine library.
 It supports data attached to states, data attached to events, entry/exit/transition handlers, child state machines, and more.
 
 
 Installation
 ------------
 
-StateMechanic is available as a PCL profile 259 (.NET 4.5, ASP.NET Core 1.0, Windows Phone 8.1) on NuGet.
+StateMechanic is available as a PCL profile 259 (.NET 4.5, ASP.NET Core 1.0, Windows Phone 8.1) on [NuGet](https://www.nuget.org/packages/StateMechanic).
 
-StateMechinic has not yet been released. Check back soon!
+Either open the package console and type:
+
+```
+PM> Install-Package StateMechanic
+```
+
+Or right-click your project -> Manage NuGet Packages... -> Online -> search for StateMechanic in the top right.
+
+Symbols are available.
+In Visual Studio, go to Debug -> Options and Settings -> General, and make the following changes:
+
+1. Turn **off** "Enable Just My Code"
+2. Turn **off** "Enable .NET Framework source stepping". Yes, it is misleading, but if you don't, then Visual Studio will ignore your custom server order and only use its own servers.
+3. Turn **on** "Enable source server support". You may have to OK a security warning.
 
 
 Quick Start
