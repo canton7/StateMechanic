@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EBB8741E-0F75-4F46-9D28-5E4B484C59A1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StateMechanic</RootNamespace>
+    <AssemblyName>StateMechanic</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Debug\StateMechanic.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>StateMechanic.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Release\StateMechanic.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>StateMechanic.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <None Include="StateMechanic.ruleset" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChildStateMachine`1.cs" />
+    <Compile Include="DynamicSelectorInfo`1.cs" />
+    <Compile Include="DynamicSelectorInfo`2.cs" />
+    <Compile Include="DynamicTransitionInner.cs" />
+    <Compile Include="DynamicTransition`1.cs" />
+    <Compile Include="DynamicTransition`2.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="EventFireMethod.cs" />
+    <Compile Include="EventInner.cs" />
+    <Compile Include="EventTransitionInvoker`1.cs" />
+    <Compile Include="EventTransitionInvoker`2.cs" />
+    <Compile Include="Event`1.cs" />
+    <Compile Include="FaultedComponent.cs" />
+    <Compile Include="ForcedTransitionInvoker.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IEventDelegate.cs" />
+    <Compile Include="IInvokableTransition.cs" />
+    <Compile Include="InternalTransitionFaultException.cs" />
+    <Compile Include="InvalidEventTransitionException.cs" />
+    <Compile Include="InvalidStateTransitionException.cs" />
+    <Compile Include="IState.cs" />
+    <Compile Include="IStateDelegate.cs" />
+    <Compile Include="IStateGroup.cs" />
+    <Compile Include="IStateMachine.cs" />
+    <Compile Include="IStateMachineSerializer.cs" />
+    <Compile Include="IStateMachineSynchronizer.cs" />
+    <Compile Include="ITransition.cs" />
+    <Compile Include="ITransitionBuilder`1.cs" />
+    <Compile Include="ITransitionBuilder`2.cs" />
+    <Compile Include="ITransitionDelegate.cs" />
+    <Compile Include="ITransitionInner.cs" />
+    <Compile Include="ITransitionInvoker.cs" />
+    <Compile Include="LockingStateMachineSynchronizer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateBase`1.cs" />
+    <Compile Include="StateGroup.cs" />
+    <Compile Include="StateGroup`1.cs" />
+    <Compile Include="StateHandlerInfo.cs" />
+    <Compile Include="StateMachine.cs" />
+    <Compile Include="StateMachineFaultedEventArgs.cs" />
+    <Compile Include="StateMachineFaultedException.cs" />
+    <Compile Include="StateMachineFaultInfo.cs" />
+    <Compile Include="StateMachineKernel.cs" />
+    <Compile Include="StateMachineDotPrinter.cs" />
+    <Compile Include="StateMachinePrintingExtensions.cs" />
+    <Compile Include="StateMachineSerializer.cs" />
+    <Compile Include="StateMachine`1.cs" />
+    <Compile Include="State`1.cs" />
+    <Compile Include="TransitionBuilder`2.cs" />
+    <Compile Include="TransitionBuilder`1.cs" />
+    <Compile Include="TransitionEventArgs.cs" />
+    <Compile Include="TransitionFailedException.cs" />
+    <Compile Include="TransitionInfo`1.cs" />
+    <Compile Include="TransitionInfo`2.cs" />
+    <Compile Include="TransitionInner.cs" />
+    <Compile Include="TransitionNotFoundEventArgs.cs" />
+    <Compile Include="TransitionNotFoundException.cs" />
+    <Compile Include="Transition`1.cs" />
+    <Compile Include="Transition`2.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
