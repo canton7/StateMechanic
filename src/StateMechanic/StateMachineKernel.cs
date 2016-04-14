@@ -169,6 +169,7 @@ namespace StateMechanic
         public void Reset()
         {
             this.Fault = null;
+            this.transitionQueue.Clear();
         }
 
         private struct TransitionQueueItem
