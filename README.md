@@ -8,6 +8,8 @@ It supports data attached to states, data attached to events, entry/exit/transit
 Installation
 ------------
 
+StateMechanic is available as a PCL profile 259 (.NET 4.5, ASP.NET Core 1.0, Windows Phone 8.1) on NuGet.
+
 StateMechinic has not yet been released. Check back soon!
 
 
