@@ -8,10 +8,11 @@
     <owners>Antony Male</owners>
     <licenseUrl>http://github.com/canton7/StateMechanic/blob/master/LICENSE.txt</licenseUrl>
     <projectUrl>http://github.com/canton7/StateMechanic</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/canton7/StateMechanic/master/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple but powerful hierarchical state machine library</description>
-    <copyright>Copyright 2015 Antony Male</copyright>
-    <tags>StateMachine State Machine</tags>
+    <copyright>Copyright 2015-2016 Antony Male</copyright>
+    <tags>StateMachine State Machine hierarchical transition</tags>
   </metadata>
 
   <files>
