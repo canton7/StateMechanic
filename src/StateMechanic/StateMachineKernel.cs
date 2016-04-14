@@ -166,6 +166,11 @@ namespace StateMechanic
             this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
+        public void ClearTransitionQueue()
+        {
+            this.transitionQueue.Clear();
+        }
+
         public void Reset()
         {
             this.Fault = null;

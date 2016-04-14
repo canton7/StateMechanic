@@ -196,6 +196,12 @@ namespace StateMechanic
                 this.Kernel.SetFault(faultInfo);
                 throw new TransitionFailedException(faultInfo);
             }
+            catch
+            {
+                // If a guard failed, we should clear the transition queue
+                this.Kernel.ClearTransitionQueue();
+                throw;
+            }
             finally
             {
                 this.Kernel.ExecutingTransition = false;

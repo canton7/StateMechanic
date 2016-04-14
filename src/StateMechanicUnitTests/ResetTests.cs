@@ -64,5 +64,31 @@ namespace StateMechanicUnitTests
 
             Assert.IsNull(child.CurrentState);
         }
+
+        [Test]
+        public void ResetEmptiesTransitionQueue()
+        {
+            var sm = new StateMachine("parent");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).To(state2).WithHandler(i =>
+            {
+                evt.Fire();
+                sm.Reset();
+            });
+            state2.TransitionOn(evt).To(state1);
+
+            evt.Fire();
+            
+            // Make sure that the queued event didn't get fired
+            Assert.AreEqual(state2, sm.CurrentState);
+
+            // Make sure nothing's been queued
+            evt.Fire();
+            Assert.AreEqual(state1, sm.CurrentState);
+        }
     }
 }
