@@ -14,6 +14,8 @@ StateMechinic has not yet been released. Check back soon!
 Quick Start
 -----------
 
+Note that the code snippets in this README are available as runnable code samples in [the Samples project](https://github.com/canton7/StateMechanic/tree/master/Samples).
+
 Here's a quick introduction to the basics.
 We'll create a state machine to represent a drinks dispenser.
 
@@ -114,7 +116,7 @@ state.InnerSelfTransitionOn(event2).WithHandler(i => Console.WriteLine("Handler"
 event1.Fire();
 // Prints: Exit, Handler, Entry
 
-// event2.Fire()
+event2.Fire()
 // Prints: Handler
 ```
 
@@ -195,7 +197,7 @@ You can return `null` from the delegate given to `ToDynamic`, in which case the 
 Recursive Transitions
 ---------------------
 
-You are allowed to fire events from within state entry and exit handlers, and from transition handlers.
+You are allowed to fire events from within state entry and exit handlers, from transition handlers, and transition guards.
 The event is queued until the current transition is complete, at which point it is fired.
 
 Because events are queued, the behaviour around `Event.Fire()` and `Event.TryFire()` changes a bit.
@@ -415,12 +417,14 @@ Thread Safety
 StateMechanic is not thread safe by default.
 
 It does however provide a mechanism for providing thread safety.
-You can assign an `IStateMachineSynchronizer` to `StateMachine.Synchronizer`.
+You can assign an `IStateMachineSynchronizer` to the `StateMachine.Synchronizer` property.
 Methods on the synchronizer will be invoked when events are fired, and the synchronizer ensures that these are given to the rest of the StateMachine in a thread-safe way (i.e. one at a time).
 See the remarks on that interface for more information.
 
 A simple locking implementation, `LockingStateMachineSynchronizer`, exists.
 This will cause calls to `Event.Fire()`, `Event.TryFire()`, `StateMachine.Reset()`, and `StateMachine.ForceTransition()` to block until any preceding transitions have finished.
+
+It is never safe to set up a state machine from multiple threads.
 
 Note that it is not recommended to perform long-running or blocking operations in any handlers: this leaves the state machine in a mid-way point between two states, which is inconsistent.
 Instead, use a state to represent the fact that the long-running operation is ongoing, but don't block any handlers to perform this operation (e.g. 'Connecting'), and transition away from it when the operation completes.
@@ -477,39 +481,68 @@ To render a state machine, call `StateMachine.FormatDot()`.
 Custom State Subclasses
 -----------------------
 
-StateMechanic's default mode is to define entry/exit handlers, guard, and dynamic transition handlers using delegates, provided using the fluent syntax used elsewhere in this document.
-However, you can define your own custom state classes if you wish.
-This allows you to encapsulate more complex logic more easily.
+StateMechanic allows you to use your own classes for states, instead of the built-in `State`.
+This allows you to do two things.
 
-Subclasses cannot be used to specify transition handlers.
+Firstly, you can add data to your states (in the form of properties), and this is available entry/exit/transition handlers.
+This means you can make decisions in your handlers based on information attached to the states you're transitioning from and to, for example moving to a "Log In" state if the page being navigated to requries user authentication.
+
+Secondly, it allows you to write entry/exit handler logic in a class, rather than as a delegate.
+This may help you to improve the structure of complex state machines.
 
 The are two ways specify custom state classes: a custom base state for the entire state machine, and custom state classes for individual states.
 
 ### Custom Base State
 
 By default, the `State` class is used everywhere in StateMechanic, when looking at e.g. `StateMachine.CurrentState`, in information given to various handlers, etc.
-However, you can customize this.
+However, you can use your own class here if you wish.
 
 First, derive from `StateBase<T>`.
 The `T` here has to be a reference to your class type: this is an unfortunate artefact of C#'s type system, and is checked at runtime.
+Then create a `new StateMachine<YourStateSubclass>()`, and use it as normal.
 
 ```csharp
 class CustomBaseState : StateBase<CustomBaseState>
 {
+    // You can add your own properties
+    public bool SomeProperty { get; set; }
+
     // There are various methods you can override
 }
 
 var stateMachine = new StateMachine<CustomBaseState>();
 CustomBaseState initial = stateMachine.CreateInitialState("Initial");
+initial.SomeProperty = true;
+
 // Properties on stateMachine refer to CustomStates
 CustomBaseState currentState = stateMachine.CurrentState;
 ```
 
+### Custom Individual States
 
+You can also use different classes for individual states - this is most useful when the state class contains entry/exit/guard handler logic.
+
+Create a class which derives from `State`.
+If you have created a custom base state, as above, you need to derive from that.
+
+You class must only have a public parameterless constructor
+
+```csharp
+class InitialState : State
+{
+    // There are various methods you can override
+}
+
+var stateMachine = new StateMachine();
+InitialState initial = stateMachine.CreateInitialState<InitialState>("Initial");
+```
+
+### State Groups
+
+If you want to make a state group which contains your custom base state type, create a `new StateGroup<CustomBaseState>()`.
 
 
 TODO
 ---- 
 
  - Stuff on StateMachine (??)
- - Custom states
