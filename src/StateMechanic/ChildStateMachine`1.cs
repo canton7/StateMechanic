@@ -171,7 +171,6 @@ namespace StateMechanic
                 this.CurrentState = null;
         }
 
-        // Only supposed to be called from subclasses
         internal bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
         {
             if (this.Kernel.Fault != null)
@@ -187,27 +186,30 @@ namespace StateMechanic
 
             try
             {
-                this.Kernel.ExecutingTransition = true;
-                success = method(transitionInvoker);
-            }
-            catch (InternalTransitionFaultException e)
-            {
-                var faultInfo = new StateMachineFaultInfo(this, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
-                this.Kernel.SetFault(faultInfo);
-                throw new TransitionFailedException(faultInfo);
-            }
-            catch
-            {
-                // If a guard failed, we should clear the transition queue
-                this.Kernel.ClearTransitionQueue();
-                throw;
+                try
+                {
+                    this.Kernel.ExecutingTransition = true;
+                    success = method(transitionInvoker);
+                }
+                catch (InternalTransitionFaultException e)
+                {
+                    var faultInfo = new StateMachineFaultInfo(this, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
+                    this.Kernel.SetFault(faultInfo);
+                    throw new TransitionFailedException(faultInfo);
+                }
+                finally
+                {
+                    this.Kernel.ExecutingTransition = false;
+                }
+
+                this.Kernel.FireQueuedTransitions();
             }
             finally
             {
-                this.Kernel.ExecutingTransition = false;
+                // Whatever happens, when we've either failed or executed everything in the transition queue,
+                // the queue should end up empty.
+                this.Kernel.ClearTransitionQueue();
             }
-
-            this.Kernel.FireQueuedTransitions();
 
             return success;
         }

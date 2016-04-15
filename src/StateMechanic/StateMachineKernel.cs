@@ -142,7 +142,7 @@ namespace StateMechanic
                 // TODO: Not sure whether these failing should affect the status of the outer parent transition...
                 // Current behaviour is that Fire will, but TryFire will not
                 var item = this.transitionQueue.Dequeue();
-                item.method(item.transitionInvoker);
+                item.Method(item.TransitionInvoker);
             }
         }
 
@@ -161,8 +161,6 @@ namespace StateMechanic
         public void SetFault(StateMachineFaultInfo faultInfo)
         {
             this.Fault = faultInfo;
-            this.transitionQueue.Clear();
-
             this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
@@ -179,13 +177,13 @@ namespace StateMechanic
 
         private struct TransitionQueueItem
         {
-            public readonly Func<ITransitionInvoker<TState>, bool> method;
-            public readonly ITransitionInvoker<TState> transitionInvoker;
+            public readonly Func<ITransitionInvoker<TState>, bool> Method;
+            public readonly ITransitionInvoker<TState> TransitionInvoker;
 
             public TransitionQueueItem(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
             {
-                this.method = method;
-                this.transitionInvoker = transitionInvoker;
+                this.Method = method;
+                this.TransitionInvoker = transitionInvoker;
             }
         }
     }
