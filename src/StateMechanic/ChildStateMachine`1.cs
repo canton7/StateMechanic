@@ -349,6 +349,7 @@ namespace StateMechanic
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object</returns>
+        [ExcludeFromCoverage]
         public override string ToString()
         {
             var parentName = (this.ParentStateMachine == null) ? "" : $" Parent={this.ParentStateMachine.Name ?? "(unnamed)"}";

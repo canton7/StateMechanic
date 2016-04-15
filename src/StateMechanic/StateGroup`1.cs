@@ -126,6 +126,7 @@ namespace StateMechanic
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object.</returns>
+        [ExcludeFromCoverage]
         public override string ToString()
         {
             return $"<StateGroup Name={this.Name ?? "(unnamed)"} States=[{String.Join(", ", this.States.Select(x => x.ToString()))}>";

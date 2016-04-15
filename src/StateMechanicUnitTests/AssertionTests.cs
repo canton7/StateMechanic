@@ -88,5 +88,62 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateInitialState("State 1");
             Assert.Throws<InvalidOperationException>(() => sm.CreateInitialState("State 2"));
         }
+
+        [Test]
+        public void ThrowsIfTransitionOnIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.TransitionOn(null));
+        }
+
+        [Test]
+        public void ThrowsIfTransitionOnWithEventDataIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.TransitionOn<string>(null));
+        }
+
+        [Test]
+        public void ThrowsIfInnerSelfTransitionOnIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.InnerSelfTransitionOn(null));
+        }
+
+        [Test]
+        public void ThrowsIfInnerSelfTransitionOnWithEventDataIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.InnerSelfTransitionOn<string>(null));
+        }
+
+        [Test]
+        public void ThrowsIfCreateChildStateMachineCalledOnAStatWhichAlreadyHasAChildStateMachine()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine();
+            Assert.Throws<InvalidOperationException>(() => state1.CreateChildStateMachine());
+        }
+
+        [Test]
+        public void ThrowsIfAddToGroupCalledWithNull()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.AddToGroup(null));
+        }
+
+        [Test]
+        public void ThrowsIfAddToGroupsCalledWithNull()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.AddToGroups(null));
+        }
     }
 }

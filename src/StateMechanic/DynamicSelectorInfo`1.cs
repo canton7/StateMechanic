@@ -26,6 +26,7 @@
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object.</returns>
+        [ExcludeFromCoverage]
         public override string ToString()
         {
             return $"<DynamicSelectorInfo From={this.From} Event={this.Event}>";
