@@ -77,6 +77,7 @@
     <Compile Include="SerializationTests.cs" />
     <Compile Include="StateMachineStateTests.cs" />
     <Compile Include="StateMachineSynchronizerTests.cs" />
+    <Compile Include="StateSubclassTests.cs" />
     <Compile Include="TransitionInfoTests.cs" />
     <Compile Include="TransitionNotificationTests.cs" />
     <Compile Include="TransitionTests.cs" />

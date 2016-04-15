@@ -159,6 +159,7 @@ namespace StateMechanicUnitTests
             state1.AddToGroup(group2);
 
             Assert.That(state1.Groups, Is.EquivalentTo(new[] { group1, group2 }));
+            Assert.That(((IState)state1).Groups, Is.EquivalentTo(new[] { group1, group2 }));
         }
 
         [Test]

@@ -26,10 +26,23 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<StateGroup<TState>> Groups { get; }
 
+        private string _name;
+
         /// <summary>
         /// Gets the name assigned to this state
         /// </summary>
-        public string Name { get; protected set; }
+        public string Name
+        {
+            get
+            {
+                this.CheckInitialized();
+                return this._name;
+            }
+            protected set
+            {
+                this._name = value;
+            }
+        }
 
         /// <summary>
         /// Gets the indentifier for the state. Used for serializing/deserializing state machines. Can be overridden.
@@ -46,10 +59,23 @@ namespace StateMechanic
         /// </summary>
         public ChildStateMachine<TState> ChildStateMachine { get; private set; }
 
+        private ChildStateMachine<TState> _parentStateMachine;
+
         /// <summary>
         /// Gets the state machine to which this state belongs
         /// </summary>
-        public ChildStateMachine<TState> ParentStateMachine { get; private set; }
+        public ChildStateMachine<TState> ParentStateMachine
+        {
+            get
+            {
+                this.CheckInitialized();
+                return this._parentStateMachine;
+            }
+            set
+            {
+                this._parentStateMachine = value;
+            }
+        }
 
         IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
         IStateMachine IState.ParentStateMachine => this.ParentStateMachine;

@@ -41,6 +41,7 @@ namespace StateMechanicUnitTests
             var stateMachine = new StateMachine("State Machine");
             var state = stateMachine.CreateState("State");
             Assert.AreEqual(stateMachine, state.ParentStateMachine);
+            Assert.AreEqual(stateMachine, ((IState)state).ParentStateMachine);
         }
 
         [Test]
@@ -164,6 +165,54 @@ namespace StateMechanicUnitTests
             Assert.True(state2.IsCurrent);
             Assert.False(state21.IsCurrent);
             Assert.True(state22.IsCurrent);
+        }
+
+        [Test]
+        public void StateMachineReportsIsActiveCorrectly()
+        {
+            var parent = new StateMachine();
+            var state1 = parent.CreateInitialState("state1");
+            var state2 = parent.CreateState("state2");
+            var state2Child = state2.CreateChildStateMachine("childSm");
+            var state21 = state2Child.CreateInitialState("state21");
+
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).To(state2);
+
+            Assert.True(parent.IsActive);
+            Assert.False(state2Child.IsActive);
+
+            evt.Fire();
+
+            Assert.True(parent.IsActive);
+            Assert.True(state2Child.IsActive);
+        }
+
+        [Test]
+        public void IsChildOfThrowsIfArgumentIsNull()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<ArgumentNullException>(() => sm.IsChildOf(null));
+        }
+
+        [Test]
+        public void StateMachineReportsIsChildOfCorrectly()
+        {
+            var sm1 = new StateMachine("sm1");
+            var state11 = sm1.CreateInitialState("state11");
+
+            var sm2 = new StateMachine("sm2");
+            var state21 = sm2.CreateInitialState("state21");
+            var state22 = sm2.CreateState("state22");
+            var sm22 = state22.CreateChildStateMachine("sm22");
+            var state221 = sm22.CreateInitialState("state221");
+
+            Assert.False(sm1.IsChildOf(sm2));
+            Assert.False(sm2.IsChildOf(sm1));
+
+            Assert.False(sm2.IsChildOf(sm22));
+            Assert.True(sm22.IsChildOf(sm2));
         }
     }
 }

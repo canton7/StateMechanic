@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace StateMechanic
 {
@@ -270,6 +271,8 @@ namespace StateMechanic
 
         internal void SetCurrentState(TState state)
         {
+            this.EnsureSuitableForUse();
+
             if (state != null && state.ParentStateMachine != this)
                 throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
 
@@ -327,15 +330,19 @@ namespace StateMechanic
             return success;
         }
 
+        private void EnsureSuitableForUse()
+        {
+            if (this.InitialState == null)
+                throw new InvalidOperationException($"Initial state on {this.ToString()} not yet set. You must call CreateInitialState");
+        }
+
         private void EnsureCurrentStateSuitableForTransition()
         {
+            this.EnsureSuitableForUse();
+
+            // This should only be possible because of an internal error
             if (this.CurrentState == null)
-            {
-                if (this.InitialState == null)
-                    throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
-                else
-                    throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
-            }
+                throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
         }
 
         /// <summary>
