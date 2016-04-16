@@ -32,11 +32,10 @@ namespace StateMechanic
 
         public void SetParentStateMachine(IEventDelegate parentStateMachine, IState state, IEvent @event)
         {
-            var topStateMachine = parentStateMachine.TopmostStateMachine;
-            if (this.parentStateMachine != null && this.parentStateMachine != topStateMachine)
+            if (this.parentStateMachine != null && this.parentStateMachine != parentStateMachine)
                 throw new InvalidEventTransitionException(state, @event);
 
-            this.parentStateMachine = topStateMachine;
+            this.parentStateMachine = parentStateMachine;
         }
 
         public bool RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)

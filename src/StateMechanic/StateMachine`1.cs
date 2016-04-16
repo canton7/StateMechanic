@@ -7,8 +7,11 @@ namespace StateMechanic
     /// <summary>
     /// A state machine
     /// </summary>
-    public class StateMachine<TState> : ChildStateMachine<TState> where TState : StateBase<TState>, new()
+    public class StateMachine<TState> : ChildStateMachine<TState>, IEventDelegate
+        where TState : StateBase<TState>, new()
     {
+        internal override StateMachine<TState> TopmostStateMachineInternal => this;
+
         /// <summary>
         /// Gets the fault associated with this state machine. A state machine will fault if one of its handlers throws an exception
         /// </summary>
@@ -139,6 +142,78 @@ namespace StateMechanic
             // We need to check this to avoid internal inconsistency
             if (stateMachine != null)
                 throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": a parent state has the child state machine {stateMachine}, but no information is present in the serialized string saying what its state should be. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
+        {
+            var transitionInvoker = new EventTransitionInvoker<TState>(@event, eventFireMethod);
+            return this.RequestEventFireFromEvent(transitionInvoker);
+        }
+
+        bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
+        {
+            var transitionInvoker = new EventTransitionInvoker<TState, TEventData>(@event, eventFireMethod, eventData);
+            return this.RequestEventFireFromEvent(transitionInvoker);
+        }
+
+        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
+        private bool RequestEventFireFromEvent(ITransitionInvoker<TState> transitionInvoker)
+        {
+            if (this.Kernel.Synchronizer != null)
+                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
+            else
+                return this.InvokeTransition(this.RequestEventFire, transitionInvoker);
+        }
+
+        private bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
+        {
+            if (this.Kernel.Fault != null)
+                throw new StateMachineFaultedException(this.Kernel.Fault);
+
+            if (this.Kernel.ExecutingTransition)
+            {
+                this.Kernel.EnqueueTransition(method, transitionInvoker);
+                return true;
+            }
+
+            bool success;
+
+            try
+            {
+                try
+                {
+                    this.Kernel.ExecutingTransition = true;
+                    success = method(transitionInvoker);
+                }
+                catch (InternalTransitionFaultException e)
+                {
+                    var faultInfo = new StateMachineFaultInfo(this, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
+                    this.Kernel.SetFault(faultInfo);
+                    throw new TransitionFailedException(faultInfo);
+                }
+                finally
+                {
+                    this.Kernel.ExecutingTransition = false;
+                }
+
+                this.Kernel.FireQueuedTransitions();
+            }
+            finally
+            {
+                // Whatever happens, when we've either failed or executed everything in the transition queue,
+                // the queue should end up empty.
+                this.Kernel.ClearTransitionQueue();
+            }
+
+            return success;
+        }
+
+        internal override void HandleTransitionNotFound(IEvent @event, bool throwException)
+        {
+            this.Kernel.HandleTransitionNotFound(this.CurrentState, @event, this, throwException);
+
+            if (throwException)
+                throw new TransitionNotFoundException(this.CurrentState, @event, this);
         }
 
         private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)

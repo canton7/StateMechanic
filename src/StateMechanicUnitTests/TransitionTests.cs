@@ -115,5 +115,24 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(childState1, child.CurrentState);
             Assert.AreEqual(initial, sm.CurrentState);
         }
+
+        [Test]
+        public void TransitionNotFoundIsNotRaisedIfTransitionNotFoundOnChildStateMachine()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine();
+            var state11 = subSm.CreateInitialState("state11");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event("evt");
+            state1.TransitionOn(evt).To(state2);
+
+            bool fired = false;
+            sm.TransitionNotFound += (o, e) => fired = true;
+
+            evt.Fire();
+
+            Assert.False(fired);
+        }
     }
 }

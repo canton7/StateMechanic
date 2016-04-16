@@ -8,7 +8,7 @@ namespace StateMechanic
     /// <summary>
     /// A state machine, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine<TState> : IStateMachine, IEventDelegate, IStateDelegate<TState>
+    public class ChildStateMachine<TState> : IStateMachine, IStateDelegate<TState>
         where TState : StateBase<TState>, new()
     {
         internal StateMachineKernel<TState> Kernel { get; }
@@ -74,7 +74,7 @@ namespace StateMechanic
         /// </summary>
         public IStateMachine ParentStateMachine => this.ParentState?.ParentStateMachine;
 
-        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.ParentState?.ParentStateMachine.TopmostStateMachineInternal ?? this;
+        internal virtual StateMachine<TState> TopmostStateMachineInternal => this.ParentState.ParentStateMachine.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
@@ -87,7 +87,6 @@ namespace StateMechanic
         IState IStateMachine.InitialState => this.InitialState;
         IStateMachine IStateMachine.ParentStateMachine => this.ParentStateMachine;
         IStateMachine IStateMachine.TopmostStateMachine => this.TopmostStateMachineInternal;
-        IEventDelegate IEventDelegate.TopmostStateMachine => this.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
@@ -172,49 +171,6 @@ namespace StateMechanic
                 this.CurrentState = null;
         }
 
-        internal bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
-        {
-            if (this.Kernel.Fault != null)
-                throw new StateMachineFaultedException(this.Kernel.Fault);
-
-            if (this.Kernel.ExecutingTransition)
-            {
-                this.Kernel.EnqueueTransition(method, transitionInvoker);
-                return true;
-            }
-
-            bool success;
-
-            try
-            {
-                try
-                {
-                    this.Kernel.ExecutingTransition = true;
-                    success = method(transitionInvoker);
-                }
-                catch (InternalTransitionFaultException e)
-                {
-                    var faultInfo = new StateMachineFaultInfo(this, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
-                    this.Kernel.SetFault(faultInfo);
-                    throw new TransitionFailedException(faultInfo);
-                }
-                finally
-                {
-                    this.Kernel.ExecutingTransition = false;
-                }
-
-                this.Kernel.FireQueuedTransitions();
-            }
-            finally
-            {
-                // Whatever happens, when we've either failed or executed everything in the transition queue,
-                // the queue should end up empty.
-                this.Kernel.ClearTransitionQueue();
-            }
-
-            return success;
-        }
-
         /// <summary>
         /// Determines whether this state machine is a child of another state machine
         /// </summary>
@@ -261,12 +217,10 @@ namespace StateMechanic
             }
         }
 
-        private void HandleTransitionNotFound(IEvent @event, bool throwException)
+        // This would be protected *and* internal if that were possible
+        internal virtual void HandleTransitionNotFound(IEvent @event, bool throwException)
         {
-            this.Kernel.HandleTransitionNotFound(this.CurrentState, @event, this, throwException);
-
-            if (throwException)
-                throw new TransitionNotFoundException(this.CurrentState, @event, this);
+            // Overridden in StateMachine to do things
         }
 
         internal void SetCurrentState(TState state)
@@ -279,33 +233,8 @@ namespace StateMechanic
             this.CurrentState = state;
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
-        {
-            var transitionInvoker = new EventTransitionInvoker<TState>(@event, eventFireMethod);
-            return this.RequestEventFireFromEvent(transitionInvoker);
-        }
-
-        bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
-        {
-            var transitionInvoker = new EventTransitionInvoker<TState, TEventData>(@event, eventFireMethod, eventData);
-            return this.RequestEventFireFromEvent(transitionInvoker);
-        }
-
-        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
-        private bool RequestEventFireFromEvent(ITransitionInvoker<TState> transitionInvoker)
-        {
-            if (this.Kernel.Synchronizer != null)
-                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
-            else
-                return this.InvokeTransition(this.RequestEventFire, transitionInvoker);
-        }
-
-        private bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker)
-        {
-            return this.RequestEventFire(transitionInvoker, overrideNoThrow: false);
-        }
-
-        private bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker, bool overrideNoThrow)
+        // I'd make this protected *and* internal if I could
+        internal bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker)
         {
             this.EnsureCurrentStateSuitableForTransition();
 
@@ -314,7 +243,7 @@ namespace StateMechanic
             // Try and fire it on the child state machine - see if that works
             // If we got to here, this.CurrentState != null
             var childStateMachine = this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(transitionInvoker, overrideNoThrow: true))
+            if (childStateMachine != null && childStateMachine.RequestEventFire(transitionInvoker))
             {
                 success = true;
             }
@@ -324,7 +253,7 @@ namespace StateMechanic
                 success = transitionInvoker.TryInvoke(this.CurrentState);
 
                 if (!success)
-                    this.HandleTransitionNotFound(transitionInvoker.Event, throwException: !overrideNoThrow && transitionInvoker.EventFireMethod == EventFireMethod.Fire);
+                    this.HandleTransitionNotFound(transitionInvoker.Event, throwException: transitionInvoker.EventFireMethod == EventFireMethod.Fire);
             }
 
             return success;

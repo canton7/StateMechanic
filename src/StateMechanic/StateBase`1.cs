@@ -162,7 +162,7 @@ namespace StateMechanic
                 throw new ArgumentNullException(nameof(@event));
 
             var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachine);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
         }
@@ -179,7 +179,7 @@ namespace StateMechanic
                 throw new ArgumentNullException(nameof(@event));
 
             var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachine);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
         }
