@@ -23,10 +23,10 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void TryFireReturnsFalseIfNotYetAssociatedStateMachine()
+        public void TryFireThrowsfNotYetAssociatedStateMachine()
         {
             var evt = new Event("evt");
-            Assert.False(evt.TryFire());
+            Assert.Throws<TransitionNotFoundException>(() => evt.TryFire());
         }
 
         [Test]

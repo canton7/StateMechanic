@@ -41,12 +41,7 @@ namespace StateMechanic
         public bool RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
         {
             if (this.parentStateMachine == null)
-            {
-                if (eventFireMethod == EventFireMethod.Fire)
-                    throw new TransitionNotFoundException(@event);
-                else
-                    return false;
-            }
+                throw new TransitionNotFoundException(@event);
 
             return this.parentStateMachine.RequestEventFireFromEvent(@event, eventFireMethod);
         }

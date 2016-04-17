@@ -239,6 +239,8 @@ namespace StateMechanicUnitTests
             var evt2 = new Event("evt2");
 
             initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.TryFire());
+            // Associated it with the state machine
+            state1.TransitionOn(evt2).To(state1);
 
             Assert.True(evt.TryFire());
         }
