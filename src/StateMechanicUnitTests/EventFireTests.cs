@@ -16,17 +16,14 @@ namespace StateMechanicUnitTests
         {
             var evt = new Event("evt");
 
-            var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
-            Assert.IsNull(e.StateMachine);
-            Assert.IsNull(e.From);
-            Assert.AreEqual(evt, e.Event);
+            Assert.Throws<InvalidEventSetupException>(() => evt.Fire());
         }
 
         [Test]
         public void TryFireThrowsfNotYetAssociatedStateMachine()
         {
             var evt = new Event("evt");
-            Assert.Throws<TransitionNotFoundException>(() => evt.TryFire());
+            Assert.Throws<InvalidEventSetupException>(() => evt.TryFire());
         }
 
         [Test]
@@ -34,10 +31,7 @@ namespace StateMechanicUnitTests
         {
             var evt = new Event<string>("evt");
 
-            var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire("boo"));
-            Assert.IsNull(e.StateMachine);
-            Assert.IsNull(e.From);
-            Assert.AreEqual(evt, e.Event);
+            Assert.Throws<InvalidEventSetupException>(() => evt.Fire("boo"));
         }
 
         [Test]

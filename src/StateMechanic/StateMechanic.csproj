@@ -61,6 +61,7 @@
     <Compile Include="IEventDelegate.cs" />
     <Compile Include="IInvokableTransition.cs" />
     <Compile Include="InternalTransitionFaultException.cs" />
+    <Compile Include="InvalidEventSetupException.cs" />
     <Compile Include="InvalidEventTransitionException.cs" />
     <Compile Include="InvalidStateTransitionException.cs" />
     <Compile Include="IState.cs" />
