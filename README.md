@@ -558,9 +558,3 @@ InitialState initial = stateMachine.CreateInitialState<InitialState>("Initial");
 ### State Groups
 
 If you want to make a state group which contains your custom base state type, create a `new StateGroup<CustomBaseState>()`.
-
-
-TODO
----- 
-
- - Stuff on StateMachine (??)
