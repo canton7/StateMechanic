@@ -326,9 +326,8 @@ namespace StateMechanic
 
             foreach (var state in intermediateStates.AsEnumerable().Reverse())
             {
-                // We should only hit this if the deserializer is faulty
-                if (stateMachine == null)
-                    throw new StateMachineSerializationException($"Unable to deserialize from \"{serialized}\": the previous state has no child state machine. Make sure you're deserializing into exactly the same state machine as created the serialized string.");
+                // We should never hit this
+                Trace.Assert(stateMachine != null, $"Unable to deserialize from \"{serialized}\": the previous state has no child state machine. This should not happen");
 
                 // This will throw if the state doesn't belong to the state machine
                 stateMachine.SetCurrentState(state);
@@ -381,11 +380,6 @@ namespace StateMechanic
             this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
-        private void OnFaulted(object sender, StateMachineFaultedEventArgs eventArgs)
-        {
-            this.Faulted?.Invoke(this, eventArgs);
-        }
-
         internal override void HandleTransitionNotFound(IEvent @event, bool throwException)
         {
             this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(this.CurrentState, @event, this));
@@ -397,11 +391,6 @@ namespace StateMechanic
         private void OnTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
         {
             this.Transition?.Invoke(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
-        }
-
-        private void OnTransitionNotFound(object sender, TransitionNotFoundEventArgs<TState> eventArgs)
-        {
-            this.TransitionNotFound?.Invoke(this, eventArgs);
         }
 
         #endregion

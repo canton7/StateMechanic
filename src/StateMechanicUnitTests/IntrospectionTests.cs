@@ -263,5 +263,49 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(sm, subSubSm.TopmostStateMachine);
             Assert.AreEqual(sm, ((IStateMachine)subSubSm).TopmostStateMachine);
         }
+
+        [Test]
+        public void TransitionReportsCorrectInfo()
+        {
+            Action<TransitionInfo<State>> handler = i => { };
+            Func<TransitionInfo<State>, bool> guard = i => true;
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event();
+            var transition = state1.TransitionOn(evt).To(state2).WithHandler(handler).WithGuard(guard);
+
+            Assert.AreEqual(state1, transition.From);
+            Assert.AreEqual(state2, transition.To);
+            Assert.AreEqual(evt, transition.Event);
+            Assert.AreEqual(evt, ((ITransition<State>)transition).Event);
+            Assert.False(transition.IsInnerTransition);
+            Assert.False(((ITransition<State>)transition).IsDynamicTransition);
+            Assert.AreEqual(handler, transition.Handler);
+            Assert.True(transition.HasGuard);
+            Assert.AreEqual(guard, transition.Guard);
+        }
+
+        [Test]
+        public void TransitionWithEventDataReportsCorrectInfo()
+        {
+            Action<TransitionInfo<State, string>> handler = i => { };
+            Func<TransitionInfo<State, string>, bool> guard = i => true;
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event<string>();
+            var transition = state1.TransitionOn(evt).To(state2).WithHandler(handler).WithGuard(guard);
+
+            Assert.AreEqual(state1, transition.From);
+            Assert.AreEqual(state2, transition.To);
+            Assert.AreEqual(evt, transition.Event);
+            Assert.AreEqual(evt, ((ITransition<State>)transition).Event);
+            Assert.False(transition.IsInnerTransition);
+            Assert.False(((ITransition<State>)transition).IsDynamicTransition);
+            Assert.AreEqual(handler, transition.Handler);
+            Assert.True(transition.HasGuard);
+            Assert.AreEqual(guard, transition.Guard);
+        }
     }
 }

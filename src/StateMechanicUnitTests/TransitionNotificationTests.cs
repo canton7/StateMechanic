@@ -33,6 +33,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(initial, ea.From);
             Assert.AreEqual(state1, ea.To);
             Assert.AreEqual(evt, ea.Event);
+            Assert.AreEqual(sm, ea.StateMachine);
             Assert.False(ea.IsInnerTransition);
         }
 
@@ -83,6 +84,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(childInitial, ea.From);
             Assert.AreEqual(childState1, ea.To);
             Assert.AreEqual(evt, ea.Event);
+            Assert.AreEqual(child, ea.StateMachine);
             Assert.False(ea.IsInnerTransition);
         }
 
@@ -133,6 +135,7 @@ namespace StateMechanicUnitTests
             Assert.NotNull(ea);
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(sm, ea.StateMachine);
         }
 
         [Test]
@@ -158,6 +161,7 @@ namespace StateMechanicUnitTests
             Assert.NotNull(ea);
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(initial, ea.From);
+            Assert.AreEqual(sm, ea.StateMachine);
         }
 
         [Test]

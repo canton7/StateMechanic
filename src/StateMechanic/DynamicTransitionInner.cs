@@ -47,7 +47,7 @@ namespace StateMechanic
 
         public bool TryInvoke(TState to, TTransitionInfo transitionInfo)
         {
-            if (!to.CanTransition(this.Event, to))
+            if (!this.From.CanTransition(this.Event, to))
                 return false;
 
             this.transitionDelegate.CoordinateTransition(this.From, to, this.Event, false, this.Handler, transitionInfo);

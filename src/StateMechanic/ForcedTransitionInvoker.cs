@@ -15,6 +15,7 @@ namespace StateMechanic
         public ForcedTransitionInvoker(TState toState, IEvent @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.toState = toState;
+            // This is never actually references, but needs to be part of ITransitionInvoker
             this.EventFireMethod = EventFireMethod.Fire;
             this.Event = @event;
             this.transitionDelegate = transitionDelegate;

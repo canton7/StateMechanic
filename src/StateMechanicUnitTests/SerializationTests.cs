@@ -171,7 +171,37 @@ namespace StateMechanicUnitTests
 
             var serializer = new DummySerializer<State>();
             sm.Serializer = serializer;
-            Assert.Equals(serializer, sm.Serializer);
+            Assert.AreEqual(serializer, sm.Serializer);
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainAnInteverVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("bar:fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainCorrectVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("2:fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializerTriesToTraverseIntoAChildStateMachineThatDoesntExist()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("1:state1/state11"));
         }
     }
 }

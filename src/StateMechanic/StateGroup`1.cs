@@ -129,7 +129,8 @@ namespace StateMechanic
         [ExcludeFromCoverage]
         public override string ToString()
         {
-            return $"<StateGroup Name={this.Name ?? "(unnamed)"} States=[{String.Join(", ", this.States.Select(x => x.ToString()))}>";
+            var states = String.Join(", ", this.States.Select(x => x.ToString()));
+            return $"<StateGroup Name={this.Name ?? "(unnamed)"} States=[{states}]>";
         }
     }
 }

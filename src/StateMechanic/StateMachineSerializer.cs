@@ -56,6 +56,7 @@ namespace StateMechanic
                     return stateIdentifier;
             }
 
+            // This should never happen
             throw new InvalidOperationException($"Unable to find state {targetState} on StateMachine {stateMachine}. This should not happen");
         }
 

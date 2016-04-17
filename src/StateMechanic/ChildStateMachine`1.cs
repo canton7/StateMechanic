@@ -206,8 +206,7 @@ namespace StateMechanic
             this.EnsureSuitableForUse();
 
             // This should only be possible because of an internal error
-            if (state != null && state.ParentStateMachine != this)
-                throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
+            Trace.Assert(state == null || state.ParentStateMachine == this, $"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
 
             this.CurrentState = state;
         }
@@ -249,8 +248,7 @@ namespace StateMechanic
             this.EnsureSuitableForUse();
 
             // This should only be possible because of an internal error
-            if (this.CurrentState == null)
-                throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
+            Trace.Assert(this.CurrentState != null, "Child state machine's parent state is not current. This state machine is currently disabled");
         }
 
         /// <summary>

@@ -173,5 +173,65 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine();
             Assert.Throws<ArgumentNullException>(() => sm.Serializer = null);
         }
+
+        [Test]
+        public void ForceTransitionThrowsIfToStateIsNull()
+        {
+            var sm = new StateMachine();
+            var evt = new Event("evt");
+            Assert.Throws<ArgumentNullException>(() => sm.ForceTransition(null, evt));
+        }
+
+        [Test]
+        public void ForceTransitionThrowsIfEventIsNull()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => sm.ForceTransition(state1, null));
+        }
+
+        [Test]
+        public void TransitionToThrowsIfStateIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.To(null));
+        }
+
+        [Test]
+        public void TransitionToThrowsIfDynamicIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.ToDynamic(null));
+        }
+
+        [Test]
+        public void TransitionToWithEventDataThrowsIfStateIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event<string>("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.To(null));
+        }
+
+        [Test]
+        public void TransitionToWithEventDataThrowsIfDynamicIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event<string>("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.ToDynamic(null));
+        }
     }
 }
