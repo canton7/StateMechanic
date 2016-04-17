@@ -133,7 +133,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachine.Kernel);
+            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
+            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.Kernel);
+            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
@@ -178,7 +178,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
+            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
@@ -219,7 +219,7 @@ namespace StateMechanic
             if (this.ChildStateMachine != null)
                 throw new InvalidOperationException("This state already has a child state machine");
 
-            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.ParentStateMachine.Kernel, this.self);
+            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.self);
             return this.ChildStateMachine;
         }
 

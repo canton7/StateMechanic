@@ -11,8 +11,6 @@ namespace StateMechanic
     public class ChildStateMachine<TState> : IStateMachine, IStateDelegate<TState>
         where TState : StateBase<TState>, new()
     {
-        internal StateMachineKernel<TState> Kernel { get; }
-
         private readonly List<TState> states = new List<TState>();
 
         /// <summary>
@@ -34,9 +32,7 @@ namespace StateMechanic
         {
             get
             {
-                if (this.Kernel.Fault != null)
-                    throw new StateMachineFaultedException(this.Kernel.Fault);
-
+                this.TopmostStateMachineInternal.EnsureNoFault();
                 return this._currentState;
             }
             private set
@@ -95,10 +91,9 @@ namespace StateMechanic
 
         IReadOnlyList<IState> IStateMachine.States => this.States;
 
-        internal ChildStateMachine(string name, StateMachineKernel<TState> kernel, TState parentState)
+        internal ChildStateMachine(string name, TState parentState)
         {
             this.Name = name;
-            this.Kernel = kernel;
             this.ParentState = parentState;
 
             this.States = new ReadOnlyCollection<TState>(this.states);
@@ -185,23 +180,6 @@ namespace StateMechanic
                 return this.ParentStateMachine == parentStateMachine || this.ParentStateMachine.IsChildOf(parentStateMachine);
 
             return false;
-        }
-
-        /// <summary>
-        /// Resets the state machine, removing any fault and returning it and any child state machines to their initial state
-        /// </summary>
-        public void Reset()
-        {
-            if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.Reset(this.ResetInternal);
-            else
-                this.ResetInternal();
-        }
-
-        private void ResetInternal()
-        {
-            this.Kernel.Reset();
-            this.ResetChildStateMachine();
         }
 
         internal void ResetChildStateMachine()
