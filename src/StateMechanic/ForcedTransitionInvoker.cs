@@ -35,9 +35,6 @@ namespace StateMechanic
                     this.transitionDelegate.CoordinateTransition<object>(state.ParentStateMachine.CurrentState, state, this.Event, false, null, null);
                 }
             }
-
-            // No transition data (no handler)
-            //this.transitionDelegate.CoordinateTransition<object>(sourceState, this.toState, this.Event, false, null, null);
             return true;
         }
 

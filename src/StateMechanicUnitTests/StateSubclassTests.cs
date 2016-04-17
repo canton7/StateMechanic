@@ -241,6 +241,21 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void HandleEventCalledEvenIfNoTransitionsOnThatEvent()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState<StateSubclassWithMethods>("state1");
+            state1.HandleEventResult = state1;
+            var state2 = sm.CreateState("state2");
+            var evt = new Event("evt");
+            state2.TransitionOn(evt).To(state2);
+
+            evt.Fire();
+
+            Assert.AreEqual(evt, state1.HandleEventEvent);
+        }
+
+        [Test]
         public void OnEntryReceivesCorrectData()
         {
             var sm = new StateMachine();
@@ -279,7 +294,7 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ThrowsIfHandleEventReturnAStateFromADifferentStateMachine()
+        public void DoesNotThrowIfHandleEventReturnAStateFromADifferentStateMachine()
         {
             var sm = new StateMachine();
             var state1 = sm.CreateInitialState("state1");
@@ -292,7 +307,8 @@ namespace StateMechanicUnitTests
             var evt = new Event("evt");
             state11.TransitionOn(evt).To(state12);
 
-            Assert.Throws<InvalidStateTransitionException>(() => evt.Fire());
+            Assert.DoesNotThrow(() => evt.Fire());
+            Assert.AreEqual(state2, sm.CurrentState);
         }
     }
 }
