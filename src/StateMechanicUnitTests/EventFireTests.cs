@@ -74,5 +74,35 @@ namespace StateMechanicUnitTests
 
             Assert.False(evt.TryFire());
         }
+
+        [Test]
+        public void EventTFireUsesDefaultEventData()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event<int>("evt");
+
+            int? eventData = null;
+            state1.TransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
+
+            ((IEvent)evt).Fire();
+            Assert.AreEqual(0, eventData);
+        }
+
+        [Test]
+        public void EventTTryFireUsesDefaultEventData()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event<int>("evt");
+
+            int? eventData = null;
+            state1.TransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
+
+            ((IEvent)evt).TryFire();
+            Assert.AreEqual(0, eventData);
+        }
     }
 }

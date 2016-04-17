@@ -105,7 +105,10 @@ namespace StateMechanicUnitTests
             evt.Fire();
 
             Assert.AreEqual(state2, stateMachine.CurrentState);
+            Assert.AreEqual(state2, ((IStateMachine)stateMachine).CurrentState);
+
             Assert.AreEqual(state21, subSm.CurrentState);
+            Assert.AreEqual(state21, ((IStateMachine)subSm).CurrentState);
         }
 
         [Test]
@@ -123,14 +126,17 @@ namespace StateMechanicUnitTests
             state21.TransitionOn(evt).To(state22);
 
             Assert.AreEqual(state1, stateMachine.CurrentChildState);
+            Assert.AreEqual(state1, ((IStateMachine)stateMachine).CurrentChildState);
 
             evt.Fire();
 
             Assert.AreEqual(state21, stateMachine.CurrentChildState);
+            Assert.AreEqual(state21, ((IStateMachine)stateMachine).CurrentChildState);
 
             evt.Fire();
 
             Assert.AreEqual(state22, stateMachine.CurrentChildState);
+            Assert.AreEqual(state22, ((IStateMachine)stateMachine).CurrentChildState);
         }
 
         [Test]
@@ -190,13 +196,6 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void IsChildOfThrowsIfArgumentIsNull()
-        {
-            var sm = new StateMachine();
-            Assert.Throws<ArgumentNullException>(() => sm.IsChildOf(null));
-        }
-
-        [Test]
         public void StateMachineReportsIsChildOfCorrectly()
         {
             var sm1 = new StateMachine("sm1");
@@ -213,6 +212,56 @@ namespace StateMechanicUnitTests
 
             Assert.False(sm2.IsChildOf(sm22));
             Assert.True(sm22.IsChildOf(sm2));
+        }
+
+        [Test]
+        public void StateMachineReportsParentStateCorrectly()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine("childSm");
+            var state11 = subSm.CreateInitialState("state11");
+
+            Assert.Null(sm.ParentState);
+            Assert.Null(((IStateMachine)sm).ParentState);
+
+            Assert.AreEqual(state1, subSm.ParentState);
+            Assert.AreEqual(state1, ((IStateMachine)subSm).ParentState);
+        }
+
+        [Test]
+        public void StateMachineReportsParentStateMachineCorrectly()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine("childSm");
+            var state11 = subSm.CreateInitialState("state11");
+
+            Assert.Null(sm.ParentStateMachine);
+            Assert.Null(((IStateMachine)sm).ParentStateMachine);
+
+            Assert.AreEqual(sm, subSm.ParentStateMachine);
+            Assert.AreEqual(sm, ((IStateMachine)subSm).ParentStateMachine);
+        }
+
+        [Test]
+        public void StateMachineReportsTopmostStateMachineCorrectly()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine("childSm");
+            var state11 = subSm.CreateInitialState("state11");
+            var subSubSm = state11.CreateChildStateMachine("subSubSm");
+            var state111 = subSubSm.CreateInitialState("state111");
+
+            Assert.AreEqual(sm, sm.TopmostStateMachine);
+            Assert.AreEqual(sm, ((IStateMachine)sm).TopmostStateMachine);
+
+            Assert.AreEqual(sm, subSm.TopmostStateMachine);
+            Assert.AreEqual(sm, ((IStateMachine)subSm).TopmostStateMachine);
+
+            Assert.AreEqual(sm, subSubSm.TopmostStateMachine);
+            Assert.AreEqual(sm, ((IStateMachine)subSubSm).TopmostStateMachine);
         }
     }
 }

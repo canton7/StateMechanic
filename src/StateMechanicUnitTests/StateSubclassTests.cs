@@ -19,6 +19,14 @@ namespace StateMechanicUnitTests
         {
         }
 
+        private class SubclassWithName : State
+        {
+            public SubclassWithName()
+            {
+                this.Name = "My Name";
+            }
+        }
+
         [Test]
         public void StateBaseThrowsIfSubclassDoesNotProvideoCorrectT()
         {
@@ -34,6 +42,24 @@ namespace StateMechanicUnitTests
             var evt = new Event("evt");
 
             Assert.Throws<InvalidOperationException>(() => state1.TransitionOn(evt).To(state2));
+        }
+
+        [Test]
+        public void StateSubclassIsAllowedToProviedItsOwnName()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState<SubclassWithName>();
+
+            Assert.AreEqual("My Name", state1.Name);
+        }
+
+        [Test]
+        public void StateSubclasOwnNameCanBeOverridden()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState<SubclassWithName>("My Other Name");
+
+            Assert.AreEqual("My Other Name", state1.Name);
         }
     }
 }

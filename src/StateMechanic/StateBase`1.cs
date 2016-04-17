@@ -111,7 +111,7 @@ namespace StateMechanic
             this.isInitialized = true;
             // If they've subclassed this and set Name themselves, then provided 'null' in CreateState,
             // don't override what they set
-            if (this.Name == null)
+            if (!String.IsNullOrWhiteSpace(name))
                 this.Name = name;
             this.ParentStateMachine = parentStateMachine;
         }

@@ -72,6 +72,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
+            Assert.False(handlerInfo.IsInnerTransition);
         }
 
         [Test]
@@ -92,6 +93,25 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state2, transitionInfo.To);
             Assert.AreEqual(evt, transitionInfo.Event);
             Assert.False(transitionInfo.IsInnerTransition);
+        }
+
+        [Test]
+        public void CorrectInfoIsGivenInTransitionHandlerOnInnerTransition()
+        {
+            TransitionInfo<State> transitionInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt = new Event("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            state1.InnerSelfTransitionOn(evt).WithHandler(i => transitionInfo = i);
+
+            evt.Fire();
+
+            Assert.NotNull(transitionInfo);
+            Assert.AreEqual(state1, transitionInfo.From);
+            Assert.AreEqual(state1, transitionInfo.To);
+            Assert.AreEqual(evt, transitionInfo.Event);
+            Assert.True(transitionInfo.IsInnerTransition);
         }
 
         [Test]

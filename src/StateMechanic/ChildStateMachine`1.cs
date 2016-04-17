@@ -205,6 +205,7 @@ namespace StateMechanic
         {
             this.EnsureSuitableForUse();
 
+            // This should only be possible because of an internal error
             if (state != null && state.ParentStateMachine != this)
                 throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
 

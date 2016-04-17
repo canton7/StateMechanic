@@ -11,6 +11,19 @@ namespace StateMechanicUnitTests
     [TestFixture]
     public class SerializationTests
     {
+        private class DummySerializer<TState> : IStateMachineSerializer<TState> where TState : StateBase<TState>, new()
+        {
+            public TState Deserialize(StateMachine<TState> stateMachine, string serialized)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string Serialize(StateMachine<TState> stateMachine)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         [Test]
         public void SerializesHierarchicalStateMachine()
         {
@@ -148,6 +161,17 @@ namespace StateMechanicUnitTests
 
             Assert.False(exitFired);
             Assert.False(entryFired);
+        }
+
+        [Test]
+        public void StateMachineReportsCorrectSerializer()
+        {
+            var sm = new StateMachine();
+            Assert.IsInstanceOf<IStateMachineSerializer<State>>(sm.Serializer);
+
+            var serializer = new DummySerializer<State>();
+            sm.Serializer = serializer;
+            Assert.Equals(serializer, sm.Serializer);
         }
     }
 }

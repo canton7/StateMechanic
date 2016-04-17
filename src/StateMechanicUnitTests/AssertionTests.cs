@@ -131,7 +131,7 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ThrowsIfAddToGroupCalledWithNull()
+        public void StateThrowsIfAddToGroupCalledWithNull()
         {
             var sm = new StateMachine("sm");
             var state1 = sm.CreateInitialState("state1");
@@ -139,11 +139,39 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void ThrowsIfAddToGroupsCalledWithNull()
+        public void StateThrowsIfAddToGroupsCalledWithNull()
         {
             var sm = new StateMachine("sm");
             var state1 = sm.CreateInitialState("state1");
             Assert.Throws<ArgumentNullException>(() => state1.AddToGroups(null));
+        }
+
+        [Test]
+        public void StateGroupThrowsIfAddStateCalledWithNull()
+        {
+            var group = new StateGroup();
+            Assert.Throws<ArgumentNullException>(() => group.AddState(null));
+        }
+
+        [Test]
+        public void StateGroupThrowsIfAddStatesCalledWithNull()
+        {
+            var group = new StateGroup();
+            Assert.Throws<ArgumentNullException>(() => group.AddStates(null));
+        }
+
+        [Test]
+        public void IsChildOfThrowsIfArgumentIsNull()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<ArgumentNullException>(() => sm.IsChildOf(null));
+        }
+
+        [Test]
+        public void StateMachineSerializerThrowsIfNullSet()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<ArgumentNullException>(() => sm.Serializer = null);
         }
     }
 }
