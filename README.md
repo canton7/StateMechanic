@@ -5,7 +5,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/lx2an4nfb743gt6v?svg=true)](https://ci.appveyor.com/project/canton7/statemechanic)
 
 StateMechinic is a simple but powerful hierarchical state machine library.
-It supports data attached to states, data attached to events, entry/exit/transition handlers, child state machines, and more.
+It supports entry, exit, and transition handlers; custom data passed with events; child state machines; custom state subclasses; advanced transitions; and more.
 
 
 Installation
@@ -22,7 +22,7 @@ PM> Install-Package StateMechanic
 Or right-click your project -> Manage NuGet Packages... -> Online -> search for StateMechanic in the top right.
 
 Symbols are available.
-In Visual Studio, go to Debug -> Options and Settings -> General, and make the following changes:
+If you want to step into the StateMechanic code itself, go to Debug -> Options and Settings -> General, and make the following changes ([more details](https://github.com/GitTools/GitLink)).
 
 1. Turn **off** "Enable Just My Code"
 2. Turn **off** "Enable .NET Framework source stepping". Yes, it is misleading, but if you don't, then Visual Studio will ignore your custom server order and only use its own servers.
@@ -78,11 +78,53 @@ Assert.AreEqual(awaitingSelection, stateMachine.CurrentState);
 You'll notice that states and events are instances, rather than being enums (as in other state machine libraries).
 
 
-State Entry/Exit Handlers
--------------------------
+State Machines
+--------------
 
-Just creating a state machine isn't very interesting on its own: we usually want to execute some code when particular things happen.
-State entry handlers are executed whenever the state is entered, and likewise an exit handler is always executed when the state is exited.
+The first thing to do is to create a `new StateMachine()`.
+It is advisable to give you state machine a name (which is useful when debugging it), but this is not essential.
+
+```csharp
+var stateMachine = new StateMachine("MyStateMachine");
+```
+
+`StateMachine` has a few useful events:
+
+ - `Transition` will be raised whenever a transition occurs (either one this state machine or on one of its children). This is very useful for logging: you can track exactly what your application is doing, for free, with this log output.
+ - `TransitionNotFound` will be raised whenever an `Event.Fire()` or an `Event.TryFire()` fails. In the case of [recursive transitions](recursive-transitions) and `Event.TryFire()`, this is the *only* way to know that the transition failed. Again, useful for logging.
+ - `Faulted` is raised whenever the state machine [faults](#exceptions-and-faulting), i.e. an exception is raised by a transition or state entry/exit handler.
+
+Various properties indicate the current state of the state machine (`CurrentState`, `CurrentChildState`) or (in the case of hierarchical state machines) whether the state machine is active (`IsActive`).
+
+There is also a method, `Reset()`, to reset the state machine to its initial state (which will also clear any faults), methods to [serialize and deserialize](#serialization) the state machine, and a method to [print](#printing-state-machines) it.
+
+There are also properties to inspect the state machine's states, parent state, etc.
+
+
+States
+------
+
+In StateMechanic, states are instances of the class `State` (although [you can customise this](#custom-state-subclasses)).
+
+Every state machine must have an initial state, this is the state which the state machine is in to start with, and which it returns to when you call `StateMachine.Reset()` (this isn't quite true for [child state machines](#child-state-machines)).
+To create the initial state, do the following.
+As before, the name is recommended but not mandatory.
+
+```csharp
+State initialState = stateMachine.CreateInitialState("InitialState");
+```
+
+You may only create one initial state, but you must create it.
+
+You will also want to create some other states:
+
+```csharp
+State someState = stateMachine.CreateState("SomeState");
+```
+
+Notice how states are strongly associated with a state machine.
+
+State entry handlers are executed whenever the state is entered, and likewise exit handlers are always executed when the state is exited.
 Creating an entry/exit handler pair is a very powerful tool: you can make sure that the exit handler always undoes whatever the entry handler did.
 
 Entry and exit handlers are passed an object containing various bits of useful information: the states being transitioned from and to, and the event which triggered that transition.
@@ -98,17 +140,59 @@ someState.ExitHandler = info => Console.WriteLine($"Exit from {info.From} to {in
 ```
 
 
-Transition Handlers
--------------------
+Events
+------
+
+The other component of a state machine is its events.
+Unlike other state machine libraries, StateMechanic does not use an enum type for its events: this is to that the event data mechanism fits into the picture without ugly hacks.
+
+To create an event:
+
+```csharp
+Event someEvent = new Event("SomeEvent");
+```
+
+Again, names are recommended but not mandatory.
+
+Once you have created some transitions which occur on the event, you can fire the event using `Event.Fire()` or `Event.TryFire()`.
+The difference is that `Event.Fire()` will throw an exception if no transition (whose [guard](#transition-guards) returned true) could be found on that event from the current state, whereas `Event.TryFire()` will return false.
+
+When naming your events, it helps to think of them as representing outside influences, rather than as having a particular effect on the state machine.
+That is, you should create one event per "thing" which can happen, rather than one event for each type of change you want to make to the state machine.
+
+For example, if you are building a state machine to control user nagivation through an application, you should name your events after things that the user can do ("LogInClicked", "MainMenuClicked", "ViewSettingsClicked") rather than actions that the state machine can perform ("LogIn", "NavigateToMainMenu", "NavigateToSettings").
+The *point* of a state machine is that different actions can be performed when the same event occurs, depending on the current state of the state machine (e.g. "Log In" may do different things depending on whether the user is currently logged in),
+In other words, you should never have to decide which event to fire when something happens: the event to fire should be obvious, and the logic of what to do when that event is fired is encoded in the state machine.
+
+Note that Event, unlike State, was not created from a factory method on StateMachine.
+However, it is still associated with a state machine hierarchy (and becomes associated with it the first time that you define a tranition involving that event).
+This means that you cannot use the same event with multiple separate state machines, and you cannot fire an event until it has been used to define at least one transition.
+
+This decision was made in order to allow you to write `private readonly Event someEvent = new Event("SomeEvent");` in your classes, reducing the amount of boilerplate.
+
+
+Transitions
+-----------
+
+Transitions allow you to specify that when the state machine is in a particular state, and a given event is fired, the state machine should transitions to another particular state.
+
+```csharp
+someState.TransitionOn(someEvent).To(someOtherState);
+```
 
 You can also register a handler on a transition: whenever that transition occurs, the handler will be called.
 As with state entry/exit handlers, transition handlers receive an object containing useful information about the transition.
 
+If there is data associated with the event ([see below](#event-data)), then this is also available.
+
 ```csharp
 someState.TransitionOn(someEvent).To(someOtherState)
     .WithHandler(info => Console.WriteLine($"Transition from {info.From} to {info.To} on {info.Event}"));
+```
 
-// You can also set the Handler property directly
+You can also set the Handler property directly:
+
+```csharp
 var transition = someState.TransitionOn(someEvent).To(someOtherState);
 transition.Handler = info => Console.WriteLine($"Transition from {info.From} to {info.To} on {info.Event}");
 ```
@@ -118,7 +202,7 @@ Inner Self Transitions
 ----------------------
 
 A state is allowed to transition to itself.
-This is a useful way of running some code when an event is fired, and the state machine is in a particular state.
+This is a useful way of running some code when an event is fired, but only if the state machine is in a particular state.
 By default, both the exit and entry handlers will also be invoked in this case.
 If you don't want this, then create an inner self transition instead.
 
@@ -143,7 +227,7 @@ Event Data
 ----------
 
 You can associate data with particular events. When you fire the event, you also provide the data.
-This data is then available to transition handlers and transition guards (see below).
+This data is then available to [transition handlers](#transitions and [transition guards](#transition-guards).
 
 ```csharp
 // This is an event which takes a string argument (but you can use any data type)
@@ -162,12 +246,15 @@ eventWithData.Fire("Some Data");
 Transition Guards
 -----------------
 
-Sometimes life isn't as simple as always transitioning from state A to state B on event E.
-Sometimes when event E is fired you might transition from `A -> B` in some cases, but from `A -> C` in others.
+Sometimes life isn't as simple as always transitioning from state A to state B on an event.
+Sometimes when event E is fired you might transition from A to B in some cases, but from A to C in others.
 
 One way of achieving this is with transition guards.
 A transition guard is a delegate which is controls whether a particular transition can take place.
-If it can't, then any other transitions from the current state on that event are tried (transitions are tried in the order in which they were added).
+If it can't, then any other transitions from the current state on that event are tried.
+
+Note that the order in which transitions are added to a state is important here.
+Transitions are tried in the order that they were added, until either a transition succeeds or we run out of transitions (in which case the event fire will fail).
 
 ```csharp
 bool allowTransitionToStateB = false;
@@ -184,7 +271,9 @@ eventE.Fire();
 Assert.AreEqual(stateB, stateMachine.CurrentState);
 ```
 
-The guard receives an object with useful information about the transition.
+The guard receives an object with useful information about the transition (including any event data).
+
+You can throw an exception from the guard: this will be propagated back to the `Event.Fire()` or `Event.TryFire()` call which initiated the transition.
 
 
 Dynamic Transitions
@@ -226,12 +315,15 @@ Because events are queued, the behaviour around `Event.Fire()` and `Event.TryFir
 When that event is dequeued, if no transition from the current state (at that point) on that event exists, then any queued events are not affected.
 You will have no way of knowing that firing the event failed (other than the `TransitionNotFound` event on the StateMachine).
 
+In other words, the behaviour of `Event.Fire()` is not "I will throw an exception if I fail", but rather "I will cause *something* to throw an exception if I fail, although that may not be this call".
+Likewise the behaviour of `Event.TryFire()` is "I will attempt to fire, but will not cause anything to throw an exception if I fail, and will indicate my failure by returning false if possible".
+
 
 Exceptions and Faulting
 -----------------------
 
 State entry/exit handlers and transition handlers may not throw exceptions.
-(If exceptions were allowed, then these handlers would not run to completion, and it would be impossible to guarentee the integrity of the state machine).
+(If exceptions were allowed, then these handlers may not run to completion, and it would be impossible to guarentee the integrity of the state machine).
 
 If one of these handlers does throw an exception, then a `TransitionFailedException` will be thrown, and the state machine will enter a faulted state.
 The `Faulted` event on the StateMachine will also be raised, and its `Fault` property will contain information about the fault.
