@@ -88,5 +88,150 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateInitialState("State 1");
             Assert.Throws<InvalidOperationException>(() => sm.CreateInitialState("State 2"));
         }
+
+        [Test]
+        public void ThrowsIfTransitionOnIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.TransitionOn(null));
+        }
+
+        [Test]
+        public void ThrowsIfTransitionOnWithEventDataIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.TransitionOn<string>(null));
+        }
+
+        [Test]
+        public void ThrowsIfInnerSelfTransitionOnIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.InnerSelfTransitionOn(null));
+        }
+
+        [Test]
+        public void ThrowsIfInnerSelfTransitionOnWithEventDataIsNull()
+        {
+            var sm = new StateMachine("State machine");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.InnerSelfTransitionOn<string>(null));
+        }
+
+        [Test]
+        public void ThrowsIfCreateChildStateMachineCalledOnAStatWhichAlreadyHasAChildStateMachine()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine();
+            Assert.Throws<InvalidOperationException>(() => state1.CreateChildStateMachine());
+        }
+
+        [Test]
+        public void StateThrowsIfAddToGroupCalledWithNull()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.AddToGroup(null));
+        }
+
+        [Test]
+        public void StateThrowsIfAddToGroupsCalledWithNull()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => state1.AddToGroups(null));
+        }
+
+        [Test]
+        public void StateGroupThrowsIfAddStateCalledWithNull()
+        {
+            var group = new StateGroup();
+            Assert.Throws<ArgumentNullException>(() => group.AddState(null));
+        }
+
+        [Test]
+        public void StateGroupThrowsIfAddStatesCalledWithNull()
+        {
+            var group = new StateGroup();
+            Assert.Throws<ArgumentNullException>(() => group.AddStates(null));
+        }
+
+        [Test]
+        public void IsChildOfThrowsIfArgumentIsNull()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<ArgumentNullException>(() => sm.IsChildOf(null));
+        }
+
+        [Test]
+        public void StateMachineSerializerThrowsIfNullSet()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<ArgumentNullException>(() => sm.Serializer = null);
+        }
+
+        [Test]
+        public void ForceTransitionThrowsIfToStateIsNull()
+        {
+            var sm = new StateMachine();
+            var evt = new Event("evt");
+            Assert.Throws<ArgumentNullException>(() => sm.ForceTransition(null, evt));
+        }
+
+        [Test]
+        public void ForceTransitionThrowsIfEventIsNull()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            Assert.Throws<ArgumentNullException>(() => sm.ForceTransition(state1, null));
+        }
+
+        [Test]
+        public void TransitionToThrowsIfStateIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.To(null));
+        }
+
+        [Test]
+        public void TransitionToThrowsIfDynamicIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.ToDynamic(null));
+        }
+
+        [Test]
+        public void TransitionToWithEventDataThrowsIfStateIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event<string>("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.To(null));
+        }
+
+        [Test]
+        public void TransitionToWithEventDataThrowsIfDynamicIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+            var evt = new Event<string>("evt");
+
+            var builder = initial.TransitionOn(evt);
+            Assert.Throws<ArgumentNullException>(() => builder.ToDynamic(null));
+        }
     }
 }

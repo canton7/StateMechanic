@@ -176,6 +176,7 @@ namespace StateMechanicUnitTests
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
+            initial.InnerSelfTransitionOn(evt);
 
             var synchronizer = new Mock<IStateMachineSynchronizer>();
             synchronizer.Setup(x => x.FireEvent(It.IsAny<Func<bool>>(), EventFireMethod.TryFire))

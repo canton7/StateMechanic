@@ -26,10 +26,23 @@ namespace StateMechanic
         /// </summary>
         public IReadOnlyList<StateGroup<TState>> Groups { get; }
 
+        private string _name;
+
         /// <summary>
         /// Gets the name assigned to this state
         /// </summary>
-        public string Name { get; protected set; }
+        public string Name
+        {
+            get
+            {
+                this.CheckInitialized();
+                return this._name;
+            }
+            protected set
+            {
+                this._name = value;
+            }
+        }
 
         /// <summary>
         /// Gets the indentifier for the state. Used for serializing/deserializing state machines. Can be overridden.
@@ -46,10 +59,23 @@ namespace StateMechanic
         /// </summary>
         public ChildStateMachine<TState> ChildStateMachine { get; private set; }
 
+        private ChildStateMachine<TState> _parentStateMachine;
+
         /// <summary>
         /// Gets the state machine to which this state belongs
         /// </summary>
-        public ChildStateMachine<TState> ParentStateMachine { get; private set; }
+        public ChildStateMachine<TState> ParentStateMachine
+        {
+            get
+            {
+                this.CheckInitialized();
+                return this._parentStateMachine;
+            }
+            set
+            {
+                this._parentStateMachine = value;
+            }
+        }
 
         IStateMachine IState.ChildStateMachine => this.ChildStateMachine;
         IStateMachine IState.ParentStateMachine => this.ParentStateMachine;
@@ -85,7 +111,7 @@ namespace StateMechanic
             this.isInitialized = true;
             // If they've subclassed this and set Name themselves, then provided 'null' in CreateState,
             // don't override what they set
-            if (this.Name == null)
+            if (!String.IsNullOrWhiteSpace(name))
                 this.Name = name;
             this.ParentStateMachine = parentStateMachine;
         }
@@ -107,7 +133,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachine.Kernel);
+            return new TransitionBuilder<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
         }
 
         /// <summary>
@@ -121,7 +147,7 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
+            return new TransitionBuilder<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
         }
 
         /// <summary>
@@ -135,8 +161,8 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachine);
+            var transition = new Transition<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
         }
@@ -152,8 +178,8 @@ namespace StateMechanic
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.Kernel);
-            @event.AddTransition(this, transition, this.ParentStateMachine);
+            var transition = new Transition<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
             this.transitions.Add(transition);
             return transition;
         }
@@ -193,7 +219,7 @@ namespace StateMechanic
             if (this.ChildStateMachine != null)
                 throw new InvalidOperationException("This state already has a child state machine");
 
-            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.ParentStateMachine.Kernel, this.self);
+            this.ChildStateMachine = new ChildStateMachine<TState>(name ?? this.Name, this.self);
             return this.ChildStateMachine;
         }
 
@@ -285,6 +311,7 @@ namespace StateMechanic
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object</returns>
+        [ExcludeFromCoverage]
         public override string ToString()
         {
             this.CheckInitialized();

@@ -27,30 +27,16 @@ namespace StateMechanic
             this.IsInnerTransition = isInnerTransition;
         }
 
-        private TState FindToState()
-        {
-            var to = this.From.HandleEvent(this.Event);
-            if (to == null)
-                return this.To;
-
-            if (this.From.ParentStateMachine != to.ParentStateMachine)
-                throw new InvalidStateTransitionException(this.From, to);
-
-            return to;
-        }
-
         public bool TryInvoke(TTransitionInfo transitionInfo)
         {
-            var to = this.FindToState();
-
-            if (!this.From.CanTransition(this.Event, to))
+            if (!this.From.CanTransition(this.Event, this.To))
                 return false;
 
             var guard = this.Guard;
             if (guard != null && !guard(transitionInfo))
                 return false;
 
-            this.transitionDelegate.CoordinateTransition(this.From, to, this.Event, this.IsInnerTransition, this.Handler, transitionInfo);
+            this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler, transitionInfo);
 
             return true;
         }

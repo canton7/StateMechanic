@@ -15,6 +15,7 @@ namespace StateMechanic
         public ForcedTransitionInvoker(TState toState, IEvent @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.toState = toState;
+            // This is never actually references, but needs to be part of ITransitionInvoker
             this.EventFireMethod = EventFireMethod.Fire;
             this.Event = @event;
             this.transitionDelegate = transitionDelegate;
@@ -34,9 +35,6 @@ namespace StateMechanic
                     this.transitionDelegate.CoordinateTransition<object>(state.ParentStateMachine.CurrentState, state, this.Event, false, null, null);
                 }
             }
-
-            // No transition data (no handler)
-            //this.transitionDelegate.CoordinateTransition<object>(sourceState, this.toState, this.Event, false, null, null);
             return true;
         }
 

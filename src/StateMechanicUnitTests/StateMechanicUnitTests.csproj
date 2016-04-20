@@ -30,29 +30,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
+    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit3TestAdapter.3.0.9-ctp-9\lib\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.core, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\nunit.core.dll</HintPath>
+    <Reference Include="nunit.engine, Version=3.0.5813.39036, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit3TestAdapter.3.0.9-ctp-9\lib\nunit.engine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.engine.api, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit3TestAdapter.3.0.9-ctp-9\lib\nunit.engine.api.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.2.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.2.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.core.interfaces, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\nunit.core.interfaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.util, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\nunit.util.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NUnit.VisualStudio.TestAdapter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=4cb40d35494691ac, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\NUnit.VisualStudio.TestAdapter.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NUnit3.TestAdapter, Version=3.0.9.0, Culture=neutral, PublicKeyToken=4cb40d35494691ac, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit3TestAdapter.3.0.9-ctp-9\lib\NUnit3.TestAdapter.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,17 +64,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionTests.cs" />
+    <Compile Include="DynamicTransitionTests.cs" />
     <Compile Include="EventFireTests.cs" />
     <Compile Include="FaultTests.cs" />
     <Compile Include="PrinterTests.cs" />
-    <Compile Include="HandlerTests.cs" />
+    <Compile Include="HandlerOrderTests.cs" />
     <Compile Include="IntrospectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursiveTransitionTests.cs" />
     <Compile Include="ResetTests.cs" />
     <Compile Include="StateGroupTests.cs" />
     <Compile Include="SerializationTests.cs" />
     <Compile Include="StateMachineStateTests.cs" />
     <Compile Include="StateMachineSynchronizerTests.cs" />
+    <Compile Include="StateSubclassTests.cs" />
+    <Compile Include="TransitionInfoTests.cs" />
     <Compile Include="TransitionNotificationTests.cs" />
     <Compile Include="TransitionTests.cs" />
   </ItemGroup>

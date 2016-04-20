@@ -146,6 +146,7 @@ namespace StateMechanicUnitTests
             state2.AddToGroup(group);
 
             Assert.That(group.States, Is.EqualTo(new[] { state1, state2 }));
+            Assert.That(((IStateGroup)group).States, Is.EqualTo(new[] { state1, state2 }));
         }
 
         [Test]
@@ -159,6 +160,7 @@ namespace StateMechanicUnitTests
             state1.AddToGroup(group2);
 
             Assert.That(state1.Groups, Is.EquivalentTo(new[] { group1, group2 }));
+            Assert.That(((IState)state1).Groups, Is.EquivalentTo(new[] { group1, group2 }));
         }
 
         [Test]
@@ -207,6 +209,57 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(sm, e.FaultInfo.StateMachine);
             Assert.AreEqual(FaultedComponent.GroupExitHandler, e.FaultInfo.FaultedComponent);
             Assert.AreEqual(group, e.FaultInfo.Group);
+        }
+
+        [Test]
+        public void StateIsNotAddedToGroupMultipleTimes()
+        {
+            var sm = new StateMachine("sm");
+            var state = sm.CreateInitialState("state");
+            var group = new StateGroup("group");
+
+            state.AddToGroup(group);
+            state.AddToGroup(group);
+
+            Assert.That(state.Groups, Is.EquivalentTo(new[] { group }));
+        }
+
+        [Test]
+        public void StateCanBeAddedToMultipleGroupsAtOnce()
+        {
+            var sm = new StateMachine("sm");
+            var state = sm.CreateInitialState("state");
+            var group1 = new StateGroup("group1");
+            var group2 = new StateGroup("group2");
+
+            state.AddToGroups(group1, group2);
+
+            Assert.That(state.Groups, Is.EquivalentTo(new[] { group1, group2 }));
+        }
+
+        [Test]
+        public void AddStateAddsState()
+        {
+            var sm = new StateMachine("sm");
+            var state = sm.CreateInitialState("state");
+            var group = new StateGroup("group");
+
+            group.AddState(state);
+
+            Assert.That(group.States, Is.EquivalentTo(new[] { state }));
+        }
+
+        [Test]
+        public void AddStatesAddsStates()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var group = new StateGroup("group");
+
+            group.AddStates(state1, state2);
+
+            Assert.That(group.States, Is.EquivalentTo(new[] { state1, state2 }));
         }
     }
 }

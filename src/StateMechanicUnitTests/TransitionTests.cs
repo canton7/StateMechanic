@@ -69,43 +69,30 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void EventFireInTransitionHandlerIsQueued()
+        public void NoEventsAreQueuedIfAGuardThrowsAnException()
         {
             var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
+            var state1 = sm.CreateInitialState("state1");
             var state2 = sm.CreateState("state2");
-            var state3 = sm.CreateState("state3");
 
             var evt = new Event("evt");
             var evt2 = new Event("evt2");
 
-            initial.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
-            initial.TransitionOn(evt2).To(state2);
-            state1.TransitionOn(evt2).To(state3);
+            var exception = new Exception("foo");
+            state1.TransitionOn(evt).To(state2).WithGuard(i =>
+            {
+                evt.Fire();
+                throw exception;
+            });
+            state1.TransitionOn(evt2).To(state2);
+            state2.TransitionOn(evt).To(state1);
 
-            evt.Fire();
+            Assert.Throws<Exception>(() => evt.Fire());
 
-            Assert.AreEqual(state3, sm.CurrentState);
-        }
+            // Make sure that an event wasn't queued
+            evt2.Fire();
 
-        [Test]
-        public void ForceTransitionIsQueued()
-        {
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
-            var state2 = sm.CreateState("state2");
-            var evt = new Event("evt");
-
-            State entryFrom = null;
-            state2.EntryHandler = i => entryFrom = i.From;
-
-            initial.TransitionOn(evt).To(state1).WithHandler(i => sm.ForceTransition(state2, evt));
-
-            evt.Fire();
-
-            Assert.AreEqual(state1, entryFrom);
+            Assert.AreEqual(state2, sm.CurrentState);
         }
 
         [Test]
@@ -130,199 +117,22 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
-        public void TransitionFromGuardIsCorrectlyQueuedIfGuardReturnsFalse()
+        public void TransitionNotFoundIsNotRaisedIfTransitionNotFoundOnChildStateMachine()
         {
-            var log = new List<string>();
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
-            var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
-
-            var event1 = new Event("event1");
-            var event2 = new Event("event2");
-
-            initial.TransitionOn(event1).To(state1).WithGuard(_ =>
-            {
-                event2.Fire();
-                log.Add("event2 fired");
-                return false;
-            });
-
-            initial.TransitionOn(event2).To(state2);
-
-            event1.TryFire();
-
-            Assert.That(log, Is.EquivalentTo(new[] { "event2 fired", "state2 entered" }));
-            Assert.AreEqual(state2, sm.CurrentState);
-        }
-
-        [Test]
-        public void TransitionFromGuardIsCorrectlyQueuedIfGuardReturnsTrue()
-        {
-            var log = new List<string>();
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1").WithEntry(_ => log.Add("state1 entered"));
-            var state2 = sm.CreateState("state2").WithEntry(_ => log.Add("state2 entered"));
-
-            var event1 = new Event("event1");
-            var event2 = new Event("event2");
-
-            initial.TransitionOn(event1).To(state1).WithGuard(_ =>
-            {
-                event2.Fire();
-                log.Add("event2 fired");
-                return true;
-            });
-
-            state1.TransitionOn(event2).To(state2);
-
-            event1.TryFire();
-
-            Assert.That(log, Is.EquivalentTo(new[] { "event2 fired", "state1 entered", "state2 entered" }));
-            Assert.AreEqual(state2, sm.CurrentState);
-        }
-
-        [Test]
-        public void StateSelectorWhichReturnsNullAbortsTransition()
-        {
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+            var subSm = state1.CreateChildStateMachine();
+            var state11 = subSm.CreateInitialState("state11");
+            var state2 = sm.CreateState("state2");
             var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i => null);
-            Assert.False(evt.TryFire());
-        }
+            state1.TransitionOn(evt).To(state2);
 
-        [Test]
-        public void StateSelectorChoosesNextState()
-        {
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i => state1);
-
-            evt.Fire();
-            Assert.AreEqual(state1, sm.CurrentState);
-        }
-
-        [Test]
-        public void StateSelectorForbidsTransitionToStateFromDifferentStateMachine()
-        {
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var child = initial.CreateChildStateMachine();
-            var childInitial = child.CreateInitialState("childInitial");
-            var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i => childInitial);
-
-            var e = Assert.Throws<InvalidStateTransitionException>(() => evt.Fire());
-            Assert.AreEqual(initial, e.From);
-            Assert.AreEqual(childInitial, e.To);
-        }
-
-        [Test]
-        public void StateSelectorCausesOuterSelfTransition()
-        {
-            bool exitCalled = false;
-            bool entryCalled = false;
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial")
-                .WithEntry(i => entryCalled = true)
-                .WithExit(i => exitCalled = true);
-            var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i => initial);
-
-            evt.Fire();
-            Assert.True(entryCalled);
-            Assert.True(exitCalled);
-        }
-
-        [Test]
-        public void StateSelectorGetsCorrectInfo()
-        {
-            DynamicSelectorInfo<State> info = null;
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i =>
-            {
-                info = i;
-                return initial;
-            });
+            bool fired = false;
+            sm.TransitionNotFound += (o, e) => fired = true;
 
             evt.Fire();
 
-            Assert.NotNull(info);
-            Assert.AreEqual(initial, info.From);
-            Assert.AreEqual(evt, info.Event);
-        }
-
-        [Test]
-        public void StateSelectorWithEventDataGetsCorrectInfo()
-        {
-            DynamicSelectorInfo<State, string> info = null;
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var evt = new Event<string>("evt");
-            initial.TransitionOn(evt).ToDynamic(i =>
-            {
-                info = i;
-                return initial;
-            });
-
-            evt.Fire("hello");
-
-            Assert.NotNull(info);
-            Assert.AreEqual(initial, info.From);
-            Assert.AreEqual(evt, info.Event);
-            Assert.AreEqual("hello", info.EventData);
-        }
-
-        [Test]
-        public void DynamicTransitionHandlerGetsCorrectInfo()
-        {
-            TransitionInfo<State> info = null;
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            initial.TransitionOn(evt).ToDynamic(i => state1).WithHandler(i => info = i);
-
-            evt.Fire();
-
-            Assert.NotNull(info);
-            Assert.AreEqual(initial, info.From);
-            Assert.AreEqual(state1, info.To);
-            Assert.AreEqual(evt, info.Event);
-            Assert.False(info.IsInnerTransition);
-        }
-
-        [Test]
-        public void DynamicTransitionHandlerWithEventDataGetsCorrectInfo()
-        {
-            TransitionInfo<State, string> info = null;
-
-            var sm = new StateMachine("sm");
-            var initial = sm.CreateInitialState("initial");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event<string>("evt");
-            initial.TransitionOn(evt).ToDynamic(i => state1).WithHandler(i => info = i);
-
-            evt.Fire("foo");
-
-            Assert.NotNull(info);
-            Assert.AreEqual(initial, info.From);
-            Assert.AreEqual(state1, info.To);
-            Assert.AreEqual(evt, info.Event);
-            Assert.False(info.IsInnerTransition);
-            Assert.AreEqual("foo", info.EventData);
+            Assert.False(fired);
         }
     }
 }

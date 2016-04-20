@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace StateMechanic
 {
     /// <summary>
     /// A state machine, which may exist as a child state machine
     /// </summary>
-    public class ChildStateMachine<TState> : IStateMachine, IEventDelegate, IStateDelegate<TState>
+    public class ChildStateMachine<TState> : IStateMachine, IStateDelegate<TState>
         where TState : StateBase<TState>, new()
     {
-        internal StateMachineKernel<TState> Kernel { get; }
-
         private readonly List<TState> states = new List<TState>();
 
         /// <summary>
@@ -33,9 +32,7 @@ namespace StateMechanic
         {
             get
             {
-                if (this.Kernel.Fault != null)
-                    throw new StateMachineFaultedException(this.Kernel.Fault);
-
+                this.TopmostStateMachineInternal.EnsureNoFault();
                 return this._currentState;
             }
             private set
@@ -73,7 +70,7 @@ namespace StateMechanic
         /// </summary>
         public IStateMachine ParentStateMachine => this.ParentState?.ParentStateMachine;
 
-        internal ChildStateMachine<TState> TopmostStateMachineInternal => this.ParentState?.ParentStateMachine.TopmostStateMachineInternal ?? this;
+        internal virtual StateMachine<TState> TopmostStateMachineInternal => this.ParentState.ParentStateMachine.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets the top-most state machine in this state machine hierarchy (which may be 'this')
@@ -86,7 +83,6 @@ namespace StateMechanic
         IState IStateMachine.InitialState => this.InitialState;
         IStateMachine IStateMachine.ParentStateMachine => this.ParentStateMachine;
         IStateMachine IStateMachine.TopmostStateMachine => this.TopmostStateMachineInternal;
-        IEventDelegate IEventDelegate.TopmostStateMachine => this.TopmostStateMachineInternal;
 
         /// <summary>
         /// Gets a list of all states which are part of this state machine
@@ -95,10 +91,9 @@ namespace StateMechanic
 
         IReadOnlyList<IState> IStateMachine.States => this.States;
 
-        internal ChildStateMachine(string name, StateMachineKernel<TState> kernel, TState parentState)
+        internal ChildStateMachine(string name, TState parentState)
         {
             this.Name = name;
-            this.Kernel = kernel;
             this.ParentState = parentState;
 
             this.States = new ReadOnlyCollection<TState>(this.states);
@@ -171,41 +166,6 @@ namespace StateMechanic
                 this.CurrentState = null;
         }
 
-        // Only supposed to be called from subclasses
-        internal bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
-        {
-            if (this.Kernel.Fault != null)
-                throw new StateMachineFaultedException(this.Kernel.Fault);
-
-            if (this.Kernel.ExecutingTransition)
-            {
-                this.Kernel.EnqueueTransition(method, transitionInvoker);
-                return true;
-            }
-
-            bool success;
-
-            try
-            {
-                this.Kernel.ExecutingTransition = true;
-                success = method(transitionInvoker);
-            }
-            catch (InternalTransitionFaultException e)
-            {
-                var faultInfo = new StateMachineFaultInfo(this, e.FaultedComponent, e.InnerException, e.From, e.To, e.Event, e.Group);
-                this.Kernel.SetFault(faultInfo);
-                throw new TransitionFailedException(faultInfo);
-            }
-            finally
-            {
-                this.Kernel.ExecutingTransition = false;
-            }
-
-            this.Kernel.FireQueuedTransitions();
-
-            return success;
-        }
-
         /// <summary>
         /// Determines whether this state machine is a child of another state machine
         /// </summary>
@@ -222,23 +182,6 @@ namespace StateMechanic
             return false;
         }
 
-        /// <summary>
-        /// Resets the state machine, removing any fault and returning it and any child state machines to their initial state
-        /// </summary>
-        public void Reset()
-        {
-            if (this.Kernel.Synchronizer != null)
-                this.Kernel.Synchronizer.Reset(this.ResetInternal);
-            else
-                this.ResetInternal();
-        }
-
-        private void ResetInternal()
-        {
-            this.Kernel.Reset();
-            this.ResetChildStateMachine();
-        }
-
         internal void ResetChildStateMachine()
         {
             // We need to reset our current state before resetting any child state machines, as the
@@ -252,49 +195,24 @@ namespace StateMechanic
             }
         }
 
-        private void HandleTransitionNotFound(IEvent @event, bool throwException)
+        // This would be protected *and* internal if that were possible
+        internal virtual void HandleTransitionNotFound(IEvent @event, bool throwException)
         {
-            this.Kernel.HandleTransitionNotFound(this.CurrentState, @event, this, throwException);
-
-            if (throwException)
-                throw new TransitionNotFoundException(this.CurrentState, @event, this);
+            // Overridden in StateMachine to do things
         }
 
         internal void SetCurrentState(TState state)
         {
-            if (state != null && state.ParentStateMachine != this)
-                throw new InvalidOperationException($"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
+            this.EnsureSuitableForUse();
+
+            // This should only be possible because of an internal error
+            Trace.Assert(state == null || state.ParentStateMachine == this, $"Cannot set current state of {this} to {state}, as that state does not belong to that state machine");
 
             this.CurrentState = state;
         }
 
-        bool IEventDelegate.RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
-        {
-            var transitionInvoker = new EventTransitionInvoker<TState>(@event, eventFireMethod);
-            return this.RequestEventFireFromEvent(transitionInvoker);
-        }
-
-        bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
-        {
-            var transitionInvoker = new EventTransitionInvoker<TState, TEventData>(@event, eventFireMethod, eventData);
-            return this.RequestEventFireFromEvent(transitionInvoker);
-        }
-
-        // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
-        private bool RequestEventFireFromEvent(ITransitionInvoker<TState> transitionInvoker)
-        {
-            if (this.Kernel.Synchronizer != null)
-                return this.Kernel.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
-            else
-                return this.InvokeTransition(this.RequestEventFire, transitionInvoker);
-        }
-
-        private bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker)
-        {
-            return this.RequestEventFire(transitionInvoker, overrideNoThrow: false);
-        }
-
-        private bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker, bool overrideNoThrow)
+        // I'd make this protected *and* internal if I could
+        internal bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker)
         {
             this.EnsureCurrentStateSuitableForTransition();
 
@@ -303,7 +221,7 @@ namespace StateMechanic
             // Try and fire it on the child state machine - see if that works
             // If we got to here, this.CurrentState != null
             var childStateMachine = this.CurrentState.ChildStateMachine;
-            if (childStateMachine != null && childStateMachine.RequestEventFire(transitionInvoker, overrideNoThrow: true))
+            if (childStateMachine != null && childStateMachine.RequestEventFire(transitionInvoker))
             {
                 success = true;
             }
@@ -313,27 +231,31 @@ namespace StateMechanic
                 success = transitionInvoker.TryInvoke(this.CurrentState);
 
                 if (!success)
-                    this.HandleTransitionNotFound(transitionInvoker.Event, throwException: !overrideNoThrow && transitionInvoker.EventFireMethod == EventFireMethod.Fire);
+                    this.HandleTransitionNotFound(transitionInvoker.Event, throwException: transitionInvoker.EventFireMethod == EventFireMethod.Fire);
             }
 
             return success;
         }
 
+        private void EnsureSuitableForUse()
+        {
+            if (this.InitialState == null)
+                throw new InvalidOperationException($"Initial state on {this.ToString()} not yet set. You must call CreateInitialState");
+        }
+
         private void EnsureCurrentStateSuitableForTransition()
         {
-            if (this.CurrentState == null)
-            {
-                if (this.InitialState == null)
-                    throw new InvalidOperationException("Initial state not yet set. You must call CreateInitialState");
-                else
-                    throw new InvalidOperationException("Child state machine's parent state is not current. This state machine is currently disabled");
-            }
+            this.EnsureSuitableForUse();
+
+            // This should only be possible because of an internal error
+            Trace.Assert(this.CurrentState != null, "Child state machine's parent state is not current. This state machine is currently disabled");
         }
 
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object</returns>
+        [ExcludeFromCoverage]
         public override string ToString()
         {
             var parentName = (this.ParentStateMachine == null) ? "" : $" Parent={this.ParentStateMachine.Name ?? "(unnamed)"}";

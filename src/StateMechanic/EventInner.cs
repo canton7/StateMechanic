@@ -32,22 +32,16 @@ namespace StateMechanic
 
         public void SetParentStateMachine(IEventDelegate parentStateMachine, IState state, IEvent @event)
         {
-            var topStateMachine = parentStateMachine.TopmostStateMachine;
-            if (this.parentStateMachine != null && this.parentStateMachine != topStateMachine)
+            if (this.parentStateMachine != null && this.parentStateMachine != parentStateMachine)
                 throw new InvalidEventTransitionException(state, @event);
 
-            this.parentStateMachine = topStateMachine;
+            this.parentStateMachine = parentStateMachine;
         }
 
         public bool RequestEventFireFromEvent(Event @event, EventFireMethod eventFireMethod)
         {
             if (this.parentStateMachine == null)
-            {
-                if (eventFireMethod == EventFireMethod.Fire)
-                    throw new TransitionNotFoundException(@event);
-                else
-                    return false;
-            }
+                throw new InvalidEventSetupException(@event);
 
             return this.parentStateMachine.RequestEventFireFromEvent(@event, eventFireMethod);
         }
@@ -57,7 +51,7 @@ namespace StateMechanic
             if (this.parentStateMachine == null)
             {
                 if (eventFireMethod == EventFireMethod.Fire)
-                    throw new TransitionNotFoundException(@event);
+                    throw new InvalidEventSetupException(@event);
                 else
                     return false;
             }

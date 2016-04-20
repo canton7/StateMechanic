@@ -59,7 +59,7 @@ end
 desc "Generate unit test code coverage reports for CONFIG (or Debug)"
 task :cover => [:test_environment, COVERAGE_DIR] do
   coverage_file = File.join(COVERAGE_DIR, File.basename(UNIT_TESTS_DLL).ext('xml'))
-  sh %Q{#{OPENCOVER_CONSOLE} -register:user -target:"#{NUNIT_CONSOLE}" -targetargs:"#{UNIT_TESTS_DLL} /noshadow" -filter:"+[StateMechanic]*" -output:"#{coverage_file}"}
+  sh %Q{#{OPENCOVER_CONSOLE} -register:user -target:"#{NUNIT_CONSOLE}" -targetargs:"#{UNIT_TESTS_DLL} /noshadow" -filter:"+[StateMechanic]*" -excludebyattribute:*.ExcludeFromCoverageAttribute -output:"#{coverage_file}"}
 
   rm('TestResult.xml', :force => true)
 

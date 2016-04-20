@@ -10,7 +10,7 @@ namespace Samples
     /// <summary>
     /// Examples from the README
     /// </summary>
-    public static class Readme
+    public static class ReadmeSamples
     {
         [Description("Quick Start")]
         public static void QuickStart()

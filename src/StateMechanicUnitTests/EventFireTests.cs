@@ -16,10 +16,29 @@ namespace StateMechanicUnitTests
         {
             var evt = new Event("evt");
 
-            var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
-            Assert.IsNull(e.StateMachine);
-            Assert.IsNull(e.From);
-            Assert.AreEqual(evt, e.Event);
+            Assert.Throws<InvalidEventSetupException>(() => evt.Fire());
+        }
+
+        [Test]
+        public void TryFireThrowsfNotYetAssociatedStateMachine()
+        {
+            var evt = new Event("evt");
+            Assert.Throws<InvalidEventSetupException>(() => evt.TryFire());
+        }
+
+        [Test]
+        public void FireWithEventDataThrowsIfNotYetAssociatedWithAStateMachine()
+        {
+            var evt = new Event<string>("evt");
+
+            Assert.Throws<InvalidEventSetupException>(() => evt.Fire("boo"));
+        }
+
+        [Test]
+        public void TryFireWithEventDataReturnsFalseIfNotYetAssociatedStateMachine()
+        {
+            var evt = new Event<string>("evt");
+            Assert.False(evt.TryFire("foo"));
         }
 
         [Test]
@@ -43,163 +62,41 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initialState = sm.CreateInitialState("initialState");
+            var state1 = sm.CreateState("state1");
             var evt = new Event("evt");
+            state1.InnerSelfTransitionOn(evt);
 
             Assert.False(evt.TryFire());
         }
 
         [Test]
-        public void OuterEventFireThrowsIfRecursiveTransitionNotFound()
+        public void EventTFireUsesDefaultEventData()
         {
             var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event<int>("evt");
 
-            initialState.TransitionOn(evt2).To(initialState);
-            initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
+            int? eventData = null;
+            state1.TransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
 
-            var e = Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
-            Assert.AreEqual(state1, e.From);
-            Assert.AreEqual(evt2, e.Event);
-            Assert.AreEqual(sm, e.StateMachine);
+            ((IEvent)evt).Fire();
+            Assert.AreEqual(0, eventData);
         }
 
         [Test]
-        public void RecursiveFireDoesNotThrowIfTransitionNotFound()
+        public void EventTTryFireUsesDefaultEventData()
         {
             var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+            var evt = new Event<int>("evt");
 
-            initialState.TransitionOn(evt).To(state1).WithHandler(i => Assert.DoesNotThrow(() => evt2.Fire()));
-            try { evt.TryFire(); } catch { }
-        }
+            int? eventData = null;
+            state1.TransitionOn(evt).To(state2).WithHandler(i => eventData = i.EventData);
 
-        [Test]
-        public void OuterEventTryFireReturnsTrueIfRecursiveTransitionNotFoundAndFiredWithTryFire()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-
-            initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.TryFire());
-
-            Assert.True(evt.TryFire());
-        }
-
-        [Test]
-        public void OuterEventTryFireThrowsIfRecursiveTransitionNotFoundAndFiredWithFire()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-
-            initialState.TransitionOn(evt2).To(initialState);
-            initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
-
-            var e = Assert.Throws<TransitionNotFoundException>(() => evt.TryFire());
-            Assert.AreEqual(state1, e.From);
-            Assert.AreEqual(evt2, e.Event);
-            Assert.AreEqual(sm, e.StateMachine);
-        }
-
-        [Test]
-        public void RecursiveTryFireReturnsTrueIfTransitionNotFound()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-
-            initialState.TransitionOn(evt2).To(initialState);
-            initialState.TransitionOn(evt).To(state1).WithHandler(i => Assert.True(evt2.TryFire()));
-
-            evt.TryFire();
-        }
-
-        [Test]
-        public void RecursiveTryFireDoesNotHaltTransition()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-
-            bool called = false;
-
-            initialState.TransitionOn(evt2).To(initialState);
-            initialState.TransitionOn(evt).To(state1).WithHandler(i =>
-            {
-                Assert.True(evt2.TryFire());
-                evt.TryFire();
-            });
-            state1.TransitionOn(evt).To(state1).WithHandler(_ => called = true);
-
-            evt.Fire();
-
-            Assert.True(called);
-        }
-
-        [Test]
-        public void RecursiveTryFireRaisesTransitionNotFoundEvent()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-
-            TransitionNotFoundEventArgs<State> ea = null;
-            sm.TransitionNotFound += (o, e) => ea = e;
-
-            initialState.TransitionOn(evt2).To(initialState);
-            initialState.TransitionOn(evt).To(state1).WithHandler(i =>
-            {
-                evt2.TryFire();
-            });
-
-            evt.Fire();
-
-            Assert.NotNull(ea);
-            Assert.AreEqual(state1, ea.From);
-            Assert.AreEqual(evt2, ea.Event);
-        }
-
-        [Test]
-        public void FailedRecursiveFireClearsTheEventQueue()
-        {
-            var sm = new StateMachine("sm");
-            var initialState = sm.CreateInitialState("initialState");
-            var state1 = sm.CreateState("state1");
-            var evt = new Event("evt");
-            var evt2 = new Event("evt2");
-            var evt3 = new Event("evt3");
-
-            initialState.TransitionOn(evt2).To(initialState);
-            state1.TransitionOn(evt3).To(state1);
-
-            initialState.TransitionOn(evt).To(state1).WithHandler(i =>
-            {
-                evt2.Fire();
-                evt3.Fire();
-            });
-            state1.TransitionOn(evt).To(initialState);
-
-            Assert.Throws<TransitionNotFoundException>(() => evt.Fire());
-            // So either that second call to 'evt3' is queued, or not...
-            // Let's fire evt, and see if evt3 gets called
-
-            evt.Fire();
+            ((IEvent)evt).TryFire();
+            Assert.AreEqual(0, eventData);
         }
     }
 }

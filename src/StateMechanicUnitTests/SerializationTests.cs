@@ -11,6 +11,19 @@ namespace StateMechanicUnitTests
     [TestFixture]
     public class SerializationTests
     {
+        private class DummySerializer<TState> : IStateMachineSerializer<TState> where TState : StateBase<TState>, new()
+        {
+            public TState Deserialize(StateMachine<TState> stateMachine, string serialized)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string Serialize(StateMachine<TState> stateMachine)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         [Test]
         public void SerializesHierarchicalStateMachine()
         {
@@ -148,6 +161,47 @@ namespace StateMechanicUnitTests
 
             Assert.False(exitFired);
             Assert.False(entryFired);
+        }
+
+        [Test]
+        public void StateMachineReportsCorrectSerializer()
+        {
+            var sm = new StateMachine();
+            Assert.IsInstanceOf<IStateMachineSerializer<State>>(sm.Serializer);
+
+            var serializer = new DummySerializer<State>();
+            sm.Serializer = serializer;
+            Assert.AreEqual(serializer, sm.Serializer);
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainAnInteverVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("bar:fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializedStringDoesNotContainCorrectVersion()
+        {
+            var sm = new StateMachine();
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("2:fooo"));
+        }
+
+        [Test]
+        public void ThrowsIfSerializerTriesToTraverseIntoAChildStateMachineThatDoesntExist()
+        {
+            var sm = new StateMachine();
+            var state1 = sm.CreateInitialState("state1");
+
+            Assert.Throws<StateMachineSerializationException>(() => sm.Deserialize("1:state1/state11"));
         }
     }
 }
