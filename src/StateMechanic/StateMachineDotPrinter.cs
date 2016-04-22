@@ -13,7 +13,7 @@ namespace StateMechanic
         private readonly IStateMachine stateMachine;
 
         private readonly Dictionary<IState, string> stateToColorMapping = new Dictionary<IState, string>();
-        private Dictionary<IState, string> stateToNameMapping = new Dictionary<IState, string>();
+        private readonly Dictionary<IState, string> stateToNameMapping = new Dictionary<IState, string>();
         private readonly Dictionary<IEvent, string> eventToNameMapping = new Dictionary<IEvent, string>();
         private int colorUseCount = 0;
         private int virtualStateIndex = 0;
@@ -155,12 +155,13 @@ namespace StateMechanic
                     }
                     else
                     {
-                        // If the source has a child state machine, then lhead is the name of that
+                        // If the source has a child state machine, then lhead is the name of that (unless it's a self-transition)
                         // Likewise dest and ltail
+                        bool isSelfTransition = transition.From == transition.To;
                         sb.AppendFormat("{0}\"{1}\" -> \"{2}\" [label=\"{3}{4}\"{5}{6}{7}];\n",
                             indent,
-                            this.NameForState(transition.From.ChildStateMachine == null ? transition.From : transition.From.ChildStateMachine.InitialState),
-                            this.NameForState(transition.To.ChildStateMachine == null ? transition.To : transition.To.ChildStateMachine.InitialState),
+                            this.NameForState(transition.From.ChildStateMachine == null || isSelfTransition ? transition.From : transition.From.ChildStateMachine.InitialState),
+                            this.NameForState(transition.To.ChildStateMachine == null || isSelfTransition ? transition.To : transition.To.ChildStateMachine.InitialState),
                             this.NameForEvent(transition.Event),
                             transition.HasGuard ? "*" : "",
                             this.Colorize && transition.To != stateMachine.InitialState ? String.Format(" color=\"{0}\" fontcolor=\"{0}\"", this.ColorForState(transition.To)) : "",

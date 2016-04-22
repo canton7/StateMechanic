@@ -39,7 +39,8 @@ namespace StateMechanicUnitTests
 
             state21.TransitionOn(evt1).To(state22);
 
-            var output = sm.FormatDot(colorize: true);
+            var dot = sm.FormatDot(colorize: true);
+            var dgml = sm.FormatDgml(colorize: true);
         }
 
         [Test]
@@ -68,7 +69,8 @@ namespace StateMechanicUnitTests
 
             state21.TransitionOn(evt1).To(state22);
 
-            var output = sm.FormatDot();
+            var dot = sm.FormatDot();
+            var dgml = sm.FormatDgml();
         }
     }
 }

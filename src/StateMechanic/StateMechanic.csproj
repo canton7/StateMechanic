@@ -83,6 +83,7 @@
     <Compile Include="StateGroup`1.cs" />
     <Compile Include="StateHandlerInfo.cs" />
     <Compile Include="StateMachine.cs" />
+    <Compile Include="StateMachineDgmlPrinter.cs" />
     <Compile Include="StateMachineFaultedEventArgs.cs" />
     <Compile Include="StateMachineFaultedException.cs" />
     <Compile Include="StateMachineFaultInfo.cs" />
