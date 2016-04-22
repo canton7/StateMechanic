@@ -583,9 +583,15 @@ Printing State Machines
 
 It's very useful to be able to visualise your state machines: it lets you easily spot and debug mistakes you made when setting it up, and they make fantastic inputs to your documentation ("this is our state machine, and I know that it's correct").
 
-StateMechanic can take a state machine and create a [Graphviz DOT](http://www.graphviz.org/content/dot-language) file, which can be rendered to a utility using the `dot` executable included in the Graphviz package (or [loads](http://dreampuf.github.io/GraphvizOnline/) [of](http://sandbox.kidstrythisathome.com/erdos/) [online](http://stamm-wilbrandt.de/GraphvizFiddle) [utilities](http://www.webgraphviz.com)).
+StateMechanic can take a state machine and create a [DGML](https://msdn.microsoft.com/en-us/library/dn966108.aspx) or [Graphviz DOT](http://www.graphviz.org/content/dot-language) file.
 
-To render a state machine, call `StateMachine.FormatDot()`.
+DGML files can be rendered and subsequently edited in Visual Studio.
+Call `StateMachine.FormatDgml()` and copy the output.
+Create a new "Directed Graph" file, open the resulting `.dgml` file in a text editor, and paste the DGML you copied earlier in.
+
+
+Graphviz DOT files can be rendered to a utility using the `dot` executable included in the Graphviz package (or [loads](http://dreampuf.github.io/GraphvizOnline/) [of](http://sandbox.kidstrythisathome.com/erdos/) [online](http://stamm-wilbrandt.de/GraphvizFiddle) [utilities](http://www.webgraphviz.com)).
+Call `StateMachine.FormatDot()`, copy the output, and paste into a suitable utility.
 
 
 Custom State Subclasses

@@ -17,5 +17,18 @@
             printer.Colorize = colorize;
             return printer.Format();
         }
+
+        /// <summary>
+        /// Return a state machine described using the DGML language, suitable for rending with Visual Studio
+        /// </summary>
+        /// <param name="stateMachine">State machine to print</param>
+        /// <param name="colorize">Whether or not to color states and transitions</param>
+        /// <returns>The state machine, described using Graphviz DOT</returns>
+        public static string FormatDgml(this IStateMachine stateMachine, bool colorize = false)
+        {
+            var printer = new StateMachineDgmlPrinter(stateMachine);
+            printer.Colorize = colorize;
+            return printer.Format();
+        }
     }
 }
