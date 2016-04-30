@@ -136,6 +136,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(initial, ea.From);
             Assert.AreEqual(sm, ea.StateMachine);
+            Assert.AreEqual(EventFireMethod.TryFire, ea.EventFireMethod);
         }
 
         [Test]
@@ -162,6 +163,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(initial, ea.From);
             Assert.AreEqual(sm, ea.StateMachine);
+            Assert.AreEqual(EventFireMethod.TryFire, ea.EventFireMethod);
         }
 
         [Test]

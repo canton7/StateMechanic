@@ -196,7 +196,7 @@ namespace StateMechanic
         }
 
         // This would be protected *and* internal if that were possible
-        internal virtual void HandleTransitionNotFound(IEvent @event, bool throwException)
+        internal virtual void HandleTransitionNotFound(IEvent @event, EventFireMethod eventFireMethod)
         {
             // Overridden in StateMachine to do things
         }
@@ -231,7 +231,7 @@ namespace StateMechanic
                 success = transitionInvoker.TryInvoke(this.CurrentState);
 
                 if (!success)
-                    this.HandleTransitionNotFound(transitionInvoker.Event, throwException: transitionInvoker.EventFireMethod == EventFireMethod.Fire);
+                    this.HandleTransitionNotFound(transitionInvoker.Event, transitionInvoker.EventFireMethod);
             }
 
             return success;

@@ -380,11 +380,11 @@ namespace StateMechanic
             this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
-        internal override void HandleTransitionNotFound(IEvent @event, bool throwException)
+        internal override void HandleTransitionNotFound(IEvent @event, EventFireMethod eventFireMethod)
         {
-            this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(this.CurrentState, @event, this));
+            this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(this.CurrentState, @event, this, eventFireMethod));
 
-            if (throwException)
+            if (eventFireMethod == EventFireMethod.Fire)
                 throw new TransitionNotFoundException(this.CurrentState, @event, this);
         }
 
