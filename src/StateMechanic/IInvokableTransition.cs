@@ -2,11 +2,11 @@
 {
     internal interface IInvokableTransition
     {
-        bool TryInvoke();
+        bool TryInvoke(EventFireMethod eventFireMethod);
     }
 
     internal interface IInvokableTransition<TEventData>
     {
-        bool TryInvoke(TEventData eventData);
+        bool TryInvoke(TEventData eventData, EventFireMethod eventFireMethod);
     }
 }

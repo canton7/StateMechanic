@@ -32,7 +32,8 @@ namespace StateMechanic
             {
                 if (state.ParentStateMachine.CurrentState != state)
                 {
-                    this.transitionDelegate.CoordinateTransition<object>(state.ParentStateMachine.CurrentState, state, this.Event, false, null, null);
+                    var transitionInfo = new ForcedTransitionInfo<TState>(state.ParentStateMachine.CurrentState, state, this.Event, this.EventFireMethod);
+                    this.transitionDelegate.CoordinateTransition(transitionInfo, null);
                 }
             }
             return true;

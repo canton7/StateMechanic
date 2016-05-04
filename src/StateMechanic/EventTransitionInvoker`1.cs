@@ -29,7 +29,7 @@
 
             foreach (var transition in this.@event.GetTransitionsFromState(sourceState))
             {
-                if (transition.TryInvoke())
+                if (transition.TryInvoke(this.EventFireMethod))
                     return true;
             }
 

@@ -4,7 +4,7 @@
     /// Contains information on the currently-executing transition
     /// </summary>
     /// <typeparam name="TState">Type of state</typeparam>
-    public class TransitionInfo<TState>
+    public class TransitionInfo<TState> : ITransitionInfo<TState>
     {
         /// <summary>
         /// Gets the state this transition is from
@@ -26,12 +26,20 @@
         /// </summary>
         public bool IsInnerTransition { get; }
 
-        internal TransitionInfo(TState from, TState to, Event @event, bool isInnerTransition)
+        /// <summary>
+        /// Gets the method used to fire the event
+        /// </summary>
+        public EventFireMethod EventFireMethod { get; }
+
+        IEvent ITransitionInfo<TState>.Event => this.Event;
+
+        internal TransitionInfo(TState from, TState to, Event @event, bool isInnerTransition, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
             this.IsInnerTransition = isInnerTransition;
+            this.EventFireMethod = eventFireMethod;
         }
 
         /// <summary>
@@ -41,7 +49,7 @@
         [ExcludeFromCoverage]
         public override string ToString()
         {
-            return $"<TransitionInfo From=${this.From} To={this.To} Event={this.Event} IsInnerTransition={this.IsInnerTransition}>";
+            return $"<TransitionInfo From=${this.From} To={this.To} Event={this.Event} IsInnerTransition={this.IsInnerTransition} EventFireMethod={this.EventFireMethod}>";
         }
     }
 }

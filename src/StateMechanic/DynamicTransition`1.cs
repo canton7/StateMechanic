@@ -61,14 +61,14 @@ namespace StateMechanic
             return this;
         }
 
-        bool IInvokableTransition.TryInvoke()
+        bool IInvokableTransition.TryInvoke(EventFireMethod eventFireMethod)
         {
             var dynamicTransitionInfo = new DynamicSelectorInfo<TState>(this.innerTransition.From, this.innerTransition.Event);
             var to = this.innerTransition.FindToState(dynamicTransitionInfo);
             if (to == null)
                 return false;
 
-            return this.innerTransition.TryInvoke(to, new TransitionInfo<TState>(this.innerTransition.From, to, this.innerTransition.Event, false));
+            return this.innerTransition.TryInvoke(new TransitionInfo<TState>(this.innerTransition.From, to, this.innerTransition.Event, false, eventFireMethod));
         }
     }
 }

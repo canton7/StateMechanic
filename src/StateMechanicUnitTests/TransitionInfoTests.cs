@@ -213,6 +213,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, info.Event);
             Assert.False(info.IsInnerTransition);
             Assert.AreEqual("foo", info.EventData);
+            Assert.AreEqual(EventFireMethod.Fire, info.EventFireMethod);
         }
     }
 }

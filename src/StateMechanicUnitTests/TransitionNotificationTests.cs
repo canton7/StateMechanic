@@ -35,6 +35,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(sm, ea.StateMachine);
             Assert.False(ea.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.Fire, ea.EventFireMethod);
         }
 
         [Test]
@@ -51,13 +52,14 @@ namespace StateMechanicUnitTests
                 ea = e;
             };
 
-            evt.Fire();
+            evt.TryFire();
 
             Assert.NotNull(ea);
             Assert.AreEqual(initial, ea.From);
             Assert.AreEqual(initial, ea.To);
             Assert.AreEqual(evt, ea.Event);
             Assert.True(ea.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.TryFire, ea.EventFireMethod);
         }
 
         [Test]
@@ -86,6 +88,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, ea.Event);
             Assert.AreEqual(child, ea.StateMachine);
             Assert.False(ea.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.Fire, ea.EventFireMethod);
         }
 
         [Test]
@@ -112,6 +115,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(childInitial, ea.To);
             Assert.AreEqual(evt, ea.Event);
             Assert.True(ea.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.Fire, ea.EventFireMethod);
         }
 
         [Test]
@@ -184,6 +188,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state1, ea.To);
             Assert.AreEqual(evt, ea.Event);
             Assert.False(ea.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.Fire, ea.EventFireMethod);
         }
     }
 }
