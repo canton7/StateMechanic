@@ -61,7 +61,7 @@ namespace StateMechanicUnitTests
 
             Assert.True(task.IsFaulted);
             var e = Assert.Throws<OperationFailedException>(() => task.GetAwaiter().GetResult());
-            Assert.AreEqual(doingOperation, e.OperationState);
+            Assert.AreEqual(doingOperation, e.OperationStates[0]);
             Assert.AreEqual(operationFailed, e.ActualState);
             Assert.That(e.SuccessStates, Is.EquivalentTo(new[] { completedOperation }));
         }
@@ -71,12 +71,13 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var state2 = sm.CreateState("state2");
+            var operation = sm.CreateState("state2");
+            var success = sm.CreateState("success");
             var evt = new Event("evt");
 
-            state2.TransitionOn(evt).To(state2);
+            operation.TransitionOn(evt).To(operation);
 
-            var op = new Operation<State>(evt, state2);
+            var op = new Operation<State>(evt, operation, success);
 
             var task = op.TryFireAsync();
 
@@ -89,12 +90,13 @@ namespace StateMechanicUnitTests
         {
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
-            var state2 = sm.CreateState("state2");
+            var operation = sm.CreateState("state2");
+            var success = sm.CreateState("success");
             var evt = new Event("evt");
 
-            state2.TransitionOn(evt).To(state2);
+            operation.TransitionOn(evt).To(operation);
 
-            var op = new Operation<State>(evt, state2);
+            var op = new Operation<State>(evt, operation, success);
 
             var task = op.FireAsync();
 

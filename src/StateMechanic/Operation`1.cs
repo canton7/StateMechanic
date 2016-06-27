@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,17 +18,17 @@ namespace StateMechanic
         private readonly OperationInner<TState, Event> operationInner;
 
         /// <summary>
-        /// Event which can trigger a transition to the <see cref="OperationState"/>
+        /// Event which can trigger a transition to the <see cref="OperationStates"/>
         /// </summary>
         public Event Event => this.operationInner.Event;
 
         /// <summary>
-        /// State which represents the operation being executed
+        /// States which represent the operation being executed
         /// </summary>
-        public TState OperationState => this.operationInner.OperationState;
+        public IReadOnlyList<TState> OperationStates => this.operationInner.OperationStates;
 
         /// <summary>
-        /// A collection of states which are transitioned to from <see cref="OperationState"/>
+        /// A collection of states which are transitioned to from <see cref="OperationStates"/>
         /// when the operation completes successfully
         /// </summary>
         public IReadOnlyList<TState> SuccessStates => this.operationInner.SuccessStates;
@@ -40,12 +41,23 @@ namespace StateMechanic
         /// <param name="successStates">States which can be transitioned to from the operationState which indicate a successful operation</param>
         public Operation(Event @event, TState operationState, params TState[] successStates)
         {
-            this.operationInner = new OperationInner<TState, Event>(@event, operationState, new ReadOnlyCollection<TState>(successStates));
+            this.operationInner = new OperationInner<TState, Event>(@event, new ReadOnlyCollection<TState>(new[] { operationState }), new ReadOnlyCollection<TState>(successStates));
+        }
+
+        /// <summary>
+        /// Instantiates a new instance of the <see cref="Operation{TState}"/> class
+        /// </summary>
+        /// <param name="event">Event which can trigger a transition to the operationState</param>
+        /// <param name="operationStates">State which represent the in-progress operation</param>
+        /// <param name="successStates">States which can be transitioned to from the operationState which indicate a successful operation</param>
+        public Operation(Event @event, IEnumerable<TState> operationStates, IEnumerable<TState> successStates)
+        {
+            this.operationInner = new OperationInner<TState, Event>(@event, new ReadOnlyCollection<TState>(operationStates.ToList()), new ReadOnlyCollection<TState>(successStates.ToList()));
         }
 
         /// <summary>
         /// Attempt to call <see cref="Event.TryFire"/>, returning false straight away if it failed,
-        /// or a Task which completes when a transition from the <see cref="OperationState"/> occurs
+        /// or a Task which completes when a transition from the <see cref="OperationStates"/> occurs
         /// otherwise.
         /// </summary>
         /// <remarks>It is NOT currently safe to call this from a transition handler</remarks>
@@ -58,7 +70,7 @@ namespace StateMechanic
 
         /// <summary>
         /// Attempt to call <see cref="Event.TryFire"/>, returning false straight away if it failed,
-        /// or a Task which completes when a transition from the <see cref="OperationState"/> occurs
+        /// or a Task which completes when a transition from one of the <see cref="OperationStates"/> occurs
         /// otherwise.
         /// </summary>
         /// <remarks>It is NOT currently safe to call this from a transition handler</remarks>
@@ -72,7 +84,7 @@ namespace StateMechanic
 
         /// <summary>
         /// Attempt to call <see cref="Event.Fire"/>, returning a Task containing the <see cref="TransitionFailedException"/>,
-        /// or a Task which completes when a transition from the <see cref="OperationState"/> occurs
+        /// or a Task which completes when a transition from one ofthe <see cref="OperationStates"/> occurs
         /// otherwise.
         /// </summary>
         /// <remarks>It is NOT currently safe to call this from a transition handler</remarks>
@@ -85,7 +97,7 @@ namespace StateMechanic
 
         /// <summary>
         /// Attempt to call <see cref="Event.Fire"/>, returning a Task containing the <see cref="TransitionFailedException"/>,
-        /// or a Task which completes when a transition from the <see cref="OperationState"/> occurs
+        /// or a Task which completes when a transition from one of the <see cref="OperationStates"/> occurs
         /// otherwise.
         /// </summary>
         /// <remarks>It is NOT currently safe to call this from a transition handler</remarks>
