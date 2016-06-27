@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StateMechanic
+﻿namespace StateMechanic
 {
+    /// <summary>
+    /// Information about a transition
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
     public interface ITransitionInfo<TState>
     {
         /// <summary>
