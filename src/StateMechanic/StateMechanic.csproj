@@ -79,6 +79,10 @@
     <Compile Include="ITransitionInner.cs" />
     <Compile Include="ITransitionInvoker.cs" />
     <Compile Include="LockingStateMachineSynchronizer.cs" />
+    <Compile Include="OperationFailedException.cs" />
+    <Compile Include="OperationInner.cs" />
+    <Compile Include="Operation`1.cs" />
+    <Compile Include="Operation`2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateBase`1.cs" />
     <Compile Include="StateGroup.cs" />
