@@ -11,13 +11,15 @@ namespace StateMechanic
 
         public EventFireMethod EventFireMethod { get; }
         public IEvent Event { get; }
+        public object EventData { get; }
 
-        public ForcedTransitionInvoker(TState toState, IEvent @event, ITransitionDelegate<TState> transitionDelegate)
+        public ForcedTransitionInvoker(TState toState, IEvent @event, object eventData, ITransitionDelegate<TState> transitionDelegate)
         {
             this.toState = toState;
             // This is never actually references, but needs to be part of ITransitionInvoker
             this.EventFireMethod = EventFireMethod.Fire;
             this.Event = @event;
+            this.EventData = eventData;
             this.transitionDelegate = transitionDelegate;
         }
 
@@ -32,7 +34,7 @@ namespace StateMechanic
             {
                 if (state.ParentStateMachine.CurrentState != state)
                 {
-                    var transitionInfo = new ForcedTransitionInfo<TState>(state.ParentStateMachine.CurrentState, state, this.Event, this.EventFireMethod);
+                    var transitionInfo = new ForcedTransitionInfo<TState>(state.ParentStateMachine.CurrentState, state, this.Event, this.EventData, this.EventFireMethod);
                     this.transitionDelegate.CoordinateTransition(transitionInfo, null);
                 }
             }

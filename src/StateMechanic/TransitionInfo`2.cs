@@ -27,6 +27,9 @@
         /// </summary>
         public TEventData EventData { get; }
 
+        private readonly object boxedEventData;
+        object ITransitionInfo<TState>.EventData => this.boxedEventData;
+
         /// <summary>
         /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
         /// </summary>
@@ -45,6 +48,8 @@
             this.To = to;
             this.Event = @event;
             this.EventData = eventData;
+            // Only do the boxing once
+            this.boxedEventData = eventData;
             this.IsInnerTransition = isInnerTransition;
             this.EventFireMethod = eventFireMethod;
         }

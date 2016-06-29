@@ -14,15 +14,18 @@ namespace StateMechanic
 
         public IEvent Event { get; }
 
+        public object EventData { get; }
+
         public bool IsInnerTransition => false;
 
         public EventFireMethod EventFireMethod { get; }
 
-        public ForcedTransitionInfo(TState from, TState to, IEvent @event, EventFireMethod eventFireMethod)
+        public ForcedTransitionInfo(TState from, TState to, IEvent @event, object eventData, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
+            this.EventData = eventData;
             this.EventFireMethod = eventFireMethod;
         }
     }

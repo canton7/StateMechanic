@@ -27,6 +27,11 @@
         public bool IsInnerTransition { get; }
 
         /// <summary>
+        /// The (untyped) event data, or null if there was none
+        /// </summary>
+        object ITransitionInfo<TState>.EventData => null;
+
+        /// <summary>
         /// Gets the method used to fire the event
         /// </summary>
         public EventFireMethod EventFireMethod { get; }

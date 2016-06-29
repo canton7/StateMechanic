@@ -27,6 +27,11 @@
         bool IsInnerTransition { get; }
 
         /// <summary>
+        /// The (untyped) event data, or null if there was none
+        /// </summary>
+        object EventData { get; }
+
+        /// <summary>
         /// Gets the method used to fire the event
         /// </summary>
         EventFireMethod EventFireMethod { get; }
