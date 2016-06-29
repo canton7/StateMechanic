@@ -52,9 +52,14 @@ namespace StateMechanic
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
 
         /// <summary>
-        /// Event raised when a transition occurs in this state machine, or any of its child state machines
+        /// Event raised when a transition begins in this state machine, or any of its child state machines
         /// </summary>
         public event EventHandler<TransitionEventArgs<TState>> Transition;
+
+        /// <summary>
+        /// Event raised when a transition finishes in this state machine, or any of its child state machines
+        /// </summary>
+        public event EventHandler<TransitionEventArgs<TState>> TransitionFinished;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
@@ -153,6 +158,8 @@ namespace StateMechanic
         {
             // We require that from.ParentStateMachine.TopmostStateMachine == to.ParentStateMachine.TopmostStateMachine == this
 
+            this.OnTransition(transitionInfo.From.ParentStateMachine, transitionInfo);
+
             var stateHandlerInfo = new StateHandlerInfo<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, transitionInfo.IsInnerTransition, transitionInfo.EventData, transitionInfo.EventFireMethod);
 
             if (!transitionInfo.IsInnerTransition)
@@ -185,7 +192,7 @@ namespace StateMechanic
                     this.EnterChildStateMachine(transitionInfo.To.ChildStateMachine, transitionInfo.From, transitionInfo.Event, transitionInfo.IsInnerTransition, transitionInfo.EventData, transitionInfo.EventFireMethod);
             }
 
-            this.OnTransition(transitionInfo.From.ParentStateMachine, transitionInfo);
+            this.OnTransitionFinished(transitionInfo.From.ParentStateMachine, transitionInfo);
         }
 
         private void ExitChildStateMachine(ChildStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition, object eventData, EventFireMethod eventFireMethod)
@@ -412,6 +419,11 @@ namespace StateMechanic
         private void OnTransition(IStateMachine stateMachine, ITransitionInfo<TState> transitionInfo)
         {
             this.Transition?.Invoke(this, new TransitionEventArgs<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, stateMachine, transitionInfo.IsInnerTransition, transitionInfo.EventFireMethod));
+        }
+
+        private void OnTransitionFinished(IStateMachine stateMachine, ITransitionInfo<TState> transitionInfo)
+        {
+            this.TransitionFinished?.Invoke(this, new TransitionEventArgs<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, stateMachine, transitionInfo.IsInnerTransition, transitionInfo.EventFireMethod));
         }
 
         #endregion
