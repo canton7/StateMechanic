@@ -29,6 +29,12 @@ namespace StateMechanic
         public bool Colorize { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the state machine should be rendered vertically, rather
+        /// than horizontally.
+        /// </summary>
+        public bool RenderVertical { get; set; }
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="StateMachineDotPrinter"/> class
         /// </summary>
         /// <param name="stateMachine">State machine to print</param>
@@ -52,7 +58,8 @@ namespace StateMechanic
             var sb = new StringBuilder();
             sb.AppendFormat("digraph \"{0}\" {{\n", this.stateMachine.Name);
             sb.AppendFormat("   label=\"{0}\";\n", this.stateMachine.Name);
-            sb.Append("   rankdir=LR;\n");
+            if (!this.RenderVertical)
+                sb.Append("   rankdir=LR;\n");
             sb.Append("   edge [penwidth=2.0];\n");
             sb.Append("   node [shape=circle width=1 penwidth=2.0];\n");
 
