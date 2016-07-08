@@ -38,6 +38,7 @@ namespace StateMechanicUnitTests
             state12.TransitionOn(evt1).To(state11);
 
             state21.TransitionOn(evt1).To(state22);
+            state21.TransitionOn(evt2).To(state22);
 
             var dot = sm.FormatDot(colorize: true);
             var dgml = sm.FormatDgml(colorize: true);
