@@ -60,6 +60,8 @@
     <Compile Include="ForcedTransitionInvoker.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
+    <Compile Include="IgnoredTransition`1.cs" />
+    <Compile Include="IgnoredTransition`2.cs" />
     <Compile Include="IInvokableTransition.cs" />
     <Compile Include="InternalTransitionFaultException.cs" />
     <Compile Include="InvalidEventSetupException.cs" />
@@ -103,6 +105,7 @@
     <Compile Include="TransitionBuilder`1.cs" />
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionFailedException.cs" />
+    <Compile Include="EventIgnoredEventArgs.cs" />
     <Compile Include="TransitionInfo`1.cs" />
     <Compile Include="TransitionInfo`2.cs" />
     <Compile Include="TransitionInner.cs" />

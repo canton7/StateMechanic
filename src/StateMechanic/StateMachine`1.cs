@@ -67,6 +67,11 @@ namespace StateMechanic
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
 
         /// <summary>
+        /// Event raised whenever an event which is ignored is fired
+        /// </summary>
+        public event EventHandler<EventIgnoredEventArgs<TState>> EventIgnored;
+
+        /// <summary>
         /// Instantiates a new instance of the <see cref="StateMachine{TState}"/> class, with the given name
         /// </summary>
         /// <param name="name">Name of this state machine</param>
@@ -269,6 +274,11 @@ namespace StateMechanic
                     throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.GroupEntryHandler, e, group);
                 }
             }
+        }
+
+        void ITransitionDelegate<TState>.IgnoreTransition(TState fromState, IEvent @event, EventFireMethod eventFireMethod)
+        {
+            this.EventIgnored?.Invoke(this, new EventIgnoredEventArgs<TState>(fromState, @event, eventFireMethod));
         }
 
         #endregion

@@ -185,6 +185,64 @@ namespace StateMechanic
         }
 
         /// <summary>
+        /// Ignore a particular event. Firing the event will succeed, but no transition will occur
+        /// </summary>
+        /// <param name="event">Event to ignore</param>
+        public void Ignore(Event @event)
+        {
+            if (@event == null)
+                throw new ArgumentException(nameof(@event));
+
+            var transition = new IgnoredTransition<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
+        }
+
+        /// <summary>
+        /// Ignore a particular event. Firing the event will succeed, but no transition will occur
+        /// </summary>
+        /// <typeparam name="TEventData">Type of event data</typeparam>
+        /// <param name="event">Event to ignore</param>
+        public void Ignore<TEventData>(Event<TEventData> @event)
+        {
+            if (@event == null)
+                throw new ArgumentException(nameof(@event));
+
+            var transition = new IgnoredTransition<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
+            @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
+        }
+
+        /// <summary>
+        /// Ignore multiple events. Firing these events will succeed, but no transition will occur
+        /// </summary>
+        /// <param name="events">Events to ignore</param>
+        public void Ignore(params Event[] events)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            foreach (var @event in events)
+            {
+                this.Ignore(@event);
+            }
+        }
+
+        /// <summary>
+        /// Ignore multiple events. Firing these events will succeed, but no transition will occur
+        /// </summary>
+        /// <typeparam name="TEventData">Type of event data</typeparam>
+        /// <param name="events">Events to ignore</param>
+        public void Ignore<TEventData>(params Event<TEventData>[] events)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            foreach (var @event in events)
+            {
+                this.Ignore(@event);
+            }
+        }
+
+        /// <summary>
         /// Set the method called when the StateMachine enters this state
         /// </summary>
         /// <param name="entryHandler">Method called when the StateMachine enters this state</param>
