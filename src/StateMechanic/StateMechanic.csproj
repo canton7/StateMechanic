@@ -74,6 +74,7 @@
     <Compile Include="IStateMachineSerializer.cs" />
     <Compile Include="IStateMachineSynchronizer.cs" />
     <Compile Include="ITransition.cs" />
+    <Compile Include="ITransition`1.cs" />
     <Compile Include="ITransitionBuilder`1.cs" />
     <Compile Include="ITransitionBuilder`2.cs" />
     <Compile Include="ITransitionDelegate.cs" />

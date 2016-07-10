@@ -26,6 +26,7 @@ namespace StateMechanic
         bool ITransition<TState>.IsDynamicTransition => true;
         bool ITransition<TState>.IsInnerTransition => false;
         bool ITransition<TState>.HasGuard => false;
+        bool ITransition.WillAlwaysOccur => false;
 
         /// <summary>
         /// Gets or sets the callback which determines which state is transitioned to

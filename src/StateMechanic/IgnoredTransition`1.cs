@@ -13,6 +13,8 @@ namespace StateMechanic
         private readonly TState fromState;
         private readonly IEvent @event;
 
+        bool ITransition.WillAlwaysOccur => true;
+
         public IgnoredTransition(TState fromState, IEvent @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.transitionDelegate = transitionDelegate;
