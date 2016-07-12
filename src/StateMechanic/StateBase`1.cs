@@ -191,7 +191,7 @@ namespace StateMechanic
         public void Ignore(Event @event)
         {
             if (@event == null)
-                throw new ArgumentException(nameof(@event));
+                throw new ArgumentNullException(nameof(@event));
 
             var transition = new IgnoredTransition<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
@@ -205,7 +205,7 @@ namespace StateMechanic
         public void Ignore<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
-                throw new ArgumentException(nameof(@event));
+                throw new ArgumentNullException(nameof(@event));
 
             var transition = new IgnoredTransition<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
