@@ -22,7 +22,7 @@ namespace StateMechanic
 
             var firstThatWillAlwaysOccur = transitions.FirstOrDefault(x => x.WillAlwaysOccur);
             if (firstThatWillAlwaysOccur != null)
-                throw new ArgumentException($"{invokableTransition} will never occur: {firstThatWillAlwaysOccur} was added first, and will always happen");
+                throw new ArgumentException($"{invokableTransition} will never occur from {state}: {firstThatWillAlwaysOccur} was added first, and will always happen");
 
             transitions.Add(invokableTransition);
         }
