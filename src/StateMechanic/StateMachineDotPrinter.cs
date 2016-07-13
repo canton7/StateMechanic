@@ -61,7 +61,7 @@ namespace StateMechanic
             if (!this.RenderVertical)
                 sb.Append("   rankdir=LR;\n");
             sb.Append("   edge [penwidth=2.0];\n");
-            sb.Append("   node [shape=circle width=1 penwidth=2.0];\n");
+            sb.Append("   node [shape=octagon width=1 penwidth=2.0];\n");
 
             RenderStateMachine(sb, this.stateMachine, "   ");
 
@@ -121,7 +121,7 @@ namespace StateMechanic
                 if (state.ChildStateMachine == null)
                 {
                     if (state == stateMachine.InitialState)
-                        sb.AppendFormat("{0}\"{1}\" [shape=doublecircle width=1 penwidth=2.0];\n", indent, this.NameForState(stateMachine.InitialState));
+                        sb.AppendFormat("{0}\"{1}\" [shape=doubleoctagon width=1 penwidth=2.0];\n", indent, this.NameForState(stateMachine.InitialState));
                     else if (this.Colorize)
                         sb.AppendFormat("{0}\"{1}\" [color=\"{2}\"];\n", indent, this.NameForState(state), this.ColorForState(state));
                 }
@@ -148,7 +148,7 @@ namespace StateMechanic
                     {
                         // Define an virtual state to move to
                         // Destroyed [fillcolor=black, shape=doublecircle, label="", width=0.3]
-                        sb.AppendFormat("{0}\"VirtualState_{1}\" [label=\"?\" width=0.1];\n",
+                        sb.AppendFormat("{0}\"VirtualState_{1}\" [label=\"?\" shape=circle width=0.1];\n",
                             indent,
                             this.virtualStateIndex);
 
