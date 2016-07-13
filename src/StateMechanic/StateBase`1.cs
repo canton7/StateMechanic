@@ -188,13 +188,14 @@ namespace StateMechanic
         /// Ignore a particular event. Firing the event will succeed, but no transition will occur
         /// </summary>
         /// <param name="event">Event to ignore</param>
-        public void Ignore(Event @event)
+        public TState Ignore(Event @event)
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
             var transition = new IgnoredTransition<TState>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
+            return this.self;
         }
 
         /// <summary>
@@ -202,20 +203,21 @@ namespace StateMechanic
         /// </summary>
         /// <typeparam name="TEventData">Type of event data</typeparam>
         /// <param name="event">Event to ignore</param>
-        public void Ignore<TEventData>(Event<TEventData> @event)
+        public TState Ignore<TEventData>(Event<TEventData> @event)
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
             var transition = new IgnoredTransition<TState, TEventData>(this.self, @event, this.ParentStateMachine.TopmostStateMachineInternal);
             @event.AddTransition(this, transition, this.ParentStateMachine.TopmostStateMachineInternal);
+            return this.self;
         }
 
         /// <summary>
         /// Ignore multiple events. Firing these events will succeed, but no transition will occur
         /// </summary>
         /// <param name="events">Events to ignore</param>
-        public void Ignore(params Event[] events)
+        public TState Ignore(params Event[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -224,6 +226,7 @@ namespace StateMechanic
             {
                 this.Ignore(@event);
             }
+            return this.self;
         }
 
         /// <summary>
@@ -231,7 +234,7 @@ namespace StateMechanic
         /// </summary>
         /// <typeparam name="TEventData">Type of event data</typeparam>
         /// <param name="events">Events to ignore</param>
-        public void Ignore<TEventData>(params Event<TEventData>[] events)
+        public TState Ignore<TEventData>(params Event<TEventData>[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -240,6 +243,7 @@ namespace StateMechanic
             {
                 this.Ignore(@event);
             }
+            return this.self;
         }
 
         /// <summary>
