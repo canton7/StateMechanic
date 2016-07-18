@@ -54,12 +54,12 @@ namespace StateMechanic
 
                 if (this.SuccessStates.Contains(e.To))
                 {
-                    tcs.SetResult(null);
+                    tcs.TrySetResult(null);
                 }
                 else if (!this.OperationStates.Contains(e.To))
                 {
                     // Ignore transitions from operation states to other operation states
-                    tcs.SetException(new OperationFailedException(this.OperationStates, this.SuccessStates, e.To));
+                    tcs.TrySetException(new OperationFailedException(this.OperationStates, this.SuccessStates, e.To));
                 }
             };
 
@@ -67,7 +67,7 @@ namespace StateMechanic
             {
                 this.stateMachine.Transition += transitionHandler;
 
-                using (token.Register(() => tcs.SetCanceled()))
+                using (token.Register(() => tcs.TrySetCanceled()))
                 {
                     if (!(eventFireAction()))
                     {
