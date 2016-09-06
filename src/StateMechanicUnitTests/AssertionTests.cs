@@ -224,6 +224,42 @@ namespace StateMechanicUnitTests
         }
 
         [Test]
+        public void StateIgnoreThrowsIfEventIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+
+            Assert.Throws<ArgumentNullException>((() => initial.Ignore((Event)null)));
+        }
+
+        [Test]
+        public void StateIgnoreThrowsIfEventTIsNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+
+            Assert.Throws<ArgumentNullException>((() => initial.Ignore((Event<string>)null)));
+        }
+
+        [Test]
+        public void StateIgnoreThrowsIfEventsAreNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+
+            Assert.Throws<ArgumentNullException>(() => initial.Ignore((Event[])null));
+        }
+
+        [Test]
+        public void StateIgnoreThrowsIfEventsTsAreNull()
+        {
+            var sm = new StateMachine();
+            var initial = sm.CreateInitialState("initial");
+
+            Assert.Throws<ArgumentNullException>(() => initial.Ignore((Event<string>[])null));
+        }
+
+        [Test]
         public void TransitionToWithEventDataThrowsIfDynamicIsNull()
         {
             var sm = new StateMachine();
@@ -232,6 +268,57 @@ namespace StateMechanicUnitTests
 
             var builder = initial.TransitionOn(evt);
             Assert.Throws<ArgumentNullException>(() => builder.ToDynamic(null));
+        }
+
+        [Test]
+        public void ThrowsIfTransitionAddedAfterAnUnconditionalTransition()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).To(state2);
+            Assert.Throws<ArgumentException>(() => state1.TransitionOn(evt).To(state1));
+        }
+
+        [Test]
+        public void DoesNotThrowIfTransitionAddedAfterAGuardedTransition()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).To(state2).WithGuard(i => true);
+            Assert.DoesNotThrow(() => state1.TransitionOn(evt).To(state1));
+        }
+
+        [Test]
+        public void DoesNotThrowIfTransitionAddedAfterADynamicTransition()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+            var state2 = sm.CreateState("state2");
+
+            var evt = new Event("evt");
+
+            state1.TransitionOn(evt).ToDynamic(i => null);
+            Assert.DoesNotThrow(() => state1.TransitionOn(evt).To(state1));
+        }
+
+        [Test]
+        public void ThrowsIfATransitionAddedAfterAnIgnoredEvent()
+        {
+            var sm = new StateMachine("sm");
+            var state1 = sm.CreateInitialState("state1");
+
+            var evt = new Event("evt");
+
+            state1.Ignore(evt);
+            Assert.Throws<ArgumentException>(() => state1.TransitionOn(evt).To(state1));
         }
     }
 }

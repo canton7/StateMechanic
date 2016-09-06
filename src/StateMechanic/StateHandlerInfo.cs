@@ -26,12 +26,24 @@
         /// </summary>
         public bool IsInnerTransition { get; }
 
-        internal StateHandlerInfo(TState from, TState to, IEvent @event, bool isInnerTransition)
+        /// <summary>
+        /// The (untyped) event data, or null if there was none
+        /// </summary>
+        public object EventData { get; }
+
+        /// <summary>
+        /// Gets the method used to fire the event
+        /// </summary>
+        public EventFireMethod EventFireMethod { get; }
+
+        internal StateHandlerInfo(TState from, TState to, IEvent @event, bool isInnerTransition, object eventData, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
             this.IsInnerTransition = isInnerTransition;
+            this.EventData = eventData;
+            this.EventFireMethod = eventFireMethod;
         }
 
         /// <summary>
@@ -41,7 +53,7 @@
         [ExcludeFromCoverage]
         public override string ToString()
         {
-            return $"<StateHandlerInfo From={this.From} To={this.To} Event={this.Event} IsInnerTransition={this.IsInnerTransition}>";
+            return $"<StateHandlerInfo From={this.From} To={this.To} Event={this.Event} IsInnerTransition={this.IsInnerTransition} EventData={this.EventData} EventFireMethod={this.EventFireMethod}>";
         }
     }
 }

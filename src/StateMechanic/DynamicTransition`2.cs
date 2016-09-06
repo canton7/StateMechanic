@@ -27,6 +27,7 @@ namespace StateMechanic
         bool ITransition<TState>.IsDynamicTransition => true;
         bool ITransition<TState>.IsInnerTransition => false;
         bool ITransition<TState>.HasGuard => false;
+        bool ITransition.WillAlwaysOccur => false;
 
         /// <summary>
         /// Gets or sets the callback which determines which state is transitioned to
@@ -62,14 +63,14 @@ namespace StateMechanic
             return this;
         }
 
-        bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData)
+        bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData, EventFireMethod eventFireMethod)
         {
             var dynamicTransitionInfo = new DynamicSelectorInfo<TState, TEventData>(this.innerTransition.From, this.innerTransition.Event, eventData);
             var to = this.innerTransition.FindToState(dynamicTransitionInfo);
             if (to == null)
                 return false;
 
-            return this.innerTransition.TryInvoke(to, new TransitionInfo<TState, TEventData>(this.innerTransition.From, to, this.innerTransition.Event, eventData, false));
+            return this.innerTransition.TryInvoke(new TransitionInfo<TState, TEventData>(this.innerTransition.From, to, this.innerTransition.Event, eventData, false, eventFireMethod));
         }
     }
 }

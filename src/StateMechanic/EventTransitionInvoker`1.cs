@@ -20,7 +20,7 @@
             var customTo = sourceState.HandleEvent(this.Event);
             if (customTo != null)
             {
-                var invoker = new ForcedTransitionInvoker<TState>(customTo, this.Event, this.transitionDelegate);
+                var invoker = new ForcedTransitionInvoker<TState>(customTo, this.Event, null, this.transitionDelegate);
                 // This shouldn't fail
                 bool success = invoker.TryInvoke(sourceState);
                 Trace.Assert(success, "Forced transition did not succeed");
@@ -29,7 +29,7 @@
 
             foreach (var transition in this.@event.GetTransitionsFromState(sourceState))
             {
-                if (transition.TryInvoke())
+                if (transition.TryInvoke(this.EventFireMethod))
                     return true;
             }
 

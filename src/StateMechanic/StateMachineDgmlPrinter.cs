@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace StateMechanic
@@ -176,6 +174,9 @@ namespace StateMechanic
                     graph.Links.Add(stateMachineToStateLink);
                 }
 
+                // Map of to state -> the last link for that state, as we can't have two links with the same from and to states, without an index
+                var lastDuplicateLinkLookup = new Dictionary<IState, Link>();
+
                 foreach (var transition in state.Transitions)
                 {
                     var transitionName = String.Format("{0}{1}", this.NameForEvent(transition.Event), transition.HasGuard ? "*" : "");
@@ -198,6 +199,7 @@ namespace StateMechanic
                             Label = transitionName,
                             Stroke = defaultStroke,
                         };
+
                         graph.Links.Add(link);
 
                         var virtualStateContainsLink = new Link()
@@ -219,6 +221,16 @@ namespace StateMechanic
                             Label = transitionName,
                             Stroke = this.Colorize && transition.To != stateMachine.InitialState ? this.ColorForState(transition.To) : defaultStroke,
                         };
+
+                        Link previousLink;
+                        if (lastDuplicateLinkLookup.TryGetValue(transition.To, out previousLink))
+                        {
+                            if (previousLink.Index == 0)
+                                previousLink.Index = 1;
+                            link.Index = previousLink.Index + 1;
+                        }
+                        lastDuplicateLinkLookup[transition.To] = link;
+
                         graph.Links.Add(link);
                     }
                 }
@@ -297,6 +309,18 @@ namespace StateMechanic
             /// </summary>
             [XmlAttribute]
             public string Category { get; set; }
+
+            /// <summary>
+            /// Index of the link, if there are multiple links between the same two nodes
+            /// </summary>
+            [XmlAttribute]
+            public int Index { get; set; }
+
+            /// <summary>
+            /// Returns a value indicating whether the 'Index' attribute should be serialized
+            /// </summary>
+            /// <returns>A value indicating whether the 'Index' attribute should be serialized</returns>
+            public bool ShouldSerializeIndex() => this.Index != 0;
         }
 
         /// <summary>

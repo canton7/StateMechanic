@@ -19,7 +19,7 @@
         {
             foreach (var transition in this.@event.GetTransitionsForState(sourceState))
             {
-                if (transition.TryInvoke(this.eventData))
+                if (transition.TryInvoke(this.eventData, this.EventFireMethod))
                     return true;
             }
 

@@ -23,11 +23,17 @@ namespace StateMechanic
         /// </summary>
         public IStateMachine StateMachine { get; }
 
-        internal TransitionNotFoundEventArgs(TState from, IEvent @event, IStateMachine stateMachine)
+        /// <summary>
+        /// Gets the method used to fire the event
+        /// </summary>
+        public EventFireMethod EventFireMethod { get; }
+
+        internal TransitionNotFoundEventArgs(TState from, IEvent @event, IStateMachine stateMachine, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.Event = @event;
             this.StateMachine = stateMachine;
+            this.EventFireMethod = eventFireMethod;
         }
     }
 }

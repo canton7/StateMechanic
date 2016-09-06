@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="TState">Type of state</typeparam>
     /// <typeparam name="TEventData">Type of event data associated with the event</typeparam>
-    public class TransitionInfo<TState, TEventData> : object
+    public class TransitionInfo<TState, TEventData> : ITransitionInfo<TState>
     {
         /// <summary>
         /// Gets the state this transition is from
@@ -27,18 +27,31 @@
         /// </summary>
         public TEventData EventData { get; }
 
+        private readonly object boxedEventData;
+        object ITransitionInfo<TState>.EventData => this.boxedEventData;
+
         /// <summary>
         /// Gets a value indicating whether this is an inner self transition, i.e. whether entry/exit handler are not executed
         /// </summary>
         public bool IsInnerTransition { get; }
 
-        internal TransitionInfo(TState from, TState to, Event<TEventData> @event, TEventData eventData, bool isInnerTransition)
+        /// <summary>
+        /// Gets the method used to fire the event
+        /// </summary>
+        public EventFireMethod EventFireMethod { get; }
+
+        IEvent ITransitionInfo<TState>.Event => this.Event;
+
+        internal TransitionInfo(TState from, TState to, Event<TEventData> @event, TEventData eventData, bool isInnerTransition, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
             this.EventData = eventData;
+            // Only do the boxing once
+            this.boxedEventData = eventData;
             this.IsInnerTransition = isInnerTransition;
+            this.EventFireMethod = eventFireMethod;
         }
 
         /// <summary>
@@ -48,7 +61,7 @@
         [ExcludeFromCoverage]
         public override string ToString()
         {
-            return $"<TransitionInfo From=${this.From} To={this.To} Event={this.Event} EventData={this.EventData} IsInnerTransition={this.IsInnerTransition}>";
+            return $"<TransitionInfo From=${this.From} To={this.To} Event={this.Event} EventData={this.EventData} IsInnerTransition={this.IsInnerTransition} EventFireMethod={this.EventFireMethod}>";
         }
     }
 }

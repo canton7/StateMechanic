@@ -32,12 +32,13 @@ namespace StateMechanicUnitTests
             var evt2 = new Event<string>("evt2");
 
             state1.InnerSelfTransitionOn(evt1);
-            state1.TransitionOn(evt1).To(state2);
+            state1.TransitionOn(evt2).To(state2);
 
             state11.TransitionOn(evt2).ToDynamic(_ => state12);
             state12.TransitionOn(evt1).To(state11);
 
             state21.TransitionOn(evt1).To(state22);
+            state21.TransitionOn(evt2).To(state22);
 
             var dot = sm.FormatDot(colorize: true);
             var dgml = sm.FormatDgml(colorize: true);
@@ -62,7 +63,7 @@ namespace StateMechanicUnitTests
             var evt2 = new Event<string>();
 
             state1.InnerSelfTransitionOn(evt1);
-            state1.TransitionOn(evt1).To(state2);
+            state1.TransitionOn(evt2).To(state2);
 
             state11.TransitionOn(evt2).ToDynamic(_ => state12);
             state12.TransitionOn(evt1).To(state11);

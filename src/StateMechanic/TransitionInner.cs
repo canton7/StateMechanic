@@ -5,6 +5,7 @@ namespace StateMechanic
     internal class TransitionInner<TState, TEvent, TTransitionInfo> : ITransitionInner<TState, TEvent, TTransitionInfo>
         where TState : StateBase<TState>, new()
         where TEvent : IEvent
+        where TTransitionInfo : ITransitionInfo<TState>
     {
         public TState From { get; }
         public TState To { get; }
@@ -36,7 +37,7 @@ namespace StateMechanic
             if (guard != null && !guard(transitionInfo))
                 return false;
 
-            this.transitionDelegate.CoordinateTransition(this.From, this.To, this.Event, this.IsInnerTransition, this.Handler, transitionInfo);
+            this.transitionDelegate.CoordinateTransition(transitionInfo, this.Handler);
 
             return true;
         }

@@ -29,6 +29,12 @@ namespace StateMechanic
         public bool Colorize { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the state machine should be rendered vertically, rather
+        /// than horizontally.
+        /// </summary>
+        public bool RenderVertical { get; set; }
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="StateMachineDotPrinter"/> class
         /// </summary>
         /// <param name="stateMachine">State machine to print</param>
@@ -52,9 +58,10 @@ namespace StateMechanic
             var sb = new StringBuilder();
             sb.AppendFormat("digraph \"{0}\" {{\n", this.stateMachine.Name);
             sb.AppendFormat("   label=\"{0}\";\n", this.stateMachine.Name);
-            sb.Append("   rankdir=LR;\n");
+            if (!this.RenderVertical)
+                sb.Append("   rankdir=LR;\n");
             sb.Append("   edge [penwidth=2.0];\n");
-            sb.Append("   node [shape=circle width=1 penwidth=2.0];\n");
+            sb.Append("   node [shape=octagon width=1 penwidth=2.0];\n");
 
             RenderStateMachine(sb, this.stateMachine, "   ");
 
@@ -114,7 +121,7 @@ namespace StateMechanic
                 if (state.ChildStateMachine == null)
                 {
                     if (state == stateMachine.InitialState)
-                        sb.AppendFormat("{0}\"{1}\" [shape=doublecircle width=1 penwidth=2.0];\n", indent, this.NameForState(stateMachine.InitialState));
+                        sb.AppendFormat("{0}\"{1}\" [shape=doubleoctagon width=1 penwidth=2.0];\n", indent, this.NameForState(stateMachine.InitialState));
                     else if (this.Colorize)
                         sb.AppendFormat("{0}\"{1}\" [color=\"{2}\"];\n", indent, this.NameForState(state), this.ColorForState(state));
                 }
@@ -141,7 +148,7 @@ namespace StateMechanic
                     {
                         // Define an virtual state to move to
                         // Destroyed [fillcolor=black, shape=doublecircle, label="", width=0.3]
-                        sb.AppendFormat("{0}\"VirtualState_{1}\" [label=\"?\" width=0.1];\n",
+                        sb.AppendFormat("{0}\"VirtualState_{1}\" [label=\"?\" shape=circle width=0.1];\n",
                             indent,
                             this.virtualStateIndex);
 
@@ -156,12 +163,11 @@ namespace StateMechanic
                     else
                     {
                         // If the source has a child state machine, then lhead is the name of that (unless it's a self-transition)
-                        // Likewise dest and ltail
-                        bool isSelfTransition = transition.From == transition.To;
+                        // Likewise dest and ltail.
                         sb.AppendFormat("{0}\"{1}\" -> \"{2}\" [label=\"{3}{4}\"{5}{6}{7}];\n",
                             indent,
-                            this.NameForState(transition.From.ChildStateMachine == null || isSelfTransition ? transition.From : transition.From.ChildStateMachine.InitialState),
-                            this.NameForState(transition.To.ChildStateMachine == null || isSelfTransition ? transition.To : transition.To.ChildStateMachine.InitialState),
+                            this.NameForState(transition.From.ChildStateMachine == null ? transition.From : transition.From.ChildStateMachine.InitialState),
+                            this.NameForState(transition.To.ChildStateMachine == null ? transition.To : transition.To.ChildStateMachine.InitialState),
                             this.NameForEvent(transition.Event),
                             transition.HasGuard ? "*" : "",
                             this.Colorize && transition.To != stateMachine.InitialState ? String.Format(" color=\"{0}\" fontcolor=\"{0}\"", this.ColorForState(transition.To)) : "",

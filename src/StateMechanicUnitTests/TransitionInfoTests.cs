@@ -53,6 +53,27 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
+            Assert.Null(handlerInfo.EventData);
+        }
+
+        [Test]
+        public void CorrectInfoIsGivenInExitHandlerT()
+        {
+            StateHandlerInfo<State> handlerInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt = new Event<string>("Event");
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
+            var state2 = sm.CreateState("State 2");
+            state1.TransitionOn(evt).To(state2);
+
+            evt.Fire("foo");
+
+            Assert.NotNull(handlerInfo);
+            Assert.AreEqual(state1, handlerInfo.From);
+            Assert.AreEqual(state2, handlerInfo.To);
+            Assert.AreEqual(evt, handlerInfo.Event);
+            Assert.AreEqual("foo", handlerInfo.EventData);
         }
 
         [Test]
@@ -73,6 +94,28 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
             Assert.False(handlerInfo.IsInnerTransition);
+            Assert.Null(handlerInfo.EventData);
+        }
+
+        [Test]
+        public void CorrectInfoIsGivenInEntryHandlerT()
+        {
+            StateHandlerInfo<State> handlerInfo = null;
+
+            var sm = new StateMachine("State Machine");
+            var evt = new Event<int>("Event");
+            var state1 = sm.CreateInitialState("State 1");
+            var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
+            state1.TransitionOn(evt).To(state2);
+
+            evt.Fire(3);
+
+            Assert.NotNull(handlerInfo);
+            Assert.AreEqual(state1, handlerInfo.From);
+            Assert.AreEqual(state2, handlerInfo.To);
+            Assert.AreEqual(evt, handlerInfo.Event);
+            Assert.False(handlerInfo.IsInnerTransition);
+            Assert.AreEqual(3, handlerInfo.EventData);
         }
 
         [Test]
@@ -213,6 +256,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(evt, info.Event);
             Assert.False(info.IsInnerTransition);
             Assert.AreEqual("foo", info.EventData);
+            Assert.AreEqual(EventFireMethod.Fire, info.EventFireMethod);
         }
     }
 }

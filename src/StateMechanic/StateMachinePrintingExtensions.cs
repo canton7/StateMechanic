@@ -10,11 +10,13 @@
         /// </summary>
         /// <param name="stateMachine">State machine to print</param>
         /// <param name="colorize">Whether or not to color states and transitions</param>
+        /// <param name="renderVertical">If true, the state machine is rendered vertically rather than horizontally</param>
         /// <returns>The state machine, described using Graphviz DOT</returns>
-        public static string FormatDot(this IStateMachine stateMachine, bool colorize = false)
+        public static string FormatDot(this IStateMachine stateMachine, bool colorize = false, bool renderVertical = false)
         {
             var printer = new StateMachineDotPrinter(stateMachine);
             printer.Colorize = colorize;
+            printer.RenderVertical = renderVertical;
             return printer.Format();
         }
 

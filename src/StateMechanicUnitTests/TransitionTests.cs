@@ -21,7 +21,7 @@ namespace StateMechanicUnitTests
 
             var evt = new Event("evt");
 
-            initial.TransitionOn(evt).To(state2);
+            initial.TransitionOn(evt).To(state2).WithGuard(i => true);
             initial.TransitionOn(evt).To(state1);
 
             evt.Fire();
@@ -43,7 +43,7 @@ namespace StateMechanicUnitTests
 
             initial.TransitionOn(evt).To(state1).WithGuard(i => false);
             initial.TransitionOn(evt).To(state2).WithGuard(i => false);
-            initial.TransitionOn(evt).To(state3);
+            initial.TransitionOn(evt).To(state3).WithGuard(i => true);
             initial.TransitionOn(evt).To(state4);
 
             evt.Fire();

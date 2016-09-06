@@ -33,13 +33,19 @@ namespace StateMechanic
         /// </summary>
         public bool IsInnerTransition { get; }
 
-        internal TransitionEventArgs(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
+        /// <summary>
+        /// Gets the method used to fire the event
+        /// </summary>
+        public EventFireMethod EventFireMethod { get; }
+
+        internal TransitionEventArgs(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition, EventFireMethod eventFireMethod)
         {
             this.From = from;
             this.To = to;
             this.Event = @event;
             this.StateMachine = stateMachine;
             this.IsInnerTransition = isInnerTransition;
+            this.EventFireMethod = eventFireMethod;
         }
     }
 }

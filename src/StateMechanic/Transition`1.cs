@@ -10,7 +10,6 @@ namespace StateMechanic
         where TState : StateBase<TState>, new()
     {
         private readonly TransitionInner<TState, Event, TransitionInfo<TState>> innerTransition;
-        private readonly TransitionInfo<TState> transitionInfo;
 
         /// <summary>
         /// Gets the state this transition is from
@@ -29,6 +28,7 @@ namespace StateMechanic
         IEvent ITransition<TState>.Event => this.innerTransition.Event;
 
         bool ITransition<TState>.IsDynamicTransition => false;
+        bool ITransition.WillAlwaysOccur => !this.HasGuard;
 
         /// <summary>
         /// Gets a value indicating whether this transition is an inner transition, i.e. whether the <see cref="From"/> and <see cref="To"/> states are the same, and no exit/entry handles are invoked
@@ -61,15 +61,11 @@ namespace StateMechanic
         internal Transition(TState from, TState to, Event @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.innerTransition = new TransitionInner<TState, Event, TransitionInfo<TState>>(from, to, @event, transitionDelegate, isInnerTransition: false);
-            // Might as well cache this - it's never going to change
-            this.transitionInfo = new TransitionInfo<TState>(from, to, @event, isInnerTransition: false);
         }
 
         internal Transition(TState fromAndTo, Event @event, ITransitionDelegate<TState> transitionDelegate)
         {
             this.innerTransition = new TransitionInner<TState, Event, TransitionInfo<TState>>(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true);
-            // Might as well cache this - it's never going to change
-            this.transitionInfo = new TransitionInfo<TState>(fromAndTo, fromAndTo, @event, isInnerTransition: true);
         }
 
         /// <summary>
@@ -94,9 +90,10 @@ namespace StateMechanic
             return this;
         }
 
-        bool IInvokableTransition.TryInvoke()
+        bool IInvokableTransition.TryInvoke(EventFireMethod eventFireMethod)
         {
-            return this.innerTransition.TryInvoke(this.transitionInfo);
+            var transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition, eventFireMethod);
+            return this.innerTransition.TryInvoke(transitionInfo);
         }
 
         /// <summary>

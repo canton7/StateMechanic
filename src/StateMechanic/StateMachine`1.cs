@@ -52,14 +52,24 @@ namespace StateMechanic
         public event EventHandler<StateMachineFaultedEventArgs> Faulted;
 
         /// <summary>
-        /// Event raised when a transition occurs in this state machine, or any of its child state machines
+        /// Event raised when a transition begins in this state machine, or any of its child state machines
         /// </summary>
         public event EventHandler<TransitionEventArgs<TState>> Transition;
+
+        /// <summary>
+        /// Event raised when a transition finishes in this state machine, or any of its child state machines
+        /// </summary>
+        public event EventHandler<TransitionEventArgs<TState>> TransitionFinished;
 
         /// <summary>
         /// Event raised whenever an event is fired but no corresponding transition is found on this state machine or any of its child state machines
         /// </summary>
         public event EventHandler<TransitionNotFoundEventArgs<TState>> TransitionNotFound;
+
+        /// <summary>
+        /// Event raised whenever an event which is ignored is fired
+        /// </summary>
+        public event EventHandler<EventIgnoredEventArgs<TState>> EventIgnored;
 
         /// <summary>
         /// Instantiates a new instance of the <see cref="StateMachine{TState}"/> class, with the given name
@@ -149,16 +159,18 @@ namespace StateMechanic
 
         #region ITransitionDelegate
 
-        void ITransitionDelegate<TState>.CoordinateTransition<TTransitionInfo>(TState from, TState to, IEvent @event, bool isInnerTransition, Action<TTransitionInfo> handler, TTransitionInfo transitionInfo)
+        void ITransitionDelegate<TState>.CoordinateTransition<TTransitionInfo>(TTransitionInfo transitionInfo, Action<TTransitionInfo> handler)
         {
             // We require that from.ParentStateMachine.TopmostStateMachine == to.ParentStateMachine.TopmostStateMachine == this
 
-            var stateHandlerInfo = new StateHandlerInfo<TState>(from, to, @event, isInnerTransition);
+            this.OnTransition(transitionInfo.From.ParentStateMachine, transitionInfo);
 
-            if (!isInnerTransition)
+            var stateHandlerInfo = new StateHandlerInfo<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, transitionInfo.IsInnerTransition, transitionInfo.EventData, transitionInfo.EventFireMethod);
+
+            if (!transitionInfo.IsInnerTransition)
             {
-                if (from.ChildStateMachine != null)
-                    this.ExitChildStateMachine(from.ChildStateMachine, to, @event, isInnerTransition);
+                if (transitionInfo.From.ChildStateMachine != null)
+                    this.ExitChildStateMachine(transitionInfo.From.ChildStateMachine, transitionInfo.To, transitionInfo.Event, transitionInfo.IsInnerTransition, transitionInfo.EventData, transitionInfo.EventFireMethod);
 
                 this.ExitState(stateHandlerInfo);
             }
@@ -171,41 +183,41 @@ namespace StateMechanic
                 }
                 catch (Exception e)
                 {
-                    throw new InternalTransitionFaultException(from, to, @event, FaultedComponent.TransitionHandler, e);
+                    throw new InternalTransitionFaultException(transitionInfo.From, transitionInfo.To, transitionInfo.Event, FaultedComponent.TransitionHandler, e);
                 }
             }
 
-            from.ParentStateMachine.SetCurrentState(to);
+            transitionInfo.From.ParentStateMachine.SetCurrentState(transitionInfo.To);
 
-            if (!isInnerTransition)
+            if (!transitionInfo.IsInnerTransition)
             {
                 this.EnterState(stateHandlerInfo);
 
-                if (to.ChildStateMachine != null)
-                    this.EnterChildStateMachine(to.ChildStateMachine, from, @event, isInnerTransition);
+                if (transitionInfo.To.ChildStateMachine != null)
+                    this.EnterChildStateMachine(transitionInfo.To.ChildStateMachine, transitionInfo.From, transitionInfo.Event, transitionInfo.IsInnerTransition, transitionInfo.EventData, transitionInfo.EventFireMethod);
             }
 
-            this.OnTransition(from, to, @event, from.ParentStateMachine, isInnerTransition);
+            this.OnTransitionFinished(transitionInfo.From.ParentStateMachine, transitionInfo);
         }
 
-        private void ExitChildStateMachine(ChildStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition)
+        private void ExitChildStateMachine(ChildStateMachine<TState> childStateMachine, TState to, IEvent @event, bool isInnerTransition, object eventData, EventFireMethod eventFireMethod)
         {
             if (childStateMachine.CurrentState != null && childStateMachine.CurrentState.ChildStateMachine != null)
-                this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event, isInnerTransition);
+                this.ExitChildStateMachine(childStateMachine.CurrentState.ChildStateMachine, to, @event, isInnerTransition, eventData, eventFireMethod);
 
-            this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event, isInnerTransition));
+            this.ExitState(new StateHandlerInfo<TState>(childStateMachine.CurrentState, to, @event, isInnerTransition, eventData, eventFireMethod));
 
             childStateMachine.SetCurrentState(null);
         }
 
-        private void EnterChildStateMachine(ChildStateMachine<TState> childStateMachine, TState from, IEvent @event, bool isInnerTransition)
+        private void EnterChildStateMachine(ChildStateMachine<TState> childStateMachine, TState from, IEvent @event, bool isInnerTransition, object eventData, EventFireMethod eventFireMethod)
         {
             childStateMachine.SetCurrentState(childStateMachine.InitialState);
 
-            this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event, isInnerTransition));
+            this.EnterState(new StateHandlerInfo<TState>(from, childStateMachine.InitialState, @event, isInnerTransition, eventData, eventFireMethod));
 
             if (childStateMachine.InitialState.ChildStateMachine != null)
-                this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event, isInnerTransition);
+                this.EnterChildStateMachine(childStateMachine.InitialState.ChildStateMachine, from, @event, isInnerTransition, eventData, eventFireMethod);
         }
 
         private void ExitState(StateHandlerInfo<TState> info)
@@ -264,6 +276,11 @@ namespace StateMechanic
             }
         }
 
+        void ITransitionDelegate<TState>.IgnoreTransition(TState fromState, IEvent @event, EventFireMethod eventFireMethod)
+        {
+            this.EventIgnored?.Invoke(this, new EventIgnoredEventArgs<TState>(fromState, @event, eventFireMethod));
+        }
+
         #endregion
 
         #region Forced Transitions
@@ -274,14 +291,35 @@ namespace StateMechanic
         /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
         /// <param name="toState">State to transition to</param>
         /// <param name="event">Event pass to the exit/entry handlers</param>
-        public void ForceTransition(TState toState, IEvent @event)
+        public void ForceTransition(TState toState, Event @event)
         {
             if (toState == null)
                 throw new ArgumentNullException(nameof(toState));
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, this);
+            var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, null, this);
+            if (this.Synchronizer != null)
+                this.Synchronizer.ForceTransition(() => this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker));
+            else
+                this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker);
+        }
+
+        /// <summary>
+        /// Force a transition to the given state, even though there may not be a valid configured transition to that state from the current state
+        /// </summary>
+        /// <remarks>Exit and entry handlers will be fired, but no transition handler will be fired</remarks>
+        /// <param name="toState">State to transition to</param>
+        /// <param name="event">Event pass to the exit/entry handlers</param>
+        /// <param name="eventData">Event data to pass to the state exit/entry handlers</param>
+        public void ForceTransition<TEventData>(TState toState, Event<TEventData> @event, TEventData eventData)
+        {
+            if (toState == null)
+                throw new ArgumentNullException(nameof(toState));
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            var transitionInvoker = new ForcedTransitionInvoker<TState>(toState, @event, eventData, this);
             if (this.Synchronizer != null)
                 this.Synchronizer.ForceTransition(() => this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker));
             else
@@ -380,17 +418,22 @@ namespace StateMechanic
             this.Faulted?.Invoke(this, new StateMachineFaultedEventArgs(faultInfo));
         }
 
-        internal override void HandleTransitionNotFound(IEvent @event, bool throwException)
+        internal override void HandleTransitionNotFound(IEvent @event, EventFireMethod eventFireMethod)
         {
-            this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(this.CurrentState, @event, this));
+            this.TransitionNotFound?.Invoke(this, new TransitionNotFoundEventArgs<TState>(this.CurrentState, @event, this, eventFireMethod));
 
-            if (throwException)
+            if (eventFireMethod == EventFireMethod.Fire)
                 throw new TransitionNotFoundException(this.CurrentState, @event, this);
         }
 
-        private void OnTransition(TState from, TState to, IEvent @event, IStateMachine stateMachine, bool isInnerTransition)
+        private void OnTransition(IStateMachine stateMachine, ITransitionInfo<TState> transitionInfo)
         {
-            this.Transition?.Invoke(this, new TransitionEventArgs<TState>(from, to, @event, stateMachine, isInnerTransition));
+            this.Transition?.Invoke(this, new TransitionEventArgs<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, stateMachine, transitionInfo.IsInnerTransition, transitionInfo.EventFireMethod));
+        }
+
+        private void OnTransitionFinished(IStateMachine stateMachine, ITransitionInfo<TState> transitionInfo)
+        {
+            this.TransitionFinished?.Invoke(this, new TransitionEventArgs<TState>(transitionInfo.From, transitionInfo.To, transitionInfo.Event, stateMachine, transitionInfo.IsInnerTransition, transitionInfo.EventFireMethod));
         }
 
         #endregion

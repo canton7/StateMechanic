@@ -67,6 +67,8 @@
     <Compile Include="DynamicTransitionTests.cs" />
     <Compile Include="EventFireTests.cs" />
     <Compile Include="FaultTests.cs" />
+    <Compile Include="IgnoredTransitionTests.cs" />
+    <Compile Include="OperationTests.cs" />
     <Compile Include="PrinterTests.cs" />
     <Compile Include="HandlerOrderTests.cs" />
     <Compile Include="IntrospectionTests.cs" />

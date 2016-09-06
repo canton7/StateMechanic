@@ -29,6 +29,7 @@ namespace StateMechanic
         IEvent ITransition<TState>.Event => this.innerTransition.Event;
 
         bool ITransition<TState>.IsDynamicTransition => false;
+        bool ITransition.WillAlwaysOccur => !this.HasGuard;
 
         /// <summary>
         /// Gets a value indicating whether this transition is an inner transition, i.e. whether the <see cref="From"/> and <see cref="To"/> states are the same, and no exit/entry handles are invoked
@@ -90,10 +91,10 @@ namespace StateMechanic
             return this;
         }
 
-        bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData)
+        bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData, EventFireMethod eventFireMethod)
         {
             // TODO: only generate this if there's a guard or a transition handler
-            var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, this.To, this.Event, eventData, this.IsInnerTransition);
+            var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, this.To, this.Event, eventData, this.IsInnerTransition, eventFireMethod);
             return this.innerTransition.TryInvoke(transitionInfo);
         }
 

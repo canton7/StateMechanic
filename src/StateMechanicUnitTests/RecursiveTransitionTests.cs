@@ -135,7 +135,33 @@ namespace StateMechanicUnitTests
             var evt2 = new Event("evt2");
 
             initialState.TransitionOn(evt).To(state1).WithHandler(i => Assert.DoesNotThrow(() => evt2.Fire()));
-            try { evt.TryFire(); } catch { }
+            initialState.InnerSelfTransitionOn(evt2);
+
+            try { evt.TryFire(); } catch(TransitionNotFoundException) { }
+        }
+
+        [Test]
+        public void RecursiveFireRaisesTransitionNotFoundEvent()
+        {
+            var sm = new StateMachine("sm");
+            var initialState = sm.CreateInitialState("initialState");
+            var state1 = sm.CreateState("state1");
+            var evt = new Event("evt");
+            var evt2 = new Event("evt2");
+
+            TransitionNotFoundEventArgs<State> ea = null;
+            sm.TransitionNotFound += (o, e) => ea = e;
+
+            initialState.TransitionOn(evt).To(state1).WithHandler(i => evt2.Fire());
+            initialState.InnerSelfTransitionOn(evt2);
+
+            try { evt.TryFire(); } catch (TransitionNotFoundException) { }
+
+            Assert.NotNull(ea);
+            Assert.AreEqual(evt2, ea.Event);
+            Assert.AreEqual(state1, ea.From);
+            Assert.AreEqual(sm, ea.StateMachine);
+            Assert.AreEqual(EventFireMethod.Fire, ea.EventFireMethod);
         }
 
         [Test]

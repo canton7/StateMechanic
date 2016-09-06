@@ -272,6 +272,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state2, info.To);
             Assert.AreEqual(evt, info.Event);
             Assert.False(info.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.Fire, info.EventFireMethod);
         }
 
         [Test]
@@ -283,7 +284,7 @@ namespace StateMechanicUnitTests
             var evt = new Event("evt");
             state1.TransitionOn(evt).To(state2);
 
-            evt.Fire();
+            evt.TryFire();
 
             var info = state1.OnExitInfo;
             Assert.NotNull(info);
@@ -291,6 +292,7 @@ namespace StateMechanicUnitTests
             Assert.AreEqual(state2, info.To);
             Assert.AreEqual(evt, info.Event);
             Assert.False(info.IsInnerTransition);
+            Assert.AreEqual(EventFireMethod.TryFire, info.EventFireMethod);
         }
 
         [Test]
