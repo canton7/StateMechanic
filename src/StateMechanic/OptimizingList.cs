@@ -8,7 +8,7 @@ namespace StateMechanic
     /// List wrapper which is optimized for a single item
     /// </summary>
     /// <remarks>
-    /// <see cref="EventInner{TEvent, TTransition}"/> usually only has one transition per state,
+    /// <see cref="Event"/> and <see cref="Event{TEventData}"/> usually only have one transition per state,
     /// in which case allocating an entire list to hold that single item is a waste. This optimizes the case
     /// of storing a single item, only expanding to a list when necessary.
     /// </remarks>

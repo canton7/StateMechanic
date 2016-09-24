@@ -13,7 +13,6 @@ namespace StateMechanic
 <# Create(true); #>
 }
 
-
 <#+
 private void Create(bool hasEventData)
 {

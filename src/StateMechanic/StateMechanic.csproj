@@ -48,12 +48,14 @@
     <Compile Include="DynamicTransitionInner.cs" />
     <Compile Include="DynamicTransition`1.cs" />
     <Compile Include="DynamicTransition`2.cs" />
-    <Compile Include="Event.cs" />
+    <Compile Include="Event.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Event.tt</DependentUpon>
+    </Compile>
     <Compile Include="EventFireMethod.cs" />
-    <Compile Include="EventInner.cs" />
     <Compile Include="EventTransitionInvoker`1.cs" />
     <Compile Include="EventTransitionInvoker`2.cs" />
-    <Compile Include="Event`1.cs" />
     <Compile Include="ExcludeFromCoverageAttribute.cs" />
     <Compile Include="FaultedComponent.cs" />
     <Compile Include="ForcedTransitionInfo.cs" />
@@ -119,6 +121,10 @@
     <Compile Include="TransitionNotFoundException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Event.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Event.cs</LastGenOutput>
+    </Content>
     <Content Include="Transition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Transition.cs</LastGenOutput>
