@@ -103,6 +103,11 @@
     <Compile Include="StateMachine`1.cs" />
     <Compile Include="State`1.cs" />
     <Compile Include="Trace.cs" />
+    <Compile Include="Transition.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Transition.tt</DependentUpon>
+    </Compile>
     <Compile Include="TransitionBuilder`2.cs" />
     <Compile Include="TransitionBuilder`1.cs" />
     <Compile Include="TransitionEventArgs.cs" />
@@ -110,11 +115,17 @@
     <Compile Include="EventIgnoredEventArgs.cs" />
     <Compile Include="TransitionInfo`1.cs" />
     <Compile Include="TransitionInfo`2.cs" />
-    <Compile Include="TransitionInner.cs" />
     <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
-    <Compile Include="Transition`1.cs" />
-    <Compile Include="Transition`2.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Transition.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Transition.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,170 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+
+namespace StateMechanic
+{
+<# Create(false); #>
+
+<# Create(true); #>
+}
+
+
+<#+
+private void Create(bool hasEventData)
+{
+    string eventType = hasEventData ? "Event<TEventData>" : "Event";
+    string transitionType = hasEventData ? "Transition<TState, TEventData>" : "Transition<TState>";
+    string transitionInfoType = hasEventData ? "TransitionInfo<TState, TEventData>" : "TransitionInfo<TState>";
+#>
+    /// <summary>
+    /// A transition from one state to another, triggered by an event
+    /// </summary>
+    /// <typeparam name="TState">Type of state which this transition is between</typeparam>
+<#+
+    if (hasEventData)
+    {
+#>
+    /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
+    public class <#= transitionType #> : ITransition<TState>, IInvokableTransition<TEventData>
+<#+
+    }
+    else
+    {
+#>
+    public class <#= transitionType #> : ITransition<TState>, IInvokableTransition
+<#+    
+    }
+#>
+        where TState : StateBase<TState>, new()
+    {
+        private readonly ITransitionDelegate<TState> transitionDelegate;
+
+        /// <summary>
+        /// Gets the state this transition is from
+        /// </summary>
+        public TState From { get; }
+
+        /// <summary>
+        /// Gets the state this transition to
+        /// </summary>
+        public TState To { get; }
+
+        /// <summary>
+        /// Gets the event which triggers this transition
+        /// </summary>
+        public <#= eventType #> Event { get; }
+        IEvent ITransition<TState>.Event => this.Event;
+
+        bool ITransition<TState>.IsDynamicTransition => false;
+        bool ITransition.WillAlwaysOccur => !this.HasGuard;
+
+        /// <summary>
+        /// Gets a value indicating whether this transition is an inner transition, i.e. whether the <see cref="From"/> and <see cref="To"/> states are the same, and no exit/entry handles are invoked
+        /// </summary>
+        public bool IsInnerTransition { get; }
+
+        /// <summary>
+        /// Gets or sets a method which is invoked whenever this transition occurs
+        /// </summary>
+        public Action<<#= transitionInfoType #>> Handler { get; set; }
+
+         /// <summary>
+        /// Gets or sets a method which is invoked before this transition occurs, and can prevent the transition from occuring
+        /// </summary>
+        public Func<<#= transitionInfoType #>, bool> Guard { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this transition has a guard
+        /// </summary>
+        public bool HasGuard => this.Guard != null;
+
+        internal Transition(TState from, TState to, <#= eventType #> @event, ITransitionDelegate<TState> transitionDelegate)
+            : this(from, to, @event, transitionDelegate, isInnerTransition: false)
+        {
+        }
+        
+        internal Transition(TState fromAndTo, <#= eventType #> @event, ITransitionDelegate<TState> transitionDelegate)
+            : this(fromAndTo, fromAndTo, @event, transitionDelegate, isInnerTransition: true)
+        {
+        }
+
+        private Transition(TState from, TState to, <#= eventType #> @event, ITransitionDelegate<TState> transitionDelegate, bool isInnerTransition)
+        {
+            if (from.ParentStateMachine != to.ParentStateMachine)
+                throw new InvalidStateTransitionException(from, to);
+
+            this.transitionDelegate = transitionDelegate;
+            this.From = from;
+            this.To = to;
+            this.Event = @event;
+            this.IsInnerTransition = isInnerTransition;
+        }
+
+        /// <summary>
+        /// Sets a method which is invoked whenever this transition occurs
+        /// </summary>
+        /// <param name="handler">Method which is invoked whenever this transition occurs</param>
+        /// <returns>This transition, for method chaining</returns>
+        public <#= transitionType #> WithHandler(Action<<#= transitionInfoType #>> handler)
+        {
+            this.Handler = handler;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a method which is invoked before this transition occurs, and can prevent the transition from occuring
+        /// </summary>
+        /// <param name="guard">method which is invoked before this transition occurs, and can prevent the transition from occuring</param>
+        /// <returns>This transition, for method chaining</returns>
+        public <#= transitionType #> WithGuard(Func<<#= transitionInfoType #>, bool> guard)
+        {
+            this.Guard = guard;
+            return this;
+        }
+
+<#+     if (hasEventData)
+        {
+#>
+        bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData, EventFireMethod eventFireMethod)
+<#+
+        }
+        else
+        {
+#>
+        bool IInvokableTransition.TryInvoke(EventFireMethod eventFireMethod)
+<#+
+        }
+#>
+        {
+            if (!this.From.CanTransition(this.Event, this.To))
+                return false;
+
+            var transitionInfo = new <#= transitionInfoType #>(this.From, this.To, this.Event, <#= hasEventData ? "eventData, " : "" #>this.IsInnerTransition, eventFireMethod);
+
+            var guard = this.Guard;
+            if (guard != null && !guard(transitionInfo))
+                return false;
+
+            this.transitionDelegate.CoordinateTransition(transitionInfo, this.Handler);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object</returns>
+        [ExcludeFromCoverage]
+        public override string ToString()
+        {
+            return String.Format("<Transition From={0} To={1} Event={2}{3}>", this.From.Name ?? "(unnamed)", this.To.Name ?? "(unnamed)", this.Event.Name ?? "(unnamed)", this.IsInnerTransition ? " IsInnerTransition" : "");
+        }
+    }
+<#+
+}
+#>
