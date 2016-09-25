@@ -43,8 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChildStateMachine`1.cs" />
-    <Compile Include="DynamicSelectorInfo`1.cs" />
-    <Compile Include="DynamicSelectorInfo`2.cs" />
+    <Compile Include="DynamicSelectorInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DynamicSelectorInfo.tt</DependentUpon>
+    </Compile>
     <Compile Include="DynamicTransition.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -132,6 +135,10 @@
     <Compile Include="TransitionNotFoundException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DynamicSelectorInfo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DynamicSelectorInfo.cs</LastGenOutput>
+    </Content>
     <Content Include="DynamicTransition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DynamicTransition.cs</LastGenOutput>
