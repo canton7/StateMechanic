@@ -1,0 +1,129 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+
+namespace StateMechanic
+{
+<# Create(false); #>
+
+<# Create(true); #>
+}
+
+<#+
+private void Create(bool hasEventData)
+{
+    string dynamicTransitionType = hasEventData ? "DynamicTransition<TState, TEventData>" : "DynamicTransition<TState>";
+    string eventType = hasEventData ? "Event<TEventData>" : "Event";
+    string dynamicSelectorInfoType = hasEventData ? "DynamicSelectorInfo<TState, TEventData>" : "DynamicSelectorInfo<TState>";
+    string transitionInfoType = hasEventData ? "TransitionInfo<TState, TEventData>" : "TransitionInfo<TState>";
+    string iinvokableTransitionType = hasEventData ? "IInvokableTransition<TEventData>" : "IInvokableTransition";
+
+#>
+    /// <summary>
+    /// A transition from one state to another, triggered by an event, where the destination state is determined by a user-supplied callback
+    /// </summary>
+    /// <typeparam name="TState">Type of state which this transition is between</typeparam>
+<#+
+    if (hasEventData)
+    {
+#>
+    /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
+<#+
+    }
+#>
+    public class <#= dynamicTransitionType #> : ITransition<TState>, <#= iinvokableTransitionType #>
+        where TState : StateBase<TState>, new()
+    {
+        private readonly ITransitionDelegate<TState> transitionDelegate;
+
+        /// <summary>
+        /// Gets the state this transition is from
+        /// </summary>
+        public TState From { get; }
+
+        TState ITransition<TState>.To => null;
+
+        /// <summary>
+        /// Gets the event which triggers this transition
+        /// </summary>
+        public <#= eventType #> Event { get; }
+        IEvent ITransition<TState>.Event => this.Event;
+
+        bool ITransition<TState>.IsDynamicTransition => true;
+        bool ITransition<TState>.IsInnerTransition => false;
+        bool ITransition<TState>.HasGuard => false;
+        bool ITransition.WillAlwaysOccur => false;
+
+        private Func<<#= dynamicSelectorInfoType #>, TState> _stateSelector;
+        /// <summary>
+        /// Gets or sets the callback which determines which state is transitioned to
+        /// </summary>
+        public Func<<#= dynamicSelectorInfoType #>, TState> StateSelector
+        {
+            get { return this._stateSelector; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                this._stateSelector = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a method which is invoked whenever this transition occurs
+        /// </summary>
+        public Action<<#= transitionInfoType #>> Handler { get; set; }
+
+        internal DynamicTransition(TState from, <#= eventType #> @event, Func<<#= dynamicSelectorInfoType #>, TState> stateSelector, ITransitionDelegate<TState> transitionDelegate)
+        {
+            this.From = from;
+            this.Event = @event;
+            this._stateSelector = stateSelector;
+            this.transitionDelegate = transitionDelegate;
+        }
+
+        /// <summary>
+        /// Sets a method which is invoked whenever this transition occurs
+        /// </summary>
+        /// <param name="handler">Method which is invoked whenever this transition occurs</param>
+        /// <returns>This transition, for method chaining</returns>
+        public <#= dynamicTransitionType #> WithHandler(Action<<#= transitionInfoType #>> handler)
+        {
+            this.Handler = handler;
+            return this;
+        }
+
+        bool <#= iinvokableTransitionType #>.TryInvoke(<#= hasEventData ? "TEventData eventData, " : "" #>EventFireMethod eventFireMethod)
+        {
+            var selectorInfo = new <#= dynamicSelectorInfoType #>(this.From, this.Event<#= hasEventData ? ", eventData" : "" #>);
+            var to = this.FindToState(selectorInfo);
+            if (to == null)
+                return false;
+
+            if (!this.From.CanTransition(this.Event, to))
+                return false;
+
+            var transitionInfo = new <#= transitionInfoType #>(this.From, to, this.Event, <#= hasEventData ? "eventData, " : "" #>false, eventFireMethod);
+            this.transitionDelegate.CoordinateTransition(transitionInfo, this.Handler);
+            return true;
+        }
+
+        private TState FindToState(<#= dynamicSelectorInfoType #> selectorInfo)
+        {
+            var to = this.StateSelector(selectorInfo);
+            if (to == null)
+                return null;
+
+            if (this.From.ParentStateMachine != to.ParentStateMachine)
+                throw new InvalidStateTransitionException(this.From, to);
+
+            return to;
+        }
+    }
+<#+
+}
+#>
