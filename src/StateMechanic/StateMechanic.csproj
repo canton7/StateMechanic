@@ -64,8 +64,11 @@
     <Compile Include="ForcedTransitionInvoker.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
-    <Compile Include="IgnoredTransition`1.cs" />
-    <Compile Include="IgnoredTransition`2.cs" />
+    <Compile Include="IgnoredTransition.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IgnoredTransition.tt</DependentUpon>
+    </Compile>
     <Compile Include="IInvokableTransition.cs" />
     <Compile Include="InternalTransitionFaultException.cs" />
     <Compile Include="InvalidEventSetupException.cs" />
@@ -130,6 +133,10 @@
     <Content Include="Event.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Event.cs</LastGenOutput>
+    </Content>
+    <Content Include="IgnoredTransition.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IgnoredTransition.cs</LastGenOutput>
     </Content>
     <Content Include="Transition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
