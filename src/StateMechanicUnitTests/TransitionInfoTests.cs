@@ -39,17 +39,18 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInExitHandler()
         {
-            StateHandlerInfo<State> handlerInfo = null;
+            StateHandlerInfo<State>? nullableHandlerInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
-            var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => nullableHandlerInfo = i);
             var state2 = sm.CreateState("State 2");
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(handlerInfo);
+            Assert.NotNull(nullableHandlerInfo);
+            var handlerInfo = nullableHandlerInfo.Value;
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
@@ -59,17 +60,18 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInExitHandlerT()
         {
-            StateHandlerInfo<State> handlerInfo = null;
+            StateHandlerInfo<State>? nullableHandlerInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event<string>("Event");
-            var state1 = sm.CreateInitialState("State 1").WithExit(i => handlerInfo = i);
+            var state1 = sm.CreateInitialState("State 1").WithExit(i => nullableHandlerInfo = i);
             var state2 = sm.CreateState("State 2");
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire("foo");
 
-            Assert.NotNull(handlerInfo);
+            Assert.NotNull(nullableHandlerInfo);
+            var handlerInfo = nullableHandlerInfo.Value;
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
@@ -79,17 +81,18 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInEntryHandler()
         {
-            StateHandlerInfo<State> handlerInfo = null;
+            StateHandlerInfo<State>? nullableHandlerInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
             var state1 = sm.CreateInitialState("State 1");
-            var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
+            var state2 = sm.CreateState("State 2").WithEntry(i => nullableHandlerInfo = i);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(handlerInfo);
+            Assert.NotNull(nullableHandlerInfo);
+            var handlerInfo = nullableHandlerInfo.Value;
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);
@@ -100,17 +103,18 @@ namespace StateMechanicUnitTests
         [Test]
         public void CorrectInfoIsGivenInEntryHandlerT()
         {
-            StateHandlerInfo<State> handlerInfo = null;
+            StateHandlerInfo<State>? nullableHandlerInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event<int>("Event");
             var state1 = sm.CreateInitialState("State 1");
-            var state2 = sm.CreateState("State 2").WithEntry(i => handlerInfo = i);
+            var state2 = sm.CreateState("State 2").WithEntry(i => nullableHandlerInfo = i);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire(3);
 
-            Assert.NotNull(handlerInfo);
+            Assert.NotNull(nullableHandlerInfo);
+            var handlerInfo = nullableHandlerInfo.Value;
             Assert.AreEqual(state1, handlerInfo.From);
             Assert.AreEqual(state2, handlerInfo.To);
             Assert.AreEqual(evt, handlerInfo.Event);

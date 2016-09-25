@@ -94,19 +94,20 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitioningToChildStateMachineCallsEntryHandlerOnInitialState()
         {
-            StateHandlerInfo<State> state21EntryInfo = null;
+            StateHandlerInfo<State>? nullableState21EntryInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var subSm = state2.CreateChildStateMachine();
-            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
+            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => nullableState21EntryInfo = i);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(state21EntryInfo);
+            Assert.NotNull(nullableState21EntryInfo);
+            var state21EntryInfo = nullableState21EntryInfo.Value;
             Assert.AreEqual(state1, state21EntryInfo.From);
             Assert.AreEqual(state21, state21EntryInfo.To);
             Assert.AreEqual(evt, state21EntryInfo.Event);
@@ -115,7 +116,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitioningToTwoChildStateMachinesCallsEntryHandlerOnInitialState()
         {
-            StateHandlerInfo<State> state211EntryInfo = null;
+            StateHandlerInfo<State>? nullableState211EntryInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
@@ -124,12 +125,13 @@ namespace StateMechanicUnitTests
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
             var subSubSm = state21.CreateChildStateMachine("subSubSm");
-            var state211 = subSubSm.CreateInitialState("State 2.1.1").WithEntry(i => state211EntryInfo = i);
+            var state211 = subSubSm.CreateInitialState("State 2.1.1").WithEntry(i => nullableState211EntryInfo = i);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(state211EntryInfo);
+            Assert.NotNull(nullableState211EntryInfo);
+            var state211EntryInfo = nullableState211EntryInfo.Value;
             Assert.AreEqual(state1, state211EntryInfo.From);
             Assert.AreEqual(state211, state211EntryInfo.To);
             Assert.AreEqual(evt, state211EntryInfo.Event);
@@ -138,7 +140,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitioningFromChildStateMachineCallsExitHandlerOnCurrentState()
         {
-            StateHandlerInfo<State> state22ExitInfo = null;
+            StateHandlerInfo<State>? nullableState22ExitInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt1 = new Event("Event 1");
@@ -147,7 +149,7 @@ namespace StateMechanicUnitTests
             var state2 = sm.CreateState("State 2");
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
-            var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
+            var state22 = subSm.CreateState("State 2.2").WithExit(i => nullableState22ExitInfo = i);
 
             state1.TransitionOn(evt1).To(state2);
             state2.TransitionOn(evt2).To(state1);
@@ -160,7 +162,8 @@ namespace StateMechanicUnitTests
             // Transition from state2 to state1, exiting the child state machine
             evt2.Fire();
 
-            Assert.NotNull(state22ExitInfo);
+            Assert.NotNull(nullableState22ExitInfo);
+            var state22ExitInfo = nullableState22ExitInfo.Value;
             Assert.AreEqual(state22, state22ExitInfo.From);
             Assert.AreEqual(state1, state22ExitInfo.To);
             Assert.AreEqual(evt2, state22ExitInfo.Event);
@@ -169,7 +172,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void TransitioningFromTwoChildStateMachinesCallsExitHandlerOnCurrentState()
         {
-            StateHandlerInfo<State> state212ExitInfo = null;
+            StateHandlerInfo<State>? nullableState212ExitInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt1 = new Event("Event 1");
@@ -180,7 +183,7 @@ namespace StateMechanicUnitTests
             var state21 = subSm.CreateInitialState("State 2.1");
             var subSubSm = state21.CreateChildStateMachine();
             var state211 = subSubSm.CreateInitialState("State 2.1.1");
-            var state212 = subSubSm.CreateState("State 2.1.2").WithExit(i => state212ExitInfo = i);
+            var state212 = subSubSm.CreateState("State 2.1.2").WithExit(i => nullableState212ExitInfo = i);
 
             state1.TransitionOn(evt1).To(state2);
             state2.TransitionOn(evt2).To(state1);
@@ -193,7 +196,8 @@ namespace StateMechanicUnitTests
             // Transition from state2 to state1, exiting the child state machine
             evt2.Fire();
 
-            Assert.NotNull(state212ExitInfo);
+            Assert.NotNull(nullableState212ExitInfo);
+            var state212ExitInfo = nullableState212ExitInfo.Value;
             Assert.AreEqual(state212, state212ExitInfo.From);
             Assert.AreEqual(state1, state212ExitInfo.To);
             Assert.AreEqual(evt2, state212ExitInfo.Event);
@@ -202,18 +206,19 @@ namespace StateMechanicUnitTests
         [Test]
         public void ForcefullyTransitioningToChildStateMachineCallsEntryHandlerOnInitialState()
         {
-            StateHandlerInfo<State> state21EntryInfo = null;
+            StateHandlerInfo<State>? nullableState21EntryInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt = new Event("Event");
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var subSm = state2.CreateChildStateMachine();
-            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => state21EntryInfo = i);
+            var state21 = subSm.CreateInitialState("State 2.1").WithEntry(i => nullableState21EntryInfo = i);
 
             sm.ForceTransition(state2, evt);
 
-            Assert.NotNull(state21EntryInfo);
+            Assert.NotNull(nullableState21EntryInfo);
+            var state21EntryInfo = nullableState21EntryInfo.Value;
             Assert.AreEqual(state1, state21EntryInfo.From);
             Assert.AreEqual(state21, state21EntryInfo.To);
             Assert.AreEqual(evt, state21EntryInfo.Event);
@@ -222,7 +227,7 @@ namespace StateMechanicUnitTests
         [Test]
         public void ForcefullyTransitioningFromChildStateMachineCallsExitHandlerOnCurrentState()
         {
-            StateHandlerInfo<State> state22ExitInfo = null;
+            StateHandlerInfo<State>? nullableState22ExitInfo = null;
 
             var sm = new StateMachine("State Machine");
             var evt1 = new Event("Event 1");
@@ -230,7 +235,7 @@ namespace StateMechanicUnitTests
             var state2 = sm.CreateState("State 2");
             var subSm = state2.CreateChildStateMachine();
             var state21 = subSm.CreateInitialState("State 2.1");
-            var state22 = subSm.CreateState("State 2.2").WithExit(i => state22ExitInfo = i);
+            var state22 = subSm.CreateState("State 2.2").WithExit(i => nullableState22ExitInfo = i);
 
             state1.TransitionOn(evt1).To(state2);
             state21.TransitionOn(evt1).To(state22);
@@ -242,7 +247,8 @@ namespace StateMechanicUnitTests
             // Transition from state2 to state1, exiting the child state machine
             sm.ForceTransition(state1, evt1);
 
-            Assert.NotNull(state22ExitInfo);
+            Assert.NotNull(nullableState22ExitInfo);
+            var state22ExitInfo = nullableState22ExitInfo.Value;
             Assert.AreEqual(state22, state22ExitInfo.From);
             Assert.AreEqual(state1, state22ExitInfo.To);
             Assert.AreEqual(evt1, state22ExitInfo.Event);
