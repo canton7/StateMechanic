@@ -115,8 +115,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Transition.tt</DependentUpon>
     </Compile>
-    <Compile Include="TransitionBuilder`2.cs" />
-    <Compile Include="TransitionBuilder`1.cs" />
+    <Compile Include="TransitionBuilder.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TransitionBuilder.tt</DependentUpon>
+    </Compile>
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionFailedException.cs" />
     <Compile Include="EventIgnoredEventArgs.cs" />
@@ -144,6 +147,10 @@
     <Content Include="Transition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Transition.cs</LastGenOutput>
+    </Content>
+    <Content Include="TransitionBuilder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TransitionBuilder.cs</LastGenOutput>
     </Content>
     <Content Include="TransitionInfo.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
