@@ -1,22 +1,34 @@
 ﻿namespace StateMechanic
 {
-    internal class EventTransitionInvoker<TState, TEventData> : ITransitionInvoker<TState> where TState : IState
+    internal class EventTransitionInvoker<TState, TEventData> : ITransitionInvoker<TState> where TState : StateBase<TState>, new()
     {
         private readonly Event<TEventData> @event;
         private readonly TEventData eventData;
+        private readonly ITransitionDelegate<TState> transitionDelegate;
 
         public EventFireMethod EventFireMethod { get; }
         public IEvent Event => this.@event;
 
-        public EventTransitionInvoker(Event<TEventData> @event, EventFireMethod eventFireMethod, TEventData eventData)
+        public EventTransitionInvoker(Event<TEventData> @event, EventFireMethod eventFireMethod, TEventData eventData, ITransitionDelegate<TState> transitionDelegate)
         {
             this.@event = @event;
             this.EventFireMethod = eventFireMethod;
             this.eventData = eventData;
+            this.transitionDelegate = transitionDelegate;
         }
 
         public bool TryInvoke(TState sourceState)
         {
+            var customTo = sourceState.HandleEvent(this.Event, this.eventData);
+            if (customTo != null)
+            {
+                var invoker = new ForcedTransitionInvoker<TState>(customTo, this.Event, this.eventData, this.transitionDelegate);
+                // This shouldn't fail
+                bool success = invoker.TryInvoke(sourceState);
+                Trace.Assert(success, "Forced transition did not succeed");
+                return true;
+            }
+
             foreach (var transition in this.@event.GetTransitionsFromState(sourceState))
             {
                 if (transition.TryInvoke(this.eventData, this.EventFireMethod))

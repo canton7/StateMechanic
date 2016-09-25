@@ -1,11 +1,19 @@
-﻿using System;
+﻿
+
+
+
+
+
+using System;
 
 namespace StateMechanic
 {
+
     /// <summary>
     /// A transition from one state to another, triggered by an event, where the destination state is determined by a user-supplied callback
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
+
     public class DynamicTransition<TState> : ITransition<TState>, IInvokableTransition
         where TState : StateBase<TState>, new()
     {
@@ -75,7 +83,7 @@ namespace StateMechanic
             if (to == null)
                 return false;
 
-            if (!this.From.CanTransition(this.Event, to))
+            if (!this.From.CanTransition(this.Event, to, null))
                 return false;
 
             var transitionInfo = new TransitionInfo<TState>(this.From, to, this.Event, false, eventFireMethod);
@@ -96,11 +104,15 @@ namespace StateMechanic
         }
     }
 
+
+
     /// <summary>
     /// A transition from one state to another, triggered by an event, where the destination state is determined by a user-supplied callback
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
+
     /// <typeparam name="TEventData">Type of event data associated with the event which triggers this transition</typeparam>
+
     public class DynamicTransition<TState, TEventData> : ITransition<TState>, IInvokableTransition<TEventData>
         where TState : StateBase<TState>, new()
     {
@@ -170,7 +182,7 @@ namespace StateMechanic
             if (to == null)
                 return false;
 
-            if (!this.From.CanTransition(this.Event, to))
+            if (!this.From.CanTransition(this.Event, to, eventData))
                 return false;
 
             var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, to, this.Event, eventData, false, eventFireMethod);
@@ -190,5 +202,6 @@ namespace StateMechanic
             return to;
         }
     }
+
 }
 

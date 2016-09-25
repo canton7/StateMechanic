@@ -10,7 +10,7 @@ namespace StateMechanic
 {
 
     /// <summary>
-    /// A transition from one state to another, triggered by an event
+    /// A transition from one state to another, triggered by an eventf
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
 
@@ -107,7 +107,7 @@ namespace StateMechanic
         bool IInvokableTransition.TryInvoke(EventFireMethod eventFireMethod)
 
         {
-            if (!this.From.CanTransition(this.Event, this.To))
+            if (!this.From.CanTransition(this.Event, this.To, null))
                 return false;
 
             var transitionInfo = new TransitionInfo<TState>(this.From, this.To, this.Event, this.IsInnerTransition, eventFireMethod);
@@ -135,7 +135,7 @@ namespace StateMechanic
 
 
     /// <summary>
-    /// A transition from one state to another, triggered by an event
+    /// A transition from one state to another, triggered by an eventf
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
 
@@ -233,7 +233,7 @@ namespace StateMechanic
         bool IInvokableTransition<TEventData>.TryInvoke(TEventData eventData, EventFireMethod eventFireMethod)
 
         {
-            if (!this.From.CanTransition(this.Event, this.To))
+            if (!this.From.CanTransition(this.Event, this.To, eventData))
                 return false;
 
             var transitionInfo = new TransitionInfo<TState, TEventData>(this.From, this.To, this.Event, eventData, this.IsInnerTransition, eventFireMethod);

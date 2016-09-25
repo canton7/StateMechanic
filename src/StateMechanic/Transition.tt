@@ -21,7 +21,7 @@ private void Create(bool hasEventData)
     string transitionInfoType = hasEventData ? "TransitionInfo<TState, TEventData>" : "TransitionInfo<TState>";
 #>
     /// <summary>
-    /// A transition from one state to another, triggered by an event
+    /// A transition from one state to another, triggered by an eventf
     /// </summary>
     /// <typeparam name="TState">Type of state which this transition is between</typeparam>
 <#+
@@ -140,7 +140,7 @@ private void Create(bool hasEventData)
         }
 #>
         {
-            if (!this.From.CanTransition(this.Event, this.To))
+            if (!this.From.CanTransition(this.Event, this.To, <#= hasEventData ? "eventData" : "null" #>))
                 return false;
 
             var transitionInfo = new <#= transitionInfoType #>(this.From, this.To, this.Event, <#= hasEventData ? "eventData, " : "" #>this.IsInnerTransition, eventFireMethod);

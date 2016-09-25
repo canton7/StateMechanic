@@ -17,7 +17,7 @@
 
         public bool TryInvoke(TState sourceState)
         {
-            var customTo = sourceState.HandleEvent(this.Event);
+            var customTo = sourceState.HandleEvent(this.Event, null);
             if (customTo != null)
             {
                 var invoker = new ForcedTransitionInvoker<TState>(customTo, this.Event, null, this.transitionDelegate);

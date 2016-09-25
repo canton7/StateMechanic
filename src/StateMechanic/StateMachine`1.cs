@@ -90,7 +90,7 @@ namespace StateMechanic
 
         bool IEventDelegate.RequestEventFireFromEvent<TEventData>(Event<TEventData> @event, TEventData eventData, EventFireMethod eventFireMethod)
         {
-            var transitionInvoker = new EventTransitionInvoker<TState, TEventData>(@event, eventFireMethod, eventData);
+            var transitionInvoker = new EventTransitionInvoker<TState, TEventData>(@event, eventFireMethod, eventData, this);
             return this.RequestEventFireFromEvent(transitionInvoker);
         }
 

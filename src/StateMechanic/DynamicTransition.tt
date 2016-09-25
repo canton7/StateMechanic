@@ -104,7 +104,7 @@ private void Create(bool hasEventData)
             if (to == null)
                 return false;
 
-            if (!this.From.CanTransition(this.Event, to))
+            if (!this.From.CanTransition(this.Event, to, <#= hasEventData ? "eventData" : "null" #>))
                 return false;
 
             var transitionInfo = new <#= transitionInfoType #>(this.From, to, this.Event, <#= hasEventData ? "eventData, " : "" #>false, eventFireMethod);
