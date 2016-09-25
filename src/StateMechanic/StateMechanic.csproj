@@ -59,8 +59,11 @@
       <DependentUpon>Event.tt</DependentUpon>
     </Compile>
     <Compile Include="EventFireMethod.cs" />
-    <Compile Include="EventTransitionInvoker`1.cs" />
-    <Compile Include="EventTransitionInvoker`2.cs" />
+    <Compile Include="EventTransitionInvoker.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EventTransitionInvoker.tt</DependentUpon>
+    </Compile>
     <Compile Include="ExcludeFromCoverageAttribute.cs" />
     <Compile Include="FaultedComponent.cs" />
     <Compile Include="ForcedTransitionInfo.cs" />
@@ -146,6 +149,10 @@
     <Content Include="Event.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Event.cs</LastGenOutput>
+    </Content>
+    <Content Include="EventTransitionInvoker.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EventTransitionInvoker.cs</LastGenOutput>
     </Content>
     <Content Include="IgnoredTransition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
