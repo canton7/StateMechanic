@@ -26,7 +26,7 @@ private void Create(bool hasEventData)
     {
 #>
     /// <typeparam name="TEventData">Type of event data</typeparam>
-    public class DynamicSelectorInfo<TState, TEventData>
+    public struct DynamicSelectorInfo<TState, TEventData>
 <#+
     }
     else
