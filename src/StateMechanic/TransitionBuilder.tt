@@ -1,0 +1,64 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+
+namespace StateMechanic
+{
+<# Create(false); #>
+
+<# Create(true); #>
+}
+
+<#+
+private void Create(bool hasEventData)
+{
+    string transitionBuilderType = hasEventData ? "TransitionBuilder<TState, TEventData>" : "TransitionBuilder<TState>";
+    string eventType = hasEventData ? "Event<TEventData>" : "Event";
+    string transitionType = hasEventData ? "Transition<TState, TEventData>" : "Transition<TState>";
+    string dynamicTransitionType = hasEventData ? "DynamicTransition<TState, TEventData>" : "DynamicTransition<TState>";
+    string dynamicSelectorInfoType = hasEventData ? "DynamicSelectorInfo<TState, TEventData>" : "DynamicSelectorInfo<TState>";
+
+#>
+    internal class <#= transitionBuilderType #> : I<#= transitionBuilderType #>
+        where TState : StateBase<TState>, new()
+    {
+        private readonly TState fromState;
+        private readonly <#= eventType #> @event;
+        private readonly ITransitionDelegate<TState> transitionDelegate;
+
+        public TransitionBuilder(TState fromState, <#= eventType #> @event, ITransitionDelegate<TState> transitionDelegate)
+        {
+            this.fromState = fromState;
+            this.@event = @event;
+            this.transitionDelegate = transitionDelegate;
+        }
+
+        public <#= transitionType #> To(TState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+
+            var transition = new <#= transitionType #>(this.fromState, state, this.@event, this.transitionDelegate);
+            this.@event.AddTransition(this.fromState, transition, this.fromState.ParentStateMachine.TopmostStateMachineInternal);
+            this.fromState.AddTransition(transition);
+            return transition;
+        }
+
+        public <#= dynamicTransitionType #> ToDynamic(Func<<#= dynamicSelectorInfoType #>, TState> stateSelector)
+        {
+            if (stateSelector == null)
+                throw new ArgumentNullException(nameof(stateSelector));
+
+            var transition = new <#= dynamicTransitionType #>(this.fromState, this.@event, stateSelector, this.transitionDelegate);
+            this.@event.AddTransition(this.fromState, transition, this.fromState.ParentStateMachine.TopmostStateMachineInternal);
+            this.fromState.AddTransition(transition);
+            return transition;
+        }
+    }
+<#+
+}
+#>

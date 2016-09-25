@@ -1,6 +1,32 @@
-﻿namespace StateMechanic
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+namespace StateMechanic
 {
+<# Create(false); #>
+
+<# Create(true); #>
+}
+
+<#+
+public void Create(bool hasEventData)
+{
+    if (hasEventData)
+    {
+#>
     internal class IgnoredTransition<TState, TEventData> : IInvokableTransition<TEventData>
+<#+
+    }
+    else
+    {
+#>
+    internal class IgnoredTransition<TState> : IInvokableTransition  
+<#+
+    }
+#>
         where TState : StateBase<TState>, new()
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
@@ -16,7 +42,7 @@
             this.@event = @event;
         }
 
-        public bool TryInvoke(TEventData eventData, EventFireMethod eventFireMethod)
+        public bool TryInvoke(<#= hasEventData ? "TEventData eventData, " : "" #>EventFireMethod eventFireMethod)
         {
             this.transitionDelegate.IgnoreTransition(this.fromState, this.@event, eventFireMethod);
             return true;
@@ -27,4 +53,6 @@
             return $"<IgnoredTransition Event={this.@event}>";
         }
     }
+<#+
 }
+#>

@@ -17,7 +17,7 @@
 
         public bool TryInvoke(TState sourceState)
         {
-            foreach (var transition in this.@event.GetTransitionsForState(sourceState))
+            foreach (var transition in this.@event.GetTransitionsFromState(sourceState))
             {
                 if (transition.TryInvoke(this.eventData, this.EventFireMethod))
                     return true;
