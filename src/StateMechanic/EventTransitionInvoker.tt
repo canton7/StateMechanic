@@ -18,7 +18,7 @@ private void Create(bool hasEventData)
     string eventType = hasEventData ? "Event<TEventData>" : "Event";
 
 #>
-    internal class <#= eventTransitionInvokerType #> : ITransitionInvoker<TState>
+    internal struct <#= eventTransitionInvokerType #> : ITransitionInvoker<TState>
         where TState : StateBase<TState>, new()
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;

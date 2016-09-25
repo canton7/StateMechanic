@@ -10,7 +10,7 @@ namespace StateMechanic
     public class StateMachine<TState> : ChildStateMachine<TState>, IEventDelegate, ITransitionDelegate<TState>
         where TState : StateBase<TState>, new()
     {
-        private readonly Queue<TransitionQueueItem> transitionQueue = new Queue<TransitionQueueItem>();
+        private readonly Queue<ITransitionQueueItem> transitionQueue = new Queue<ITransitionQueueItem>();
         private bool executingTransition;
 
         internal override StateMachine<TState> TopmostStateMachineInternal => this;
@@ -95,7 +95,8 @@ namespace StateMechanic
         }
 
         // invoker: Action which actually triggers the transition. Takes the state to transition from, and returns whether the transition was found
-        private bool RequestEventFireFromEvent(ITransitionInvoker<TState> transitionInvoker)
+        private bool RequestEventFireFromEvent<TTransitionInvoker>(TTransitionInvoker transitionInvoker)
+            where TTransitionInvoker : ITransitionInvoker<TState>
         {
             if (this.Synchronizer != null)
                 return this.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
@@ -103,13 +104,14 @@ namespace StateMechanic
                 return this.InvokeTransition(this.RequestEventFire, transitionInvoker);
         }
 
-        private bool InvokeTransition(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
+        private bool InvokeTransition<TTransitionInvoker>(Func<TTransitionInvoker, bool> method, TTransitionInvoker transitionInvoker)
+            where TTransitionInvoker : ITransitionInvoker<TState>
         {
             this.EnsureNoFault();
 
             if (this.executingTransition)
             {
-                this.transitionQueue.Enqueue(new TransitionQueueItem(method, transitionInvoker));
+                this.transitionQueue.Enqueue(new TransitionQueueItem<TTransitionInvoker>(method, transitionInvoker));
                 return true;
             }
 
@@ -151,7 +153,7 @@ namespace StateMechanic
             {
                 // If Fire fails, that affects the status of the outer parent transition. TryFire will not
                 var item = this.transitionQueue.Dequeue();
-                item.Method(item.TransitionInvoker);
+                item.Invoke();
             }
         }
 
@@ -326,7 +328,8 @@ namespace StateMechanic
                 this.InvokeTransition(this.ForceTransitionImpl, transitionInvoker);
         }
 
-        private bool ForceTransitionImpl(ITransitionInvoker<TState> transitionInvoker)
+        private bool ForceTransitionImpl<TTransitionInvoker>(TTransitionInvoker transitionInvoker)
+            where TTransitionInvoker : ITransitionInvoker<TState>
         {
             transitionInvoker.TryInvoke(this.CurrentState);
             return true;
@@ -438,15 +441,26 @@ namespace StateMechanic
 
         #endregion
 
-        private struct TransitionQueueItem
+        private interface ITransitionQueueItem
         {
-            public readonly Func<ITransitionInvoker<TState>, bool> Method;
-            public readonly ITransitionInvoker<TState> TransitionInvoker;
+            void Invoke();
+        }
 
-            public TransitionQueueItem(Func<ITransitionInvoker<TState>, bool> method, ITransitionInvoker<TState> transitionInvoker)
+        private class TransitionQueueItem<TTransitionInvoker> : ITransitionQueueItem
+            where TTransitionInvoker : ITransitionInvoker<TState>
+        {
+            private readonly Func<TTransitionInvoker, bool> method;
+            private readonly TTransitionInvoker transitionInvoker;
+
+            public TransitionQueueItem(Func<TTransitionInvoker, bool> method, TTransitionInvoker transitionInvoker)
             {
-                this.Method = method;
-                this.TransitionInvoker = transitionInvoker;
+                this.method = method;
+                this.transitionInvoker = transitionInvoker;
+            }
+
+            public void Invoke()
+            {
+                this.method(this.transitionInvoker);
             }
         }
     }

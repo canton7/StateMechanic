@@ -1,6 +1,6 @@
 ﻿namespace StateMechanic
 {
-    internal class EventTransitionInvoker<TState> : ITransitionInvoker<TState>
+    internal struct EventTransitionInvoker<TState> : ITransitionInvoker<TState>
         where TState : StateBase<TState>, new()
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;
@@ -38,7 +38,7 @@
         }
     }
 
-    internal class EventTransitionInvoker<TState, TEventData> : ITransitionInvoker<TState>
+    internal struct EventTransitionInvoker<TState, TEventData> : ITransitionInvoker<TState>
         where TState : StateBase<TState>, new()
     {
         private readonly ITransitionDelegate<TState> transitionDelegate;

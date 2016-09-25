@@ -211,7 +211,8 @@ namespace StateMechanic
         }
 
         // I'd make this protected *and* internal if I could
-        internal bool RequestEventFire(ITransitionInvoker<TState> transitionInvoker)
+        internal bool RequestEventFire<TTransitionInvoker>(TTransitionInvoker transitionInvoker)
+            where TTransitionInvoker : ITransitionInvoker<TState>
         {
             this.EnsureCurrentStateSuitableForTransition();
 
