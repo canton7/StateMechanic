@@ -120,8 +120,11 @@
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionFailedException.cs" />
     <Compile Include="EventIgnoredEventArgs.cs" />
-    <Compile Include="TransitionInfo`1.cs" />
-    <Compile Include="TransitionInfo`2.cs" />
+    <Compile Include="TransitionInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TransitionInfo.tt</DependentUpon>
+    </Compile>
     <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
   </ItemGroup>
@@ -141,6 +144,10 @@
     <Content Include="Transition.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Transition.cs</LastGenOutput>
+    </Content>
+    <Content Include="TransitionInfo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TransitionInfo.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>
