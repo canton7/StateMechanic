@@ -252,15 +252,6 @@ namespace StateMechanic
 
         private void EnterState(StateHandlerInfo<TState> info)
         {
-            try
-            {
-                info.To.OnEntry(info);
-            }
-            catch (Exception e)
-            {
-                throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.EntryHandler, e);
-            }
-
             foreach (var group in info.To.Groups)
             {
                 // We could use .Except, but that uses a HashSet which is complete overkill here
@@ -276,6 +267,16 @@ namespace StateMechanic
                     throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.GroupEntryHandler, e, group);
                 }
             }
+
+            try
+            {
+                info.To.OnEntry(info);
+            }
+            catch (Exception e)
+            {
+                throw new InternalTransitionFaultException(info.From, info.To, info.Event, FaultedComponent.EntryHandler, e);
+            }
+
         }
 
         void ITransitionDelegate<TState>.IgnoreTransition(TState fromState, IEvent @event, EventFireMethod eventFireMethod)
