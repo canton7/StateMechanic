@@ -43,25 +43,38 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChildStateMachine`1.cs" />
-    <Compile Include="DynamicSelectorInfo`1.cs" />
-    <Compile Include="DynamicSelectorInfo`2.cs" />
-    <Compile Include="DynamicTransitionInner.cs" />
-    <Compile Include="DynamicTransition`1.cs" />
-    <Compile Include="DynamicTransition`2.cs" />
-    <Compile Include="Event.cs" />
+    <Compile Include="DynamicSelectorInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DynamicSelectorInfo.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DynamicTransition.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DynamicTransition.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Event.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Event.tt</DependentUpon>
+    </Compile>
     <Compile Include="EventFireMethod.cs" />
-    <Compile Include="EventInner.cs" />
-    <Compile Include="EventTransitionInvoker`1.cs" />
-    <Compile Include="EventTransitionInvoker`2.cs" />
-    <Compile Include="Event`1.cs" />
+    <Compile Include="EventTransitionInvoker.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EventTransitionInvoker.tt</DependentUpon>
+    </Compile>
     <Compile Include="ExcludeFromCoverageAttribute.cs" />
     <Compile Include="FaultedComponent.cs" />
     <Compile Include="ForcedTransitionInfo.cs" />
     <Compile Include="ForcedTransitionInvoker.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDelegate.cs" />
-    <Compile Include="IgnoredTransition`1.cs" />
-    <Compile Include="IgnoredTransition`2.cs" />
+    <Compile Include="IgnoredTransition.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IgnoredTransition.tt</DependentUpon>
+    </Compile>
     <Compile Include="IInvokableTransition.cs" />
     <Compile Include="InternalTransitionFaultException.cs" />
     <Compile Include="InvalidEventSetupException.cs" />
@@ -86,6 +99,7 @@
     <Compile Include="OperationInner.cs" />
     <Compile Include="Operation`1.cs" />
     <Compile Include="Operation`2.cs" />
+    <Compile Include="OptimizingList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateBase`1.cs" />
     <Compile Include="StateGroup.cs" />
@@ -102,18 +116,63 @@
     <Compile Include="StateMachine`1.cs" />
     <Compile Include="State`1.cs" />
     <Compile Include="Trace.cs" />
-    <Compile Include="TransitionBuilder`2.cs" />
-    <Compile Include="TransitionBuilder`1.cs" />
+    <Compile Include="Transition.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Transition.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TransitionBuilder.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TransitionBuilder.tt</DependentUpon>
+    </Compile>
     <Compile Include="TransitionEventArgs.cs" />
     <Compile Include="TransitionFailedException.cs" />
     <Compile Include="EventIgnoredEventArgs.cs" />
-    <Compile Include="TransitionInfo`1.cs" />
-    <Compile Include="TransitionInfo`2.cs" />
-    <Compile Include="TransitionInner.cs" />
+    <Compile Include="TransitionInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TransitionInfo.tt</DependentUpon>
+    </Compile>
     <Compile Include="TransitionNotFoundEventArgs.cs" />
     <Compile Include="TransitionNotFoundException.cs" />
-    <Compile Include="Transition`1.cs" />
-    <Compile Include="Transition`2.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DynamicSelectorInfo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DynamicSelectorInfo.cs</LastGenOutput>
+    </Content>
+    <Content Include="DynamicTransition.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DynamicTransition.cs</LastGenOutput>
+    </Content>
+    <Content Include="Event.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Event.cs</LastGenOutput>
+    </Content>
+    <Content Include="EventTransitionInvoker.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EventTransitionInvoker.cs</LastGenOutput>
+    </Content>
+    <Content Include="IgnoredTransition.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IgnoredTransition.cs</LastGenOutput>
+    </Content>
+    <Content Include="Transition.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Transition.cs</LastGenOutput>
+    </Content>
+    <Content Include="TransitionBuilder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TransitionBuilder.cs</LastGenOutput>
+    </Content>
+    <Content Include="TransitionInfo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TransitionInfo.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

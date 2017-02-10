@@ -80,15 +80,16 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
-            StateHandlerInfo<State> info = null;
+            StateHandlerInfo<State>? nullableInfo = null;
             var group = new StateGroup<State>("Group")
-                .WithEntry(i => info = i);
+                .WithEntry(i => nullableInfo = i);
             state2.AddToGroup(group);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(info);
+            Assert.NotNull(nullableInfo);
+            var info = nullableInfo.Value;
             Assert.AreEqual(state1, info.From);
             Assert.AreEqual(state2, info.To);
             Assert.AreEqual(evt, info.Event);
@@ -101,15 +102,16 @@ namespace StateMechanicUnitTests
             var state1 = sm.CreateInitialState("State 1");
             var state2 = sm.CreateState("State 2");
             var evt = new Event("Event");
-            StateHandlerInfo<State> info = null;
+            StateHandlerInfo<State>? nullableInfo = null;
             var group = new StateGroup<State>("Group")
-                .WithExit(i => info = i);
+                .WithExit(i => nullableInfo = i);
             state1.AddToGroup(group);
             state1.TransitionOn(evt).To(state2);
 
             evt.Fire();
 
-            Assert.NotNull(info);
+            Assert.NotNull(nullableInfo);
+            var info = nullableInfo.Value;
             Assert.AreEqual(state1, info.From);
             Assert.AreEqual(state2, info.To);
             Assert.AreEqual(evt, info.Event);

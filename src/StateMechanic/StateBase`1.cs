@@ -340,12 +340,12 @@ namespace StateMechanic
         /// use whatever was configured in the transitions.
         /// </summary>
         /// <param name="event">Event that was fired</param>
+        /// <param name="eventData">Untyped event data associated with the event, if any</param>
         /// <returns>State to transition to, or null</returns>
-        protected internal virtual TState HandleEvent(IEvent @event)
+        protected internal virtual TState HandleEvent(IEvent @event, object eventData)
         {
             return null;
         }
-
 
         /// <summary>
         /// Optional override point. If overridden, will be called before a transition occurs, and can return
@@ -353,8 +353,9 @@ namespace StateMechanic
         /// </summary>
         /// <param name="event">Event which triggered the transition</param>
         /// <param name="to">State to transition to</param>
+        /// <param name="eventData">Untyped event data associated with the event, if any</param>
         /// <returns>False to abort the transition, true to continue</returns>
-        protected internal virtual bool CanTransition(IEvent @event, TState to)
+        protected internal virtual bool CanTransition(IEvent @event, TState to, object eventData)
         {
             return true;
         }

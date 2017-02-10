@@ -31,21 +31,25 @@ namespace StateMechanicUnitTests
         {
             public IEvent CanTransitionEvent;
             public State CanTransitionTo;
+            public object CanTransitionEventData;
             public bool CanTransitionResult = true;
 
-            protected override bool CanTransition(IEvent @event, State to)
+            protected override bool CanTransition(IEvent @event, State to, object eventData)
             {
                 this.CanTransitionEvent = @event;
                 this.CanTransitionTo = to;
+                this.CanTransitionEventData = eventData;
                 return this.CanTransitionResult;
             }
 
             public IEvent HandleEventEvent;
+            public object HandleEventEventData;
             public State HandleEventResult;
 
-            protected override State HandleEvent(IEvent @event)
+            protected override State HandleEvent(IEvent @event, object eventData)
             {
                 this.HandleEventEvent = @event;
+                this.HandleEventEventData = eventData;
                 return this.HandleEventResult;
             }
 
@@ -112,6 +116,7 @@ namespace StateMechanicUnitTests
 
             Assert.AreEqual(state2, state1.CanTransitionTo);
             Assert.AreEqual(evt, state1.CanTransitionEvent);
+            Assert.Null(state1.CanTransitionEventData);
         }
 
         [Test]
@@ -127,6 +132,7 @@ namespace StateMechanicUnitTests
 
             Assert.AreEqual(state2, state1.CanTransitionTo);
             Assert.AreEqual(evt, state1.CanTransitionEvent);
+            Assert.Null(state1.CanTransitionEventData);
         }
 
         [Test]
@@ -142,6 +148,7 @@ namespace StateMechanicUnitTests
 
             Assert.AreEqual(state2, state1.CanTransitionTo);
             Assert.AreEqual(evt, state1.CanTransitionEvent);
+            Assert.AreEqual("foo", state1.CanTransitionEventData);
         }
 
         [Test]
@@ -157,6 +164,7 @@ namespace StateMechanicUnitTests
 
             Assert.AreEqual(state2, state1.CanTransitionTo);
             Assert.AreEqual(evt, state1.CanTransitionEvent);
+            Assert.AreEqual("foo", state1.CanTransitionEventData);
         }
 
         [Test]
@@ -223,6 +231,7 @@ namespace StateMechanicUnitTests
             evt.Fire();
 
             Assert.AreEqual(evt, state1.HandleEventEvent);
+            Assert.Null(state1.HandleEventEventData);
         }
         
         [Test]
@@ -253,6 +262,7 @@ namespace StateMechanicUnitTests
             evt.Fire();
 
             Assert.AreEqual(evt, state1.HandleEventEvent);
+            Assert.Null(state1.HandleEventEventData);
         }
 
         [Test]

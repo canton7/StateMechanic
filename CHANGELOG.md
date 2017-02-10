@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.3
+-----
+
+ - When entering a StateGroup, call the StateGroup's entry handler before calling the State's entry handler (#3)
+ - Pass EventData to State overridable methods
+ - Generally reduce allocations
+
 1.0.2
 -----
 

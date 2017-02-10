@@ -4,7 +4,7 @@
     /// Information given to state entry/exit handlers
     /// </summary>
     /// <typeparam name="TState">Type of state being transitioned from and to</typeparam>
-    public class StateHandlerInfo<TState>
+    public struct StateHandlerInfo<TState>
     {
         /// <summary>
         /// Gets the state this transition is from
