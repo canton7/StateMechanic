@@ -32,7 +32,7 @@ private void Create(bool hasEventData)
     else
     {
 #>
-    public class DynamicSelectorInfo<TState>
+    public struct DynamicSelectorInfo<TState>
 <#+
     }
 #>
