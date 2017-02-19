@@ -7,6 +7,7 @@
         private readonly Event @event;
         
         public EventFireMethod EventFireMethod { get; }
+		public int EventFireMethodInt => (int)this.EventFireMethod;
         public IEvent Event => this.@event;
 
         public EventTransitionInvoker(Event @event, EventFireMethod eventFireMethod, ITransitionDelegate<TState> transitionDelegate)
@@ -46,6 +47,7 @@
         private readonly TEventData eventData;
         
         public EventFireMethod EventFireMethod { get; }
+		public int EventFireMethodInt => (int)this.EventFireMethod;
         public IEvent Event => this.@event;
 
         public EventTransitionInvoker(Event<TEventData> @event, EventFireMethod eventFireMethod, TEventData eventData, ITransitionDelegate<TState> transitionDelegate)

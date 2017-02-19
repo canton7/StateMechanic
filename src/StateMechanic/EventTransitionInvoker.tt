@@ -33,6 +33,7 @@ private void Create(bool hasEventData)
 #>
         
         public EventFireMethod EventFireMethod { get; }
+		public int EventFireMethodInt => (int)this.EventFireMethod;
         public IEvent Event => this.@event;
 
         public EventTransitionInvoker(<#= eventType #> @event, EventFireMethod eventFireMethod, <#= hasEventData ? "TEventData eventData, " : "" #>ITransitionDelegate<TState> transitionDelegate)

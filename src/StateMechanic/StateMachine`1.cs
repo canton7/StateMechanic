@@ -99,7 +99,7 @@ namespace StateMechanic
             where TTransitionInvoker : ITransitionInvoker<TState>
         {
             if (this.Synchronizer != null)
-                return this.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), transitionInvoker.EventFireMethod);
+                return this.Synchronizer.FireEvent(() => this.InvokeTransition(this.RequestEventFire, transitionInvoker), (EventFireMethod)transitionInvoker.EventFireMethodInt);
             else
                 return this.InvokeTransition(this.RequestEventFire, transitionInvoker);
         }
