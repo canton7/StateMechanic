@@ -181,20 +181,21 @@ namespace StateMechanicUnitTests
         [Test]
         public void StateSelectorGetsCorrectInfo()
         {
-            DynamicSelectorInfo<State> info = null;
+            DynamicSelectorInfo<State>? nullableInfo = null;
 
             var sm = new StateMachine("sm");
             var initial = sm.CreateInitialState("initial");
             var evt = new Event("evt");
             initial.TransitionOn(evt).ToDynamic(i =>
             {
-                info = i;
+                nullableInfo = i;
                 return initial;
             });
 
             evt.Fire();
 
-            Assert.NotNull(info);
+            Assert.NotNull(nullableInfo);
+            var info = nullableInfo.Value;
             Assert.AreEqual(initial, info.From);
             Assert.AreEqual(evt, info.Event);
         }

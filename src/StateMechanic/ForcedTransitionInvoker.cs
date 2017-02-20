@@ -10,6 +10,7 @@ namespace StateMechanic
         private readonly ITransitionDelegate<TState> transitionDelegate;
 
         public EventFireMethod EventFireMethod { get; }
+        public int EventFireMethodInt => (int)this.EventFireMethod;
         public IEvent Event { get; }
         public object EventData { get; }
 

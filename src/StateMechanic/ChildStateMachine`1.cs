@@ -231,7 +231,7 @@ namespace StateMechanic
                 success = transitionInvoker.TryInvoke(this.CurrentState);
 
                 if (!success)
-                    this.HandleTransitionNotFound(transitionInvoker.Event, transitionInvoker.EventFireMethod);
+                    this.HandleTransitionNotFound(transitionInvoker.Event, (EventFireMethod)transitionInvoker.EventFireMethodInt);
             }
 
             return success;
