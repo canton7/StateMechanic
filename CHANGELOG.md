@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.4
+-----
+
+ - Work around Mono AOT bug, which caused an assertion on Xamarin.iOS
+
 1.0.3
 -----
 
