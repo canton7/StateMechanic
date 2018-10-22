@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.0.5
+------
+
+ - Fix a bug where if there are more than 2 transitions defined from a specific state on a specific event, some transitions may be lost
+
 1.0.4
 -----
 
