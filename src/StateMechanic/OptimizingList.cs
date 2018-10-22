@@ -22,11 +22,17 @@ namespace StateMechanic
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
 
-            if (this.singleInstance == null)
+            // Either:
+            // 1. both singleInstance and multipleInstances are null: nothing in list, put in singleInstance
+            // 2. singleInstance is non-null, multipleInstances is null: single item, construct list and clear singleInstance
+            // 3. singleInstance is null, multipleInstances is not null: multiple items, add to list
+
+            
+            if (this.singleInstance == null && this.multipleInstances == null)
             {
                 this.singleInstance = item;
             }
-            else if (this.multipleInstances == null)
+            else if (this.singleInstance != null)
             {
                 this.multipleInstances = new List<T>()
                 {
@@ -35,7 +41,7 @@ namespace StateMechanic
                 };
                 this.singleInstance = null;
             }
-            else
+            else // if (this.multipleInstances != null)
             {
                 this.multipleInstances.Add(item);
             }
